@@ -1,0 +1,46 @@
+#version: "3.9"
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: catalog-db
+    restart: always
+    environment:
+      POSTGRES_DB: catalog-db
+      POSTGRES_USER: e-mall
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - catalog_data:/var/lib/postgresql/data
+    networks:
+      - catalog
+  app:
+    build: .
+    container_name: catalog-app
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/catalog-db
+      SPRING_DATASOURCE_USERNAME: e-mall
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+    networks:
+      - services
+      - catalog
+volumes:
+  catalog_data:
+
+networks:
+  services:
+    driver: bridge
+    internal: true
+    name: services
+
+  catalog:
+    driver: bridge
+    internal: true
+    name: catalog-db
