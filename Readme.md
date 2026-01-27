@@ -30,7 +30,7 @@ The **Catalog Service** is a microservice in the **E-mall System** responsible f
 
 | Component   | Port (Host) | Port (Container) |
 | ----------- |-------------| ---------------- |
-| campaigns App | 8082        | 8080             |
+| campaigns App | 8081        | 8080             |
 
 ---
 
