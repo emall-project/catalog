@@ -1,7 +1,7 @@
 #version: "3.9"
 
 services:
-  postgres:
+  catalog-db:
     image: postgres:17
     container_name: catalog-db
     restart: always
@@ -15,18 +15,34 @@ services:
       - catalog_data:/var/lib/postgresql/data
     networks:
       - catalog
-  app:
+  catalog-app:
     build: .
     container_name: catalog-app
     depends_on:
-      - postgres
-    ports:
-      - "8080:8080"
+      - catalog-db
+    expose:
+      - "8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/catalog-db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://catalog-db:5432/catalog
       SPRING_DATASOURCE_USERNAME: e-mall
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_PORT: 8080
+      SPRING_PROFILES_ACTIVE: prod
+
+
+      ##-------- Services Urls ---------
+      CAMPAIGNS_IP_ADDRESS: campaigns-app
+      CAMPAIGNS_PORT: 8080
+      ACCOUNTS_IP_ADDRESS: accounts-app
+      ACCOUNTS_PORT: 8080
+      ORDER_HUB_IP_ADDRESS: order-hub-app
+      ORDER_HUB_PORT: 8080
+      MEDIA_MANAGER_IP_ADDRESS: media-manager-app
+      MEDIA_MANAGER_PORT: 8080
+
+
+
 
     networks:
       - services

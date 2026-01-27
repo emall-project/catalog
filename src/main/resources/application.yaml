@@ -1,22 +1,26 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/catalog-db}
-    username: ${SPRING_DATASOURCE_USERNAME:e-mall}
-    password: ${SPRING_DATASOURCE_PASSWORD:root}
-
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
 
-  sql:
-    init:
-      mode: never
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
 
-server:
-  port: 8080
+
+services:
+  campaigns:
+    host: ${CAMPAIGNS_IP_ADDRESS:http://localhost}
+    port: ${ACCOUNTS_PORT:8082}
+  accounts:
+    host: ${ACCOUNTS_IP_ADDRESS:http://localhost}
+    port: ${ACCOUNTS_PORT:8083}
+  order-hub:
+    host: ${ORDER_HUB_IP_ADDRESS:http://localhost}
+    port: ${ORDER_HUB_PORT:8084}
+  media-manager:
+    host: ${ORDER_HUB_IP_ADDRESS:http://localhost}
+    port: ${ORDER_HUB_PORT:8085}
