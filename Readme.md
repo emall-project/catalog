@@ -14,18 +14,23 @@ The **Catalog Service** is a microservice in the **E-mall System** responsible f
 
 ## Running the Service
 
-### 1) Run Catalog Service in Isolation
 
-Use the isolate compose file to run only the Catalog service with its database:
+### 1) Run Campaigns Service in development
 
-```bash
-docker compose -f docker-compose-isolate.yaml up --build
-```
+- from pgadmin
+  - create user with user name `e-mall` and password `root`
+  - create database with name `campaigns` and add `e-mall` as owner of this database
+- then from inteliji
+  - go to `Edit Configuration` window
+  - set `dev` as the `Active Profile`
 
-This will start:
 
-* `catalog-db` (PostgreSQL)
-  * `catalog-app` (Spring Boot app)
+#### Ports
+
+
+| Component   | Port (Host) | Port (Container) |
+| ----------- |-------------| ---------------- |
+| campaigns App | 8082        | 8080             |
 
 ---
 
@@ -34,16 +39,6 @@ This will start:
 If you want to run the whole E-mall system (gateway + all microservices), follow the instructions in the **Gateway repository**:
 
 * [https://github.com/TargetOne-System/gateway](https://github.com/TargetOne-System/gateway)
-
----
-
-## Ports
-
-
-| Component   | Port (Host) | Port (Container) |
-| ----------- | ----------- | ---------------- |
-| PostgreSQL  | 5432        | 5432             |
-| Catalog App | 8080        | 8080             |
 
 ---
 
