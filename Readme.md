@@ -48,13 +48,13 @@ The service uses the following environment variables (as configured in Docker Co
 
 ### PostgreSQL
 
-* `POSTGRES_DB=catalog-db`
+* `POSTGRES_DB=catalog`
   * `POSTGRES_USER=e-mall`
   * `POSTGRES_PASSWORD=root`
 
 ### Spring Boot (Catalog App)
 
-* `SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/catalog-db`
+* `SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/catalog`
   * `SPRING_DATASOURCE_USERNAME=e-mall`
   * `SPRING_DATASOURCE_PASSWORD=root`
   * `SPRING_JPA_HIBERNATE_DDL_AUTO=update`
