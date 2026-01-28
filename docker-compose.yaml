@@ -6,7 +6,7 @@ services:
     container_name: catalog-db
     restart: always
     environment:
-      POSTGRES_DB: catalog-db
+      POSTGRES_DB: catalog
       POSTGRES_USER: e-mall
       POSTGRES_PASSWORD: root
     ports:
@@ -23,7 +23,7 @@ services:
     expose:
       - "8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://catalog-db:5432/catalog
+      SPRING_DATASOURCE_URL: jdbc:postgresql://catalog-db:5432/catalog 
       SPRING_DATASOURCE_USERNAME: e-mall
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -40,13 +40,29 @@ services:
       ORDER_HUB_PORT: 8080
       MEDIA_MANAGER_IP_ADDRESS: media-manager-app
       MEDIA_MANAGER_PORT: 8080
-
-
-
-
     networks:
       - services
       - catalog
+
+  catalog-tests:
+    build:
+      context: .
+      target: build
+    working_dir: /src
+    depends_on:
+      - catalog-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://catalog-db:5432/catalog
+      SPRING_DATASOURCE_USERNAME: e-mall
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+    entrypoint: [ "mvn" ]
+    command: [ "-B", "test" ]
+    networks:
+      - catalog
+      - edge
+
 volumes:
   catalog_data:
 
@@ -60,3 +76,5 @@ networks:
     driver: bridge
     internal: true
     name: catalog-db
+  edge:
+    driver: bridge

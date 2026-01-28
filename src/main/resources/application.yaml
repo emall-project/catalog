@@ -22,5 +22,5 @@ services:
     host: ${ORDER_HUB_IP_ADDRESS:http://localhost}
     port: ${ORDER_HUB_PORT:8084}
   media-manager:
-    host: ${ORDER_HUB_IP_ADDRESS:http://localhost}
-    port: ${ORDER_HUB_PORT:8085}
+    host: ${MEDIA_MANAGER_IP_ADDRESS:http://localhost}
+    port: ${MEDIA_MANAGER_PORT:8085}

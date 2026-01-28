@@ -1,0 +1,10 @@
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /src
+COPY pom.xml .
+COPY . .
+
+# Prefetch deps (including test deps/plugins)
+RUN mvn -B -DskipTests dependency:go-offline
+
+# Now build
+RUN mvn -B -DskipTests package
