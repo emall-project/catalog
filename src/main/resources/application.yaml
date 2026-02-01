@@ -2,6 +2,20 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
 
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      org:
+        hibernate:
+          envers:
+            default_schema: audit
+            audit_table_suffix: _audit
+            store_data_at_delete: true
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
 
 management:
   endpoints:
