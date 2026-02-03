@@ -1,0 +1,85 @@
+package ps.emall.catalog.category;
+
+import jakarta.validation.Valid;
+import jakarta.validation.groups.Default;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.common.response.EMallsResponseEntity;
+import ps.emall.catalog.common.validation.OnCreate;
+import ps.emall.catalog.common.validation.OnUpdate;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/categories")
+@RequiredArgsConstructor
+public class CategoryController {
+
+    private final CategoryService categoryService;
+
+    @GetMapping
+    public EMallsResponseEntity<List<CategoryDto>> getAll(CategorySpec spec) {
+        List<CategoryDto> categories = categoryService.search(spec);
+        return EMallsResponseEntity.ok(categories);
+    }
+
+    @GetMapping("/{id}")
+    public EMallsResponseEntity<CategoryDto> getById(@PathVariable Long id) {
+        CategoryDto dto = categoryService.getById(id);
+        return EMallsResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/slug/{slug}")
+    public EMallsResponseEntity<CategoryDto> getBySlug(@PathVariable String slug) {
+        CategoryDto dto = categoryService.getBySlug(slug);
+        return EMallsResponseEntity.ok(dto);
+    }
+
+    @PostMapping
+    public EMallsResponseEntity<CategoryDto> create(@RequestBody @Validated({Default.class, OnCreate.class}) CategoryDto dto) {
+        CategoryDto created = categoryService.create(dto);
+        return EMallsResponseEntity.created(created);
+    }
+
+    @PutMapping("/{id}")
+    public EMallsResponseEntity<CategoryDto> update(@PathVariable Long id,
+                                                    @RequestBody @Validated({Default.class, OnUpdate.class}) CategoryDto dto) {
+        dto.setId(id);
+        CategoryDto updated = categoryService.update(dto);
+        return EMallsResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
+        categoryService.delete(id);
+        return EMallsResponseEntity.noContent(null);
+    }
+
+
+    @PutMapping("/deactivate/{id}")
+    public EMallsResponseEntity<Void> deactivate(@PathVariable Long id) {
+        categoryService.deactivate(id);
+        return EMallsResponseEntity.noContent(null);
+    }
+
+
+    @PutMapping("/activate/{id}")
+    public EMallsResponseEntity<Void> activate(@PathVariable Long id) {
+        categoryService.activate(id);
+        return EMallsResponseEntity.noContent(null);
+    }
+
+    @GetMapping("/roots")
+    public EMallsResponseEntity<List<CategoryDto>> getRoots() {
+        List<CategoryDto> roots = categoryService.getRoots();
+        return EMallsResponseEntity.ok(roots);
+    }
+
+    @GetMapping("/{parentId}/children")
+    public EMallsResponseEntity<List<CategoryDto>> getChildren(@PathVariable Long parentId) {
+        List<CategoryDto> children = categoryService.getChildren(parentId);
+        return EMallsResponseEntity.ok(children);
+    }
+
+}

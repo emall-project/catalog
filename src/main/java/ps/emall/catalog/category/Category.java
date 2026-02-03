@@ -1,0 +1,54 @@
+package ps.emall.catalog.category;
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import ps.emall.catalog.common.base.EMallsBaseEntity;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+@Entity
+@Table(name = "categories", schema = "catalog")
+@Getter
+@Setter
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@Audited
+@AuditTable(value = "categories_audit", schema = "audit")
+public class Category extends EMallsBaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categories_seq")
+    @SequenceGenerator(
+            name = "categories_seq",
+            sequenceName = "categories_seq",
+            schema = "catalog",
+            allocationSize = 1
+    )
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "slug", unique = true, nullable = false)
+    private String slug;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive;
+
+    @Column(name = "image_file_key", nullable = false)
+    private UUID imageFileKey;
+
+    @ManyToOne(fetch =  FetchType.LAZY)
+    @JoinColumn(name = "parent_id", nullable = false)
+    private Category parent;
+
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    private Set<Category> children = new HashSet<>();
+
+}

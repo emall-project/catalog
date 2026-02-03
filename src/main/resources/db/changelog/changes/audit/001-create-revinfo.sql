@@ -12,5 +12,5 @@ CREATE SEQUENCE IF NOT EXISTS audit.revinfo_seq
 
 CREATE TABLE IF NOT EXISTS audit.revinfo (
         rev INT PRIMARY KEY DEFAULT nextval('audit.revinfo_seq'),
-        revtstmp BIGINT NOT NULL
+        revtstmp BIGINT
 );

@@ -7,12 +7,15 @@ spring:
     hibernate:
       ddl-auto: validate
     properties:
+      hibernate:
+        default_schema: public
       org:
         hibernate:
           envers:
-            default_schema: audit
-            audit_table_suffix: _audit
-            store_data_at_delete: true
+            revision_type_field_name: revtype
+            revision_field_name: rev
+            track_entities_changed_in_revision: false
+
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
