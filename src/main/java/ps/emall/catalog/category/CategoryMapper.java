@@ -6,7 +6,9 @@ public class CategoryMapper {
                 .id(categoryDto.getId())
                 .name(categoryDto.getName())
                 .slug(categoryDto.getSlug())
-                .isActive(categoryDto.isActive())
+                .targetedAudience(categoryDto.getTargetedAudience())
+                .ageGroup(categoryDto.getAgeGroup())
+                .isActive(categoryDto.getIsActive())
                 .imageFileKey(categoryDto.getImageFileKey())
                 .build();
         if (categoryDto.getParentId() != null) {
@@ -21,7 +23,9 @@ public class CategoryMapper {
                 .id(category.getId())
                 .name(category.getName())
                 .slug(category.getSlug())
-                .isActive(category.isActive())
+                .targetedAudience(category.getTargetedAudience())
+                .ageGroup(category.getAgeGroup())
+                .isActive(category.getIsActive())
                 .imageFileKey(category.getImageFileKey())
                 .build();
         if (category.getParent() != null) {

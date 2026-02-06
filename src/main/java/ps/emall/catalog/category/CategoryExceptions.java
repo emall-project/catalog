@@ -24,6 +24,13 @@ public final class CategoryExceptions {
                 .build();
     }
 
+    public static EMallsException categoryHasProducts() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.CATEGORY_HAS_PRODUCTS.getKey())
+                .build();
+    }
+
     public static EMallsException slugExists() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.CONFLICT)

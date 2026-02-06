@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS catalog.products(
         id BIGINT PRIMARY KEY DEFAULT nextval('catalog.products_sequence'),
         name VARCHAR(50) NOT NULL,
         slug VARCHAR(50) NOT NULL,
+        targeted_audience VARCHAR(20) NOT NULL,
+        age_group VARCHAR(20) NOT NULL,
         short_description VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         brand_id BIGINT,

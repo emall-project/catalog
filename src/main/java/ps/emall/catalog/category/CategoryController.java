@@ -1,8 +1,9 @@
 package ps.emall.catalog.category;
 
-import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
@@ -19,9 +20,17 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public EMallsResponseEntity<List<CategoryDto>> getAll(CategorySpec spec) {
-        List<CategoryDto> categories = categoryService.search(spec);
+    public EMallsResponseEntity<List<CategoryDto>> getAll(CategorySpec spec, Pageable pageable) {
+        Page<CategoryDto> categories = categoryService.getAll(spec, pageable);
         return EMallsResponseEntity.ok(categories);
+    }
+
+
+
+    @GetMapping("/all")
+    public EMallsResponseEntity<List<CategoryDto>> getCategories(CategorySpec spec) {
+        List<CategoryDto> getAllCategories = categoryService.getAllCategoryList(spec);
+        return EMallsResponseEntity.ok(getAllCategories);
     }
 
     @GetMapping("/{id}")
@@ -53,20 +62,6 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
-        return EMallsResponseEntity.noContent(null);
-    }
-
-
-    @PutMapping("/deactivate/{id}")
-    public EMallsResponseEntity<Void> deactivate(@PathVariable Long id) {
-        categoryService.deactivate(id);
-        return EMallsResponseEntity.noContent(null);
-    }
-
-
-    @PutMapping("/activate/{id}")
-    public EMallsResponseEntity<Void> activate(@PathVariable Long id) {
-        categoryService.activate(id);
         return EMallsResponseEntity.noContent(null);
     }
 

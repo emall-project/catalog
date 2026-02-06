@@ -1,33 +1,35 @@
-package ps.emall.catalog.category;
+package ps.emall.catalog.brand;
+
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
-
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "categories", schema = "catalog")
+@Table(name = "brands", schema = "catalog")
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Audited
-@AuditTable(value = "categories_audit", schema = "audit")
-public class Category extends EMallsBaseEntity {
+@AuditTable(value = "brands_audit", schema = "audit")
+public class Brand extends EMallsBaseEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categories_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "brands_seq")
     @SequenceGenerator(
-            name = "categories_seq",
-            sequenceName = "categories_seq",
+            name = "brands_seq",
+            sequenceName = "brands_seq",
             schema = "catalog",
             allocationSize = 1
     )
@@ -53,12 +55,5 @@ public class Category extends EMallsBaseEntity {
 
     @Column(name = "image_file_key", nullable = false)
     private UUID imageFileKey;
-
-    @ManyToOne(fetch =  FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Category parent;
-
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
-    private Set<Category> children = new HashSet<>();
 
 }

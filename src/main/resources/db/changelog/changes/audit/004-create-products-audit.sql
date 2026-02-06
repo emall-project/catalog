@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS audit.products_audit(
         id BIGINT,
         name VARCHAR(50),
         slug VARCHAR(50),
+        targeted_audience VARCHAR(20),
+        age_group VARCHAR(20),
         short_description VARCHAR(100),
         description TEXT,
         brand_id BIGINT,

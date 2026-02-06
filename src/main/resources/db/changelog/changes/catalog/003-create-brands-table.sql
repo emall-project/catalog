@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS catalog.brands(
         id BIGINT PRIMARY KEY DEFAULT nextval('catalog.brands_seq'),
         name VARCHAR(50) NOT NULL,
         slug VARCHAR(50) UNIQUE NOT NULL,
+        targeted_audience VARCHAR(20) NOT NULL,
+        age_group VARCHAR(20) NOT NULL,
         is_active BOOLEAN DEFAULT TRUE,
         image_file_key UUID,
         created_at timestamp NOT NULL DEFAULT now(),

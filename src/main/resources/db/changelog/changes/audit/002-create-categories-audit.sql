@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS audit.categories_audit(
         id BIGINT,
         name VARCHAR(50),
         slug VARCHAR(50),
+        targeted_audience VARCHAR(20),
+        age_group VARCHAR(20),
         is_active BOOLEAN,
         image_file_key UUID,
         parent_id BIGINT,
