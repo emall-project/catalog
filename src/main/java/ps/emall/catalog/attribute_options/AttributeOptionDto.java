@@ -15,8 +15,8 @@ import ps.emall.catalog.common.validation.OnUpdate;
 @NoArgsConstructor
 @Builder
 public class AttributeOptionDto {
-    @Null(groups = OnCreate.class, message = "attribute.option.id.null")
-    @NotNull(groups = OnUpdate.class, message = "attribute.option.id.notnull")
+    @Null(message = "attribute.option.id.null")
+//    @NotNull(groups = OnUpdate.class, message = "attribute.option.id.notnull")
     private Long id;
 
     @NotBlank(message = "attribute.option.value.notblank")

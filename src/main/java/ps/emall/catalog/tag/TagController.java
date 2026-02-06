@@ -44,11 +44,7 @@ public class TagController {
         return EMallsResponseEntity.created(tagService.create(dto));
     }
 
-    @PutMapping("/{id}")
-    public EMallsResponseEntity<TagDto> update(
-            @PathVariable Long id,
-            @Validated(OnUpdate.class) @RequestBody TagDto dto) {
-        dto.setId(id);
+    public EMallsResponseEntity<TagDto> update(@Validated(OnUpdate.class) @RequestBody TagDto dto) {
         return EMallsResponseEntity.ok(tagService.update(dto));
     }
 

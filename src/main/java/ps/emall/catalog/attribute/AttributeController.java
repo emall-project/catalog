@@ -61,12 +61,8 @@ public class AttributeController {
         );
     }
 
-    @PutMapping("/{id}")
-    public EMallsResponseEntity<AttributeDto> update(
-            @PathVariable Long id,
-            @Validated(OnUpdate.class) @RequestBody AttributeDto dto
-    ) {
-        dto.setId(id);
+    @PutMapping
+    public EMallsResponseEntity<AttributeDto> update(@Validated(OnUpdate.class) @RequestBody AttributeDto dto) {
         return EMallsResponseEntity.ok(
                 attributeService.update(dto)
         );

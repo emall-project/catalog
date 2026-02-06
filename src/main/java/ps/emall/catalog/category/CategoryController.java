@@ -51,10 +51,8 @@ public class CategoryController {
         return EMallsResponseEntity.created(created);
     }
 
-    @PutMapping("/{id}")
-    public EMallsResponseEntity<CategoryDto> update(@PathVariable Long id,
-                                                    @RequestBody @Validated({Default.class, OnUpdate.class}) CategoryDto dto) {
-        dto.setId(id);
+    @PutMapping
+    public EMallsResponseEntity<CategoryDto> update(@RequestBody @Validated({Default.class, OnUpdate.class}) CategoryDto dto) {
         CategoryDto updated = categoryService.update(dto);
         return EMallsResponseEntity.ok(updated);
     }

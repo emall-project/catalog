@@ -17,8 +17,9 @@ import java.util.List;
 public class BrandController {
 
     private final BrandService brandService;
+
     @GetMapping
-    public EMallsResponseEntity<Page<BrandDto>> getAll(BrandSpec spec,Pageable pageable) {
+    public EMallsResponseEntity<Page<BrandDto>> getAll(BrandSpec spec, Pageable pageable) {
         Page<BrandDto> page = brandService.getAll(spec, pageable);
         return EMallsResponseEntity.ok(page);
     }
@@ -41,18 +42,14 @@ public class BrandController {
         BrandDto dto = brandService.findBySlug(slug);
         return EMallsResponseEntity.ok(dto);
     }
+
     @PostMapping
     public EMallsResponseEntity<BrandDto> create(@Validated(OnCreate.class) @RequestBody BrandDto dto) {
         BrandDto created = brandService.create(dto);
         return EMallsResponseEntity.created(created);
     }
 
-    @PutMapping("/{id}")
-    public EMallsResponseEntity<BrandDto> update(
-            @PathVariable Long id,
-            @Validated(OnUpdate.class) @RequestBody BrandDto dto
-    ) {
-        dto.setId(id);
+    public EMallsResponseEntity<BrandDto> update(@Validated(OnUpdate.class) @RequestBody BrandDto dto) {
         BrandDto updated = brandService.update(dto);
         return EMallsResponseEntity.ok(updated);
     }
