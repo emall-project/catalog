@@ -26,15 +26,15 @@ public enum MessageKey {
     CATEGORY_ID_NULL("category.id.null"),
     CATEGORY_ID_NOT_NULL("category.id.notnull"),
     CATEGORY_NAME_NOT_BLANK("category.name.notblank"),
+    CATEGORY_NAME_SIZE("category.name.size"),// min= 5, max= 50
     CATEGORY_SLUG_NOT_BLANK("category.slug.notblank"),
+    CATEGORY_SLUG_SHOULD_NOT_HAVE_WHITE_SPACES("category.slug.white.spaces"),
+    CATEGORY_SLUG_SIZE("category.slug.size"),// min= 5, max= 50
     CATEGORY_IMAGE_FILE_KEY_NOT_BLANK("category.imageFileKey.notnull"),
     CATEGORY_PARENT_ID_NOT_NULL("category.parentId.notnull"),
     CATEGORY_IS_ACTIVE_NOT_BLANK("category.isActive.notnull"),
     CATEGORY_TARGETED_AUDIENCE_NOT_NULL("category.targetedAudience.notnull"),
     CATEGORY_AGE_GROUP_NOT_NULL("category.ageGroup.notnull"),
-    CATEGORY_SLUG_SHOULD_NOT_HAVE_WHITE_SPACES("category.slug.white.spaces"),
-    CATEGORY_NAME_SIZE("category.name.size"),// min= 5, max= 50
-    CATEGORY_SLUG_SIZE("category.slug.size"),// min= 5, max= 50
 
     // ==================== Category Errors ====================
     BRAND_NOT_FOUND("brand.not.found"),
@@ -55,6 +55,37 @@ public enum MessageKey {
     BRAND_SLUG_SHOULD_NOT_HAVE_WHITE_SPACES("brand.slug.white.spaces"),
     BRAND_NAME_SIZE("brand.name.size"),// min= 5, max= 50
     BRAND_SLUG_SIZE("brand.slug.size"),// min= 5, max= 50
+
+    // ==================== TagDto Validation ====================
+    TAG_ID_NULL("tag.id.null"),
+    TAG_ID_NOT_NULL("tag.id.notnull"),
+    TAG_NAME_NOT_BLANK("tag.name.notblank"),
+    TAG_NAME_SIZE("tag.name.size"),// min= 5, max= 50
+
+    // ==================== Tag Error ====================
+    TAG_NOT_FOUND("tag.not.found"),
+    TAG_NAME_EXIST("tag.name.exist"),
+
+    // ==================== AttributeOptionDto Validation ====================
+    ATTRIBUTE_OPTION_ID_NULL("attribute.option.id.null"),
+    ATTRIBUTE_OPTION_ID_NOT_NULL("attribute.option.id.notnull"),
+    ATTRIBUTE_OPTION_VALUE_NOT_BLANK("attribute.option.value.notblank"),
+    ATTRIBUTE_OPTION_VALUE_SIZE("attribute.option.value.size"),
+    ATTRIBUTE_OPTION_SORT_ORDER_NOT_NULL("attribute.option.sortOrder.notnull"),
+
+    // ==================== AttributeDto Validation ====================
+    ATTRIBUTE_ID_NULL("attribute.id.null"),
+    ATTRIBUTE_ID_NOT_NULL("attribute.id.notnull"),
+    ATTRIBUTE_NAME_NOT_BLANK("attribute.name.notblank"),
+    ATTRIBUTE_NAME_SIZE("attribute.name.size"),
+    ATTRIBUTE_SLUG_NOT_BLANK("attribute.slug.notblank"),
+    ATTRIBUTE_SLUG_SIZE("attribute.slug.size"),
+    ATTRIBUTE_IS_ACTIVE_NOT_NULL("attribute.isActive.notnull"),
+
+    // ==================== AttributeDto Error ====================
+    ATTRIBUTE_NOT_FOUND("attribute.not.found"),
+    ATTRIBUTE_SLUG_EXISTS("attribute.slug.exists"),
+    ATTRIBUTE_INACTIVE("attribute.inactive"),
 
     // ==================== HTTP Status Messages ====================
     HTTP_OK("http.ok"),

@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset JehadHamid:002-create-products-audit
+--changeset JehadHamid:004-create-products-audit
 
 CREATE TABLE IF NOT EXISTS audit.products_audit(
         rev INT NOT NULL,
@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS audit.products_audit(
         slug VARCHAR(50),
         targeted_audience VARCHAR(20),
         age_group VARCHAR(20),
+        is_active BOOLEAN,
         short_description VARCHAR(100),
         description TEXT,
         brand_id BIGINT,

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS catalog.categories(
         slug VARCHAR(50) UNIQUE NOT NULL,
         targeted_audience VARCHAR(20) NOT NULL,
         age_group VARCHAR(20) NOT NULL,
-        is_active BOOLEAN DEFAULT TRUE,
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
         image_file_key UUID,
         parent_id BIGINT,
         created_at timestamp NOT NULL DEFAULT now(),
