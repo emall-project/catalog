@@ -1,4 +1,4 @@
-package ps.emall.catalog.attribute_options;
+package ps.emall.catalog.attribute.attribute_options;
 
 public class AttributeOptionMapper {
     public static AttributeOptionDto toDto(AttributeOption entity) {

@@ -6,8 +6,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
-import ps.emall.catalog.attribute_options.AttributeOption;
+import ps.emall.catalog.attribute.attribute_options.AttributeOption;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
 
 import java.util.ArrayList;

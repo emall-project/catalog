@@ -1,4 +1,4 @@
-package ps.emall.catalog.attribute_options;
+package ps.emall.catalog.attribute.attribute_options;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +15,7 @@ import ps.emall.catalog.common.validation.OnUpdate;
 @NoArgsConstructor
 @Builder
 public class AttributeOptionDto {
+    // TODO: THINK about this, is better to always to clear the option then create them?
     @Null(message = "attribute.option.id.null")
 //    @NotNull(groups = OnUpdate.class, message = "attribute.option.id.notnull")
     private Long id;

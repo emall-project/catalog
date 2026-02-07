@@ -6,8 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ps.emall.catalog.attribute_options.AttributeOptionMapper;
+import ps.emall.catalog.attribute.attribute_options.AttributeOptionDto;
+import ps.emall.catalog.attribute.attribute_options.AttributeOptionMapper;
+import ps.emall.catalog.attribute.attribute_options.AttributeOptionsExceptions;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -62,11 +65,10 @@ public class AttributeServiceImpl implements AttributeService {
         existing.setIsActive(dto.getIsActive());
 
         existing.getOptions().clear();
-        existing.getOptions().addAll(
-                dto.getOptions().stream()
-                        .map(AttributeOptionMapper::toEntity)
-                        .toList()
-        );
+        dto.getOptions().stream()
+                .map(AttributeOptionMapper::toEntity)
+                .toList().forEach(existing::addOption);
+
 
         Attribute saved = attributeRepository.save(existing);
         return AttributeMapper.toDto(saved);
@@ -94,5 +96,19 @@ public class AttributeServiceImpl implements AttributeService {
                 .orElseThrow(AttributeExceptions::attributeNotFound);
 
         attributeRepository.delete(attribute);
+    }
+
+    private boolean validateOptionList(List<AttributeOptionDto> options) {
+        //TODO: think about better algo for duplication check
+        //TODO: check if there any thing else u wanna validate
+        HashSet<String> value = new HashSet<>();
+        HashSet<Integer> orders = new HashSet<>();
+        for (AttributeOptionDto option : options) {
+            value.add(option.getValue().trim().toLowerCase());
+            orders.add(option.getSortOrder());
+        }
+        if(options.size() != value.size()) throw AttributeOptionsExceptions.duplicationInValue();
+        if(options.size() != orders.size()) throw AttributeOptionsExceptions.duplicationInOrderSort();
+        return true;
     }
 }

@@ -1,5 +1,5 @@
 package ps.emall.catalog.attribute;
-import ps.emall.catalog.attribute_options.AttributeOptionMapper;
+import ps.emall.catalog.attribute.attribute_options.AttributeOptionMapper;
 
 
 public class AttributeMapper {

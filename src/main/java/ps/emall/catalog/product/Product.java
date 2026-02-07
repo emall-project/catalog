@@ -2,23 +2,20 @@ package ps.emall.catalog.product;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
+import ps.emall.catalog.attribute.attribute_options.AttributeOption;
 import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.category.Category;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
+import ps.emall.catalog.product.product_variant.ProductVariant;
 import ps.emall.catalog.tag.Tag;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "products", schema = "catalog")
@@ -79,12 +76,24 @@ public class Product extends EMallsBaseEntity {
     @Column(name = "store_id", nullable = false)
     private Long storeId;
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "product_tags",
-//            joinColumns = @JoinColumn(name = "product_id"),
-//            inverseJoinColumns = @JoinColumn(name = "tag_id")
-//    )
-//    private Set<Tag> tags = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "product_tags",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags = new ArrayList<>();
 
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProductVariant> variants = new ArrayList<>();
+
+    public void addOption(ProductVariant variant) {
+        if (this.variants == null) {
+            this.variants = new ArrayList<>();
+        }
+        variants.add(variant);
+        variant.setProduct(this);
+    }
 }

@@ -73,6 +73,10 @@ public enum MessageKey {
     ATTRIBUTE_OPTION_VALUE_SIZE("attribute.option.value.size"),
     ATTRIBUTE_OPTION_SORT_ORDER_NOT_NULL("attribute.option.sortOrder.notnull"),
 
+    // ==================== Attribute Error ====================
+    DUPLICATION_IN_ORDER_SORT("attribute.options.orderSort.duplication"),
+    DUPLICATION_IN_VALUE("attribute.options.value.duplication"),
+
     // ==================== AttributeDto Validation ====================
     ATTRIBUTE_ID_NULL("attribute.id.null"),
     ATTRIBUTE_ID_NOT_NULL("attribute.id.notnull"),
@@ -81,8 +85,9 @@ public enum MessageKey {
     ATTRIBUTE_SLUG_NOT_BLANK("attribute.slug.notblank"),
     ATTRIBUTE_SLUG_SIZE("attribute.slug.size"),
     ATTRIBUTE_IS_ACTIVE_NOT_NULL("attribute.isActive.notnull"),
+    ATTRIBUTE_OPTIONS_NOT_NULL("attribute.options.notnull"),
 
-    // ==================== AttributeDto Error ====================
+    // ==================== Attribute Error ====================
     ATTRIBUTE_NOT_FOUND("attribute.not.found"),
     ATTRIBUTE_SLUG_EXISTS("attribute.slug.exists"),
     ATTRIBUTE_INACTIVE("attribute.inactive"),

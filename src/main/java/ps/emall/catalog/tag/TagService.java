@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TagService {
 
@@ -21,4 +22,6 @@ public interface TagService {
     TagDto update(TagDto dto);
 
     void delete(Long id);
+
+    Set<TagDto> resolveTags(Set<String> tagNames);
 }

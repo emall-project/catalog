@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import ps.emall.catalog.attribute_options.AttributeOptionDto;
+import ps.emall.catalog.attribute.attribute_options.AttributeOptionDto;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 
@@ -37,6 +37,7 @@ public class AttributeDto {
     private Boolean isActive;
 
     @Valid
+    @NotNull(message = "attribute.options.notnull")
     private List<AttributeOptionDto> options;
 
 }
