@@ -76,7 +76,7 @@ public enum MessageKey {
     // ==================== Attribute Error ====================
     DUPLICATION_IN_ORDER_SORT("attribute.options.orderSort.duplication"),
     DUPLICATION_IN_VALUE("attribute.options.value.duplication"),
-
+    ATTRIBUTE_OPTION_NO_FOUND("attribute.options.no.found"),
     // ==================== AttributeDto Validation ====================
     ATTRIBUTE_ID_NULL("attribute.id.null"),
     ATTRIBUTE_ID_NOT_NULL("attribute.id.notnull"),
@@ -91,6 +91,16 @@ public enum MessageKey {
     ATTRIBUTE_NOT_FOUND("attribute.not.found"),
     ATTRIBUTE_SLUG_EXISTS("attribute.slug.exists"),
     ATTRIBUTE_INACTIVE("attribute.inactive"),
+
+    // ==================== Product Errors ====================
+    PRODUCT_NOT_FOUND("product.not.found"),
+    PRODUCT_SLUG_EXISTS("product.slug.exists"),
+    PRODUCT_INACTIVE("product.inactive"),
+
+    // ==================== ProductVariant Errors ====================
+    PRODUCT_VARIANT_NOT_FOUND("product.variant.not.found"),
+    PRODUCT_VARIANT_SLUG_EXISTS("product.variant.slug.exists"),
+    PRODUCT_VARIANT_INACTIVE("product.variant.inactive"),
 
     // ==================== HTTP Status Messages ====================
     HTTP_OK("http.ok"),

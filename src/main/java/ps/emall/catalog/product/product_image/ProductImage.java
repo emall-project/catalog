@@ -37,15 +37,15 @@ public class ProductImage extends EMallsBaseEntity {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attribute_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attribute_id", nullable = false)
+    @JoinColumn(name = "variant_id", nullable = false)
     private ProductVariant variant;
 
     @Column(name = "sort_order", nullable = false)
-    private int sortOrder;
+    private Integer sortOrder;
 
     @Column(name = "image_file_key", nullable = false)
     private UUID imageFileKey;

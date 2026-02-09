@@ -64,12 +64,13 @@ public class TagServiceImpl implements TagService {
     }
 
     @Transactional
-    public Set<TagDto> resolveTags(Set<String> tagNames) {
+    public List<TagDto> resolveTags(List<TagDto> tagNames) {
         return tagNames.stream()
+                .map(tag -> tag.getName())
                 .map(this::normalize)
                 .map(this::findOrCreate)
                 .map(TagMapper::toDto)
-                .collect(Collectors.toSet());
+                .toList();
     }
 
     @Override

@@ -11,7 +11,9 @@ import ps.emall.catalog.attribute.attribute_options.AttributeOption;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
 import ps.emall.catalog.product.Product;
 import ps.emall.catalog.product.product_image.ProductImage;
+import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttribute;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,47 +28,40 @@ import java.util.List;
 @AuditTable(value = "product_variants_audit", schema = "audit")
 public class ProductVariant extends EMallsBaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_variants_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_variants_sequence")
     @SequenceGenerator(
-            name = "product_variants_seq",
-            sequenceName = "product_variants_seq",
+            name = "product_variants_sequence",
+            sequenceName = "product_variants_sequence",
             schema = "catalog",
             allocationSize = 1
     )
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "base_price")
-    private double basePrice;
+    @Column(name = "base_price", nullable = false)
+    private BigDecimal basePrice;
 
-    @Column(name = "is_defualt")
+    @Column(name = "is_default")
     private Boolean isDefault;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attribute_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
 
-    @ManyToMany
-    @JoinTable(
-            name = "variant_attributes",
-            joinColumns = @JoinColumn(name = "variant_id"),
-            inverseJoinColumns = @JoinColumn(name = "attribute_id")
+    @OneToMany(
+            mappedBy = "variant",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
-    private List<Attribute> attributes = new ArrayList<>();
+    @Builder.Default
+    private List<VariantAttribute> variantAttributes = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "variant_attributes",
-            joinColumns = @JoinColumn(name = "variant_id"),
-            inverseJoinColumns = @JoinColumn(name = "option_id")
-    )
-    private List<AttributeOption> attribute_options = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product_variants", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ProductImage> images = new ArrayList<>();
 
@@ -75,6 +70,18 @@ public class ProductVariant extends EMallsBaseEntity {
             this.images = new ArrayList<>();
         }
         images.add(image);
+        image.setProduct(this.getProduct());
         image.setVariant(this);
     }
+
+    public void addVariantAttribute(Attribute attribute, AttributeOption option) {
+        VariantAttribute va = VariantAttribute.builder()
+                .variant(this)
+                .attribute(attribute)
+                .option(option)
+                .build();
+
+        variantAttributes.add(va);
+    }
+
 }

@@ -17,6 +17,12 @@ public final class AttributeOptionsExceptions {
                 .message(MessageKey.DUPLICATION_IN_ORDER_SORT.getKey())
                 .build();
     }
+    public static EMallsException optionNotFound() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.ATTRIBUTE_OPTION_NO_FOUND.getKey())
+                .build();
+    }
     public static EMallsException duplicationInValue() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
