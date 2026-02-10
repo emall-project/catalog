@@ -21,8 +21,8 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Audited
-@AuditTable(value = "product_images_audit", schema = "audit")
+//@Audited
+//@AuditTable(value = "product_images_audit", schema = "audit")
 public class ProductImage extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_images_seq")

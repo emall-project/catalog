@@ -17,6 +17,7 @@ import ps.emall.catalog.tag.Tag;
 import ps.emall.catalog.tag.TagService;
 import ps.emall.catalog.tag.TagMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,18 +65,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto create(ProductDto dto) {
 
-        // Fetch category and brand
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(ProductExceptions::categoryNotFound);
 
         Brand brand = brandRepository.findById(dto.getBrandId())
                 .orElseThrow(ProductExceptions::brandNotFound);
 
-        // Resolve tags
         List<Tag> tags = tagService.resolveTags(dto.getTags())
                 .stream().map(TagMapper::toEntity).toList();
 
-        // Create product
         Product product = Product.builder()
                 .name(dto.getName())
                 .slug(dto.getSlug())
@@ -92,18 +90,13 @@ public class ProductServiceImpl implements ProductService {
                 .build();
 
         Product saved = productRepository.save(product);
-        log.info("Created product id={}", saved.getId());
 
-        // Create variants
         if (dto.getVariants() != null) {
-//            dto.getVariants().forEach(v -> productVariantService.create(saved.getId(), v));
-            for(ProductVariantDto v : dto.getVariants()) {
+                for(ProductVariantDto v : dto.getVariants()) {
                 ProductVariantDto savedVariant = productVariantService.create(saved.getId(), v);
-                log.info("Created product variant id={}", savedVariant.getId());
-                log.info("Created product variant name={}",  savedVariant.getName());
             }
         }
-
+        saved = productRepository.findById(saved.getId()).orElseThrow(ProductExceptions::productNotFound);
         return ProductMapper.toDto(saved);
     }
 
@@ -113,18 +106,16 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(dto.getId())
                 .orElseThrow(ProductExceptions::productNotFound);
 
-        // Fetch category and brand
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(ProductExceptions::categoryNotFound);
 
         Brand brand = brandRepository.findById(dto.getBrandId())
                 .orElseThrow(ProductExceptions::brandNotFound);
 
-        // Resolve tags
         List<Tag> tags = tagService.resolveTags(dto.getTags())
-                .stream().map(TagMapper::toEntity).toList();
-
-        // Update product
+                .stream()
+                .map(TagMapper::toEntity)
+                .collect(Collectors.toCollection(ArrayList::new));
         product.setName(dto.getName());
         product.setSlug(dto.getSlug());
         product.setTargetedAudience(dto.getTargetedAudience());
@@ -136,23 +127,37 @@ public class ProductServiceImpl implements ProductService {
         product.setBrand(brand);
         product.setTags(tags);
 
-        Product saved = productRepository.save(product);
-        log.info("Updated product id={}", saved.getId());
-
-        // Update variants
         if (dto.getVariants() != null) {
-            for (var variantDto : dto.getVariants()) {
-                if (variantDto.getId() != null) {
-                    // Update existing variant
-                    productVariantService.update(saved.getId(), variantDto.getId(), variantDto);
+
+            List<Long> incomingVariantIds = dto.getVariants().stream()
+                    .map(ProductVariantDto::getId)
+                    .filter(id -> id != null)
+                    .toList();
+
+            List<ProductVariant> variantsToDelete = product.getVariants().stream()
+                    .filter(v -> !incomingVariantIds.contains(v.getId()))
+                    .toList();
+
+            variantsToDelete.forEach(v -> product.getVariants().remove(v));
+
+            productRepository.saveAndFlush(product);
+
+            for (ProductVariantDto variantDto : dto.getVariants()) {
+                if (variantDto.getId() == null) {
+                    productVariantService.create(product.getId(), variantDto);
                 } else {
-                    // Create new variant
-                    productVariantService.create(saved.getId(), variantDto);
+                    boolean exists = product.getVariants().stream()
+                            .anyMatch(v -> v.getId().equals(variantDto.getId()));
+
+                    if (exists) {
+                        productVariantService.update(product.getId(), variantDto.getId(), variantDto);
+                    }
                 }
             }
         }
 
-        return ProductMapper.toDto(saved);
+        Product finalSaved = productRepository.findById(product.getId()).orElseThrow();
+        return ProductMapper.toDto(finalSaved);
     }
 
     @Override
@@ -160,6 +165,5 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(ProductExceptions::productNotFound);
         productRepository.delete(product);
-        log.info("Deleted product id={}", id);
     }
 }

@@ -21,8 +21,8 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Audited
-@AuditTable(value = "brands_audit", schema = "audit")
+//@Audited
+//@AuditTable(value = "brands_audit", schema = "audit")
 public class Brand extends EMallsBaseEntity {
 
     @Id

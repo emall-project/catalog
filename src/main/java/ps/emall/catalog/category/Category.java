@@ -20,8 +20,8 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Audited
-@AuditTable(value = "categories_audit", schema = "audit")
+//@Audited
+//@AuditTable(value = "categories_audit", schema = "audit")
 public class Category extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categories_seq")

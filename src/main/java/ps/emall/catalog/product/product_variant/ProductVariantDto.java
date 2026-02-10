@@ -24,7 +24,7 @@ import java.util.List;
 public class ProductVariantDto {
 
     @Null(groups = OnCreate.class, message = "product.variant.id.null")
-    @NotNull(groups = OnUpdate.class, message = "product.variant.id.notnull")
+//    @NotNull(groups = OnUpdate.class, message = "product.variant.id.notnull")
     private Long id;
 
     @NotBlank(message = "product.variant.name.notblank")

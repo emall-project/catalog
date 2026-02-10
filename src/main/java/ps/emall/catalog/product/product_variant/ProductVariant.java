@@ -4,6 +4,8 @@ package ps.emall.catalog.product.product_variant;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.envers.AuditJoinTable;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import ps.emall.catalog.attribute.Attribute;
@@ -17,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Entity
 @Table(name = "product_variants", schema = "catalog")
 @Getter
@@ -24,8 +27,8 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Audited
-@AuditTable(value = "product_variants_audit", schema = "audit")
+//@Audited
+//@AuditTable(value = "product_variants_audit", schema = "audit")
 public class ProductVariant extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_variants_sequence")
@@ -72,16 +75,20 @@ public class ProductVariant extends EMallsBaseEntity {
         images.add(image);
         image.setProduct(this.getProduct());
         image.setVariant(this);
+        log.info("adding Variant Image: with ImageId={} and VariantId={}", image.getId(),  image.getVariant().getId());
     }
 
     public void addVariantAttribute(Attribute attribute, AttributeOption option) {
+        if (this.variantAttributes == null) {
+            this.variantAttributes = new ArrayList<>();
+        }
         VariantAttribute va = VariantAttribute.builder()
                 .variant(this)
                 .attribute(attribute)
                 .option(option)
                 .build();
-
         variantAttributes.add(va);
+        log.info("adding Variant Attribute: with variantId={} and attributeId={}, and optionId={}", va.getVariant().getId(), va.getAttribute().getId(), option.getId() );
     }
 
 }

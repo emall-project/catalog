@@ -55,9 +55,10 @@ import java.util.List;
             productVariant.addVariantAttribute(attribute, option);
         }
 
-        ProductVariantDto saved = ProductVariantMapper.toDto(productVariantRepository.save(productVariant));
+        ProductVariant saved = productVariantRepository.save(productVariant);
         log.info("Created product variant with id={}", saved.getId());
-        return saved;
+        log.info("Created product variant with VariantAttributes={}", saved.getVariantAttributes().getFirst().getAttribute().getId());
+        return ProductVariantMapper.toDto(saved);
     }
 
 
@@ -77,6 +78,9 @@ import java.util.List;
                     .isDefault(dto.isDefault())
                     .product(product)
                     .build();
+
+
+            variant = productVariantRepository.saveAndFlush(variant);
 
             // images
             if (dto.getImages() != null) {
@@ -104,7 +108,8 @@ import java.util.List;
 
             ProductVariant saved = productVariantRepository.save(variant);
 
-            log.info("Created variant id={} for product id={}", saved.getId(), productId);
+
+            log.info("Created variant id={} for product id={} with option={} ", saved.getId(), productId, saved.getVariantAttributes().getFirst().getOption().getId(), saved.getVariantAttributes().getFirst().getAttribute());
 
             ProductVariantDto savedDto = ProductVariantMapper.toDto(saved);
             return savedDto;
@@ -119,21 +124,25 @@ import java.util.List;
             ProductVariantDto dto
     ) {
 
+        log.info("Updating product variant with id={} and product id={}", variantId, productId);
         ProductVariant variant = productVariantRepository
-                .findByIdAndProductId(variantId, productId)
+                .findById(variantId)
                 .orElseThrow(ProductVariantExceptions::variantNotFound);
+        log.info("==========================");
 
         // default variant rule
-        if (dto.isDefault()) {
-            productVariantRepository.clearDefaultForProduct(productId);
-            variant.setIsDefault(true);
-        } else {
-            variant.setIsDefault(false);
-        }
+//        if (dto.isDefault()) {
+//            productVariantRepository.clearDefaultForProduct(productId);
+//            variant.setIsDefault(true);
+//        } else {
+//            variant.setIsDefault(false);
+//        }
 
         variant.setName(dto.getName());
         variant.setBasePrice(dto.getBasePrice());
 
+        variant = productVariantRepository.saveAndFlush(variant);
+        log.info("flush Save for variant with id={}", variant.getId());
         /* ---------- IMAGES ---------- */
         variant.getImages().clear();
         if (dto.getImages() != null) {
@@ -142,6 +151,8 @@ import java.util.List;
                     .map(ProductImageMapper::toEntity)
                     .forEach(variant::addImage);
         }
+
+        variant = productVariantRepository.saveAndFlush(variant);
 
         /* ---------- ATTRIBUTES ---------- */
         variant.getVariantAttributes().clear();
