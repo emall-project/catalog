@@ -49,6 +49,7 @@ public class BrandController {
         return EMallsResponseEntity.created(created);
     }
 
+    @PutMapping
     public EMallsResponseEntity<BrandDto> update(@Validated(OnUpdate.class) @RequestBody BrandDto dto) {
         BrandDto updated = brandService.update(dto);
         return EMallsResponseEntity.ok(updated);

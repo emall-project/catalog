@@ -84,7 +84,9 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.slugExistsInTheSameStore();
         }
         validateSingleDefaultVariant(dto);
-
+        if(dto.getVariants().size() > 1){
+            validateVariantsHaveAttributes(dto.getVariants());
+        }
         Product product = ProductMapper.toEntity(dto, category, brand, tags);
 
         // TODO : replace it with the actual storeId and mallId from the token
@@ -181,6 +183,14 @@ public class ProductServiceImpl implements ProductService {
 
         if (defaults > 1)
             throw ProductExceptions.multipleDefaultVariants();
+    }
+
+    private static void validateVariantsHaveAttributes(List<ProductVariantDto> variants) {
+        for (ProductVariantDto variant : variants) {
+            if(variant.getAttributes() == null || variant.getAttributes().isEmpty()) {
+                throw ProductExceptions.variantShouldHasAttribute();
+            }
+        }
     }
 
     private ProductDto injectMedia(ProductDto dto){

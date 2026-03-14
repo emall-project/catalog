@@ -44,6 +44,7 @@ public class TagController {
         return EMallsResponseEntity.created(tagService.create(dto));
     }
 
+    @PutMapping
     public EMallsResponseEntity<TagDto> update(@Validated(OnUpdate.class) @RequestBody TagDto dto) {
         return EMallsResponseEntity.ok(tagService.update(dto));
     }

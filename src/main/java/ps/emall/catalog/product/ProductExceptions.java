@@ -48,4 +48,11 @@ public final class ProductExceptions {
                 .message(MessageKey.PRODUCT_HAS_MULTIPLE_DEFAULT_VARIANTS.getKey())
                 .build();
     }
+
+    public static EMallsException variantShouldHasAttribute() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.PRODUCT_VARIANT_SHOULD_HAS_ATTRIBUTE.getKey())
+                .build();
+    }
 }

@@ -76,7 +76,7 @@ public class ProductDto {
     @Valid
     private List<TagDto> tags;//create if not found
 
-    @NotNull(message = "product.variants.not.null")
     @Valid
+    @NotNull(message = "product.variants.not.null")
     private List<ProductVariantDto> variants;//creat
 }

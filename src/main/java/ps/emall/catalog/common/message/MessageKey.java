@@ -155,6 +155,7 @@ public enum MessageKey {
     PRODUCT_SLUG_EXISTS_IN_THE_SAME_STORE("product.slug.exists.in.the.same.store"),
     PRODUCT_INACTIVE("product.inactive"),
     PRODUCT_HAS_MULTIPLE_DEFAULT_VARIANTS("product.has.multiple.default.variants"),
+    PRODUCT_VARIANT_SHOULD_HAS_ATTRIBUTE("product.variant.should.have.attribute"),
 
     // =========================================================
     // PRODUCT - DTO VALIDATION
