@@ -1,10 +1,7 @@
 package ps.emall.catalog.attribute;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionDto;
 import ps.emall.catalog.common.validation.OnCreate;
@@ -27,6 +24,18 @@ public class AttributeDto {
     private String name;
 
     @NotBlank(message = "attribute.slug.notblank")
+    @Pattern(
+            regexp = "^[^\\s]+$",
+            message = "attribute.slug.white.spaces"
+    )
+    @Pattern(
+            regexp = "^[a-z0-9-]+$",
+            message = "attribute.slug.lowercase"
+    )
+    @Pattern(
+            regexp = "^[a-z].*[a-z]$",
+            message = "attribute.slug.start.end.letter"
+    )
     @Size(min = 3, max = 50, message = "attribute.slug.size")
     private String slug;
 

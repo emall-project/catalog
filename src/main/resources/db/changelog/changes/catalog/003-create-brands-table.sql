@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS catalog.brands
     targeted_audience VARCHAR(20)        NOT NULL,
     age_group         VARCHAR(20)        NOT NULL,
     is_active         BOOLEAN            NOT NULL DEFAULT TRUE,
-    image_file_key    UUID,
+    image_id          UUID,
     created_at        timestamp          NOT NULL DEFAULT now(),
     created_by        VARCHAR(50)        NOT NULL,
     updated_at        timestamp                   DEFAULT now(),

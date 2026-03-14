@@ -2,6 +2,7 @@ package ps.emall.catalog.brand;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.validation.OnCreate;
@@ -27,10 +28,20 @@ public class BrandDto {
             regexp = "^[^\\s]+$",
             message = "brand.slug.white.spaces"
     )
+    @Pattern(
+            regexp = "^[a-z0-9-]+$",
+            message = "brand.slug.lowercase"
+    )
+    @Pattern(
+            regexp = "^[a-z].*[a-z]$",
+            message = "category.slug.start.end.letter"
+    )
     @Size(min = 3, max = 50, message = "brand.slug.size")
     private String slug;
 
     @NotNull(message = "brand.targetedAudience.notnull")
+    // TODO: add validation on the coming value, so u don't end up with INTERNAL_SERVER_ERROR
+    //  due to serializing issue when the entered value not in TargetedAudience enum
     private TargetedAudience targetedAudience;
 
     @NotNull(message = "brand.ageGroup.notnull")
@@ -39,7 +50,9 @@ public class BrandDto {
     @NotNull(message = "brand.isActive.notnull")
     private Boolean isActive;
 
-    @NotNull(message = "brand.imageFileKey.notnull")
-    private UUID imageFileKey;
+    @NotNull(message = "brand.imageId.notnull")
+    private UUID imageId;
+
+    FileDto image;
 
 }

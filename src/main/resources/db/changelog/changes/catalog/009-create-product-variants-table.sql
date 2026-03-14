@@ -19,5 +19,5 @@ CREATE TABLE IF NOT EXISTS catalog.product_variants
     created_by VARCHAR(50) NOT NULL,
     updated_at timestamp            DEFAULT now(),
     updated_by VARCHAR(50),
-    FOREIGN KEY (product_id) REFERENCES catalog.products (id)
+    FOREIGN KEY (product_id) REFERENCES catalog.products (id) ON DELETE CASCADE
 );

@@ -25,8 +25,6 @@ public class CategoryController {
         return EMallsResponseEntity.ok(categories);
     }
 
-
-
     @GetMapping("/all")
     public EMallsResponseEntity<List<CategoryDto>> getCategories(CategorySpec spec) {
         List<CategoryDto> getAllCategories = categoryService.getAllCategoryList(spec);
@@ -43,6 +41,18 @@ public class CategoryController {
     public EMallsResponseEntity<CategoryDto> getBySlug(@PathVariable String slug) {
         CategoryDto dto = categoryService.getBySlug(slug);
         return EMallsResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/roots")
+    public EMallsResponseEntity<List<CategoryDto>> getRoots() {
+        List<CategoryDto> roots = categoryService.getRoots();
+        return EMallsResponseEntity.ok(roots);
+    }
+
+    @GetMapping("/{parentId}/children")
+    public EMallsResponseEntity<List<CategoryDto>> getChildren(@PathVariable Long parentId) {
+        List<CategoryDto> children = categoryService.getChildren(parentId);
+        return EMallsResponseEntity.ok(children);
     }
 
     @PostMapping
@@ -62,17 +72,4 @@ public class CategoryController {
         categoryService.delete(id);
         return EMallsResponseEntity.noContent(null);
     }
-
-    @GetMapping("/roots")
-    public EMallsResponseEntity<List<CategoryDto>> getRoots() {
-        List<CategoryDto> roots = categoryService.getRoots();
-        return EMallsResponseEntity.ok(roots);
-    }
-
-    @GetMapping("/{parentId}/children")
-    public EMallsResponseEntity<List<CategoryDto>> getChildren(@PathVariable Long parentId) {
-        List<CategoryDto> children = categoryService.getChildren(parentId);
-        return EMallsResponseEntity.ok(children);
-    }
-
 }

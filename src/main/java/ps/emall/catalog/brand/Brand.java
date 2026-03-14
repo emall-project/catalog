@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.envers.AuditTable;
-import org.hibernate.envers.Audited;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
@@ -53,7 +51,7 @@ public class Brand extends EMallsBaseEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    @Column(name = "image_file_key", nullable = false)
-    private UUID imageFileKey;
+    @Column(name = "image_id", nullable = false)
+    private UUID imageId;
 
 }

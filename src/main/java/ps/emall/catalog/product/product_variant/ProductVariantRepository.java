@@ -22,4 +22,6 @@ public interface ProductVariantRepository
         WHERE v.product.id = :productId
     """)
     void clearDefaultForProduct(Long productId);
+
+    void deleteByProductId(Long productId);
 }

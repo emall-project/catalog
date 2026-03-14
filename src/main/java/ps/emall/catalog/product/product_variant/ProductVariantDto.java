@@ -6,10 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
-import ps.emall.catalog.attribute.AttributeDto;
 import ps.emall.catalog.common.validation.OnCreate;
-import ps.emall.catalog.common.validation.OnUpdate;
-import ps.emall.catalog.product.product_image.ProductImageDto;
+import ps.emall.catalog.product.product_media.ProductMediaDto;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttributeDto;
 
 import java.math.BigDecimal;
@@ -40,8 +38,9 @@ public class ProductVariantDto {
     @Valid
     private List<VariantAttributeDto> attributes;
 
+    @NotNull(message = "product.variant.media.not.null")
     @Valid
-    private List<ProductImageDto> images;
+    private List<ProductMediaDto> media;
 
 
 }

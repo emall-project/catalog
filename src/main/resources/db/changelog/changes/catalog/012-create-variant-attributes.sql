@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS catalog.variant_attributes
     variant_id   BIGINT,
     attribute_id BIGINT,
     option_id    BIGINT,
-    FOREIGN KEY (variant_id) REFERENCES catalog.product_variants (id),
+    FOREIGN KEY (variant_id) REFERENCES catalog.product_variants (id) ON DELETE CASCADE,
     FOREIGN KEY (attribute_id) REFERENCES catalog.attributes (id),
     FOREIGN KEY (option_id) REFERENCES catalog.attribute_options (id)
 

@@ -1,5 +1,7 @@
 package ps.emall.catalog.brand;
 
+import ps.emall.catalog.client.media_manager.FileDto;
+
 public class BrandMapper {
     public static Brand toEntity(BrandDto dto) {
         return Brand.builder()
@@ -9,7 +11,7 @@ public class BrandMapper {
                 .targetedAudience(dto.getTargetedAudience())
                 .ageGroup(dto.getAgeGroup())
                 .isActive(dto.getIsActive())
-                .imageFileKey(dto.getImageFileKey())
+                .imageId(dto.getImageId())
                 .build();
     }
     public static BrandDto toDto(Brand entity) {
@@ -20,7 +22,19 @@ public class BrandMapper {
                 .targetedAudience(entity.getTargetedAudience())
                 .ageGroup(entity.getAgeGroup())
                 .isActive(entity.getIsActive())
-                .imageFileKey(entity.getImageFileKey())
+                .imageId(entity.getImageId())
+                .build();
+    }
+    public static BrandDto toDto(Brand entity, FileDto image) {
+        return BrandDto.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .slug(entity.getSlug())
+                .targetedAudience(entity.getTargetedAudience())
+                .ageGroup(entity.getAgeGroup())
+                .isActive(entity.getIsActive())
+                .imageId(entity.getImageId())
+                .image(image)
                 .build();
     }
 }

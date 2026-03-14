@@ -1,5 +1,6 @@
 package ps.emall.catalog.product.product_variant;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,157 +11,61 @@ import ps.emall.catalog.attribute.AttributeRepository;
 import ps.emall.catalog.attribute.attribute_options.AttributeOption;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionRepository;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionsExceptions;
+import ps.emall.catalog.client.media_manager.FileDto;
+import ps.emall.catalog.client.media_manager.MediaManagerClient;
+import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.product.Product;
-import ps.emall.catalog.product.ProductDto;
 import ps.emall.catalog.product.ProductExceptions;
 import ps.emall.catalog.product.ProductRepository;
-import ps.emall.catalog.product.product_image.ProductImageMapper;
+import ps.emall.catalog.product.product_media.ProductMediumMapper;
+import ps.emall.catalog.product.product_media.ProductMediaDto;
+import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttribute;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttributeDto;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-    public class ProductVariantServiceImpl implements ProductVariantService {
+public class ProductVariantServiceImpl implements ProductVariantService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository productVariantRepository;
     private final AttributeRepository attributeRepository;
     private final AttributeOptionRepository attributeOptionRepository;
-
-    public ProductVariantDto create(ProductVariantDto dto, Product product) {
-
-
-        ProductVariant productVariant = ProductVariant.builder()
-                .name(dto.getName())
-                .basePrice(dto.getBasePrice())
-                .isDefault(dto.isDefault())
-                .product(product)
-                .build();
-
-        dto.getImages()
-                .stream()
-                .map(ProductImageMapper::toEntity)
-                .forEach(productVariant::addImage);
-
-        for (VariantAttributeDto vaDto : dto.getAttributes()) {
-
-            Attribute attribute = attributeRepository.findById(vaDto.getAttributeId())
-                    .orElseThrow(AttributeExceptions::attributeNotFound);
-
-            AttributeOption option = attributeOptionRepository.findById(vaDto.getOptionId())
-                    .orElseThrow(AttributeExceptions::attributeNotFound);
-
-            productVariant.addVariantAttribute(attribute, option);
-        }
-
-        ProductVariant saved = productVariantRepository.save(productVariant);
-        log.info("Created product variant with id={}", saved.getId());
-        log.info("Created product variant with VariantAttributes={}", saved.getVariantAttributes().getFirst().getAttribute().getId());
-        return ProductVariantMapper.toDto(saved);
-    }
-
-
-        @Override
-        public ProductVariantDto create(Long productId, ProductVariantDto dto) {
-
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(ProductExceptions::productNotFound);
-
-//            if (dto.isDefault()) {
-//                productVariantRepository.clearDefaultForProduct(productId);
-//            }
-
-            ProductVariant variant = ProductVariant.builder()
-                    .name(dto.getName())
-                    .basePrice(dto.getBasePrice())
-                    .isDefault(dto.isDefault())
-                    .product(product)
-                    .build();
-
-
-            variant = productVariantRepository.saveAndFlush(variant);
-
-            // images
-            if (dto.getImages() != null) {
-                dto.getImages()
-                        .stream()
-                        .map(ProductImageMapper::toEntity)
-                        .forEach(variant::addImage);
-            }
-
-            // attributes
-            if (dto.getAttributes() != null) {
-                for (VariantAttributeDto va : dto.getAttributes()) {
-
-                    log.info("looking for attribute with id={}", va.getAttributeId());
-                    Attribute attribute = attributeRepository.findById(va.getAttributeId())
-                            .orElseThrow(AttributeExceptions::attributeNotFound);
-
-                    log.info("looking for attribute Option with id={}", va.getOptionId());
-                    AttributeOption option = attributeOptionRepository.findById(va.getOptionId())
-                            .orElseThrow(AttributeOptionsExceptions::optionNotFound);
-
-                    variant.addVariantAttribute(attribute, option);
-                }
-            }
-
-            ProductVariant saved = productVariantRepository.save(variant);
-
-
-            log.info("Created variant id={} for product id={} with option={} ", saved.getId(), productId, saved.getVariantAttributes().getFirst().getOption().getId(), saved.getVariantAttributes().getFirst().getAttribute());
-
-            ProductVariantDto savedDto = ProductVariantMapper.toDto(saved);
-            return savedDto;
-        }
-
-
+    private final MediaManagerClient mediaManagerClient;
 
     @Override
-    public ProductVariantDto update(
-            Long productId,
-            Long variantId,
-            ProductVariantDto dto
-    ) {
+    public ProductVariantDto create(Long productId, ProductVariantDto dto) {
+        // Fetch product or throw
+        Product product = productRepository.findById(productId)
+                .orElseThrow(ProductExceptions::productNotFound);
 
-        log.info("Updating product variant with id={} and product id={}", variantId, productId);
-        ProductVariant variant = productVariantRepository
-                .findById(variantId)
-                .orElseThrow(ProductVariantExceptions::variantNotFound);
-        log.info("==========================");
+        validateMedia(dto.getMedia());
 
-        // default variant rule
-//        if (dto.isDefault()) {
-//            productVariantRepository.clearDefaultForProduct(productId);
-//            variant.setIsDefault(true);
-//        } else {
-//            variant.setIsDefault(false);
-//        }
+        // Map DTO to entity
+        ProductVariant variant = ProductVariantMapper.toEntity(dto, product);
 
-        variant.setName(dto.getName());
-        variant.setBasePrice(dto.getBasePrice());
-
-        variant = productVariantRepository.saveAndFlush(variant);
-        log.info("flush Save for variant with id={}", variant.getId());
-        /* ---------- IMAGES ---------- */
-        variant.getImages().clear();
-        if (dto.getImages() != null) {
-            dto.getImages()
-                    .stream()
-                    .map(ProductImageMapper::toEntity)
-                    .forEach(variant::addImage);
+        // Add Media
+        if (dto.getMedia() != null) {
+            dto.getMedia().stream()
+                    .map(ProductMediumMapper::toEntity)
+                    .forEach(variant::addMedium);
         }
 
-        variant = productVariantRepository.saveAndFlush(variant);
-
-        /* ---------- ATTRIBUTES ---------- */
-        variant.getVariantAttributes().clear();
-        if (dto.getAttributes() != null) {
+        // Add attributes, checking duplicates
+        if (dto.getAttributes() != null && !dto.getAttributes().isEmpty()) {
+            Set<Long> attributeIds = new HashSet<>();
             for (VariantAttributeDto va : dto.getAttributes()) {
-
                 Attribute attribute = attributeRepository.findById(va.getAttributeId())
                         .orElseThrow(AttributeExceptions::attributeNotFound);
+
+                // Check for duplicate attributes
+                if (!attributeIds.add(attribute.getId())) {
+                    throw ProductVariantExceptions.duplicateAttribute();
+                }
 
                 AttributeOption option = attributeOptionRepository.findById(va.getOptionId())
                         .orElseThrow(AttributeOptionsExceptions::optionNotFound);
@@ -169,58 +74,90 @@ import java.util.List;
             }
         }
 
-        ProductVariant saved = productVariantRepository.save(variant);
+        // Save the variant
+        ProductVariant saved = productVariantRepository.saveAndFlush(variant);
 
-        log.info(
-                "Updated variant id={} for product id={}",
-                saved.getId(),
-                productId
-        );
-
-        return ProductVariantMapper.toDto(saved);
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public ProductVariantDto getById(Long productId, Long variantId) {
-
-        ProductVariant variant = productVariantRepository
-                .findByIdAndProductId(variantId, productId)
-                .orElseThrow(ProductVariantExceptions::variantNotFound);
-
-        return ProductVariantMapper.toDto(variant);
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ProductVariantDto> getByProductId(Long productId) {
-
-        if (!productRepository.existsById(productId)) {
-            throw ProductExceptions.productNotFound();
+        // Log creation summary
+        if (!saved.getVariantAttributes().isEmpty()) {
+            VariantAttribute first = saved.getVariantAttributes().get(0);
+            log.info("Created variant id={} for product id={} with optionId={} and attributeId={}",
+                    saved.getId(),
+                    productId,
+                    first.getOption().getId(),
+                    first.getAttribute().getId());
         }
 
-        return productVariantRepository.findByProductId(productId)
-                .stream()
-                .map(ProductVariantMapper::toDto)
-                .toList();
+        // Convert to DTO and inject media
+        ProductVariantDto savedDto = ProductVariantMapper.toDto(saved);
+        return injectMedia(savedDto);
     }
 
-    @Override
-    public void delete(Long productId, Long variantId) {
-
-        ProductVariant variant = productVariantRepository
-                .findByIdAndProductId(variantId, productId)
-                .orElseThrow(ProductVariantExceptions::variantNotFound);
-
-        productVariantRepository.delete(variant);
-
-        log.info(
-                "Deleted variant id={} from product id={}",
-                variantId,
-                productId
-        );
+    private boolean validMediumType(String mimeType) {
+        return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/"));
     }
 
+    private void validateMedia(List<ProductMediaDto> media) {
+        // Validate media limit
+        if (media == null || media.isEmpty()) {
+            throw ProductVariantExceptions.atLeastOneMediaRequired();
+        }else if(media.size() > 10){
+            throw ProductVariantExceptions.mediaLimitExceeded();
+        }
+
+        // Validate media orders & existence
+        Set<Integer> orders = new HashSet<>();
+        media.forEach(medium -> {
+            if (!orders.add(medium.getSortOrder())) {
+                throw ProductVariantExceptions.duplicateMediumSort();
+            }
+            try {
+                MediaResponse<FileDto> response = mediaManagerClient.getById(medium.getMediaId());
+                if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
+                    throw ProductVariantExceptions.mediumNotFound();
+                }
+                FileDto fileDto = response.getData();
+                if (!validMediumType(fileDto.getMimeType())) {
+                    throw ProductVariantExceptions.mediumTypeInvalid();
+                }
+            } catch (FeignException e) {
+                log.debug("Could not validate mediaId File from MediaManager mediaId={}, status={}, message={}",
+                        medium.getMediaId(), e.status(), e.getMessage()
+                );
+                throw ProductVariantExceptions.mediumCouldNotBeValidated();
+            } catch (Exception e) {
+                log.debug("Could not validate mediaId File from MediaManager mediaId={},  message={}",
+                        medium.getMediaId(), e.getMessage()
+                );
+                throw ProductVariantExceptions.mediumCouldNotBeValidated();
+            }
+        });
+    }
+
+
+    public ProductVariantDto injectMedia(ProductVariantDto dto) {
+        if (dto.getMedia() == null || dto.getMedia().isEmpty()) {
+
+            return dto;
+        }
+        for (ProductMediaDto medium : dto.getMedia()) {
+            try {
+                MediaResponse<FileDto> response = mediaManagerClient.getById(medium.getMediaId());
+                if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
+                    throw ProductVariantExceptions.mediumNotFound();
+                }
+                medium.setMediaFile(response.getData());
+
+            } catch (FeignException e) {
+                log.debug("Could not fetch media File from MediaManager mediaId={}, status={}, message={}",
+                        medium.getMediaId(), e.status(), e.getMessage()
+                );
+            } catch (Exception e) {
+                log.debug("Could not fetch media File from MediaManager mediaId={},  message={}",
+                        medium.getMediaId(), e.getMessage()
+                );
+            }
+
+        }
+        return dto;
+    }
 }

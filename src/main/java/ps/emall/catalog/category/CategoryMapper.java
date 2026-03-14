@@ -1,5 +1,7 @@
 package ps.emall.catalog.category;
 
+import ps.emall.catalog.client.media_manager.FileDto;
+
 public class CategoryMapper {
     public static Category toEntity(CategoryDto categoryDto) {
         Category category = Category.builder()
@@ -9,7 +11,7 @@ public class CategoryMapper {
                 .targetedAudience(categoryDto.getTargetedAudience())
                 .ageGroup(categoryDto.getAgeGroup())
                 .isActive(categoryDto.getIsActive())
-                .imageFileKey(categoryDto.getImageFileKey())
+                .imageId(categoryDto.getImageId())
                 .build();
         if (categoryDto.getParentId() != null) {
             Category parent = new Category();
@@ -26,7 +28,23 @@ public class CategoryMapper {
                 .targetedAudience(category.getTargetedAudience())
                 .ageGroup(category.getAgeGroup())
                 .isActive(category.getIsActive())
-                .imageFileKey(category.getImageFileKey())
+                .imageId(category.getImageId())
+                .build();
+        if (category.getParent() != null) {
+            categoryDto.setParentId(category.getParent().getId());
+        }
+        return categoryDto;
+    }
+    public static CategoryDto toDto(Category category, FileDto image) {
+        CategoryDto categoryDto = CategoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .slug(category.getSlug())
+                .targetedAudience(category.getTargetedAudience())
+                .ageGroup(category.getAgeGroup())
+                .isActive(category.getIsActive())
+                .imageId(category.getImageId())
+                .image(image)
                 .build();
         if (category.getParent() != null) {
             categoryDto.setParentId(category.getParent().getId());

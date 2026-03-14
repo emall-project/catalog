@@ -9,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.brand.BrandRepository;
 import ps.emall.catalog.category.Category;
+import ps.emall.catalog.category.CategoryExceptions;
 import ps.emall.catalog.category.CategoryRepository;
 import ps.emall.catalog.product.product_variant.ProductVariant;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
+import ps.emall.catalog.product.product_variant.ProductVariantRepository;
 import ps.emall.catalog.product.product_variant.ProductVariantService;
 import ps.emall.catalog.tag.Tag;
 import ps.emall.catalog.tag.TagService;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final TagService tagService;
@@ -36,7 +39,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductDto> getAll(ProductSpec spec, Pageable pageable) {
         return productRepository.findAll(spec, pageable)
-                .map(ProductMapper::toDto);
+                .map(ProductMapper::toDto)
+                .map(this::injectMedia);
     }
 
     @Override
@@ -52,14 +56,14 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto getById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(ProductExceptions::productNotFound);
-        return ProductMapper.toDto(product);
+        return injectMedia(ProductMapper.toDto(product));
     }
 
     @Override
     public ProductDto getBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(ProductExceptions::productNotFound);
-        return ProductMapper.toDto(product);
+        return injectMedia(ProductMapper.toDto(product));
     }
 
     @Override
@@ -74,30 +78,31 @@ public class ProductServiceImpl implements ProductService {
         List<Tag> tags = tagService.resolveTags(dto.getTags())
                 .stream().map(TagMapper::toEntity).toList();
 
-        Product product = Product.builder()
-                .name(dto.getName())
-                .slug(dto.getSlug())
-                .targetedAudience(dto.getTargetedAudience())
-                .ageGroup(dto.getAgeGroup())
-                .isActive(dto.getIsActive())
-                .shortDescription(dto.getShortDescription())
-                .description(dto.getDescription())
-                .category(category)
-                .brand(brand)
-                .mallId(dto.getMallId())
-                .storeId(dto.getStoreId())
-                .tags(tags)
-                .build();
+
+        if (slugExistsInTheSameStore(dto.getSlug(), 1L)) {
+            log.warn("Slug {} already exists", dto.getSlug());
+            throw ProductExceptions.slugExistsInTheSameStore();
+        }
+        validateSingleDefaultVariant(dto);
+
+        Product product = ProductMapper.toEntity(dto, category, brand, tags);
+
+        // TODO : replace it with the actual storeId and mallId from the token
+        product.setStoreId(1L);
+        product.setMallId(1L);
 
         Product saved = productRepository.save(product);
 
-        if (dto.getVariants() != null) {
-                for(ProductVariantDto v : dto.getVariants()) {
-                ProductVariantDto savedVariant = productVariantService.create(saved.getId(), v);
-            }
+
+        List<ProductVariantDto> variantDtos = new ArrayList<>();
+        for (ProductVariantDto v : dto.getVariants()) {
+            ProductVariantDto savedVariant = productVariantService.create(saved.getId(), v);
+            variantDtos.add(savedVariant);
+
         }
-        saved = productRepository.findById(saved.getId()).orElseThrow(ProductExceptions::productNotFound);
-        return ProductMapper.toDto(saved);
+        ProductDto result = ProductMapper.toDto(saved);
+        result.setVariants(variantDtos);
+        return result;
     }
 
     @Override
@@ -112,10 +117,21 @@ public class ProductServiceImpl implements ProductService {
         Brand brand = brandRepository.findById(dto.getBrandId())
                 .orElseThrow(ProductExceptions::brandNotFound);
 
+        if (!product.getSlug().equals(dto.getSlug()) &&
+                slugExistsInTheSameStore(dto.getSlug(), product.getStoreId())) {
+            log.warn("Slug {} already exists", dto.getSlug());
+            throw ProductExceptions.slugExistsInTheSameStore();
+        }
+
+        validateSingleDefaultVariant(dto);
+
+        // Resolve tags
         List<Tag> tags = tagService.resolveTags(dto.getTags())
                 .stream()
                 .map(TagMapper::toEntity)
-                .collect(Collectors.toCollection(ArrayList::new));
+                .toList();
+
+        // Update basic fields
         product.setName(dto.getName());
         product.setSlug(dto.getSlug());
         product.setTargetedAudience(dto.getTargetedAudience());
@@ -127,37 +143,22 @@ public class ProductServiceImpl implements ProductService {
         product.setBrand(brand);
         product.setTags(tags);
 
-        if (dto.getVariants() != null) {
+        Product savedProduct = productRepository.save(product);
+        //
+        productVariantRepository.deleteByProductId(savedProduct.getId());
 
-            List<Long> incomingVariantIds = dto.getVariants().stream()
-                    .map(ProductVariantDto::getId)
-                    .filter(id -> id != null)
-                    .toList();
+        List<ProductVariantDto> variantDtos = new ArrayList<>();
 
-            List<ProductVariant> variantsToDelete = product.getVariants().stream()
-                    .filter(v -> !incomingVariantIds.contains(v.getId()))
-                    .toList();
-
-            variantsToDelete.forEach(v -> product.getVariants().remove(v));
-
-            productRepository.saveAndFlush(product);
-
-            for (ProductVariantDto variantDto : dto.getVariants()) {
-                if (variantDto.getId() == null) {
-                    productVariantService.create(product.getId(), variantDto);
-                } else {
-                    boolean exists = product.getVariants().stream()
-                            .anyMatch(v -> v.getId().equals(variantDto.getId()));
-
-                    if (exists) {
-                        productVariantService.update(product.getId(), variantDto.getId(), variantDto);
-                    }
-                }
-            }
+        for (ProductVariantDto variantDto : dto.getVariants()) {
+            ProductVariantDto savedVariant =
+                    productVariantService.create(savedProduct.getId(), variantDto);
+            variantDtos.add(savedVariant);
         }
 
-        Product finalSaved = productRepository.findById(product.getId()).orElseThrow();
-        return ProductMapper.toDto(finalSaved);
+        ProductDto result = ProductMapper.toDto(savedProduct);
+        result.setVariants(variantDtos);
+
+        return result;
     }
 
     @Override
@@ -165,5 +166,27 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(ProductExceptions::productNotFound);
         productRepository.delete(product);
+    }
+
+    boolean slugExistsInTheSameStore(String slug, Long storeId) {
+        boolean result = productRepository.existsBySlugIgnoreCaseAndStoreId(slug, storeId);
+        return result;
+    }
+
+    private static void validateSingleDefaultVariant(ProductDto dto) {
+        long defaults =
+                dto.getVariants().stream()
+                        .filter(ProductVariantDto::isDefault)
+                        .count();
+
+        if (defaults > 1)
+            throw ProductExceptions.multipleDefaultVariants();
+    }
+
+    private ProductDto injectMedia(ProductDto dto){
+        for(ProductVariantDto v : dto.getVariants()){
+            productVariantService.injectMedia(v);
+        }
+        return dto;
     }
 }

@@ -44,7 +44,7 @@ public class AttributeServiceImpl implements AttributeService {
         if (attributeRepository.existsBySlug(dto.getSlug())) {
             throw AttributeExceptions.slugExists();
         }
-
+        validateOptionList(dto.getOptions());
         Attribute saved = attributeRepository.save(AttributeMapper.toEntity(dto));
         return AttributeMapper.toDto(saved);
     }

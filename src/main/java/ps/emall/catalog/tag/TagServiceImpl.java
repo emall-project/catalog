@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ps.emall.catalog.product.ProductRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
-
+    private final ProductRepository productRepository;
     @Override
     @Transactional(readOnly = true)
     public Page<TagDto> getAll(Specification<Tag> spec, Pageable pageable) {
@@ -93,7 +94,9 @@ public class TagServiceImpl implements TagService {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(TagExceptions::tagNotFound);
 
-        // TODO: prevent delete if products reference this tag
+        if(productRepository.existsByTags_Id(id)){
+            throw TagExceptions.tagHasProducts();
+        }
         tagRepository.delete(tag);
     }
     private String normalize(String tag) {

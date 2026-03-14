@@ -33,6 +33,14 @@ public class ProductDto {
             regexp = "^[^\\s]+$",
             message = "product.slug.white.spaces"
     )
+    @Pattern(
+            regexp = "^[a-z0-9-]+$",
+            message = "product.slug.lowercase"
+    )
+    @Pattern(
+            regexp = "^[a-z].*[a-z]$",
+            message = "product.slug.start.end.letter"
+    )
     @Size(min = 3, max = 50, message = "product.slug.size")
     private String slug;
 
@@ -59,15 +67,16 @@ public class ProductDto {
     @NotNull(message = "product.isActive.notnull")
     private Long brandId;
 
-    @NotNull(message = "product.mallId.notnull")
+    @Null(message = "product.mallId.null")
     private Long mallId;
 
-    @NotNull(message = "product.storeId.notnull")
+    @Null(message = "product.storeId.null")
     private Long storeId;
 
     @Valid
     private List<TagDto> tags;//create if not found
 
+    @NotNull(message = "product.variants.not.null")
     @Valid
     private List<ProductVariantDto> variants;//creat
 }

@@ -5,16 +5,14 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     properties:
       hibernate:
         default_schema: public
-      org:
-        hibernate:
-          envers:
-            revision_type_field_name: revtype
-            revision_field_name: rev
-            track_entities_changed_in_revision: false
+        envers:
+          revision_type_field_name: revtype
+          revision_field_name: rev
+          track_entities_changed_in_revision: false
 
   liquibase:
     enabled: true

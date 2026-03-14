@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS audit.brands_audit
     targeted_audience VARCHAR(20),
     age_group         VARCHAR(20),
     is_active         BOOLEAN,
-    image_file_key    UUID,
+    image_id          UUID,
     created_at        timestamp,
     created_by        VARCHAR(50),
     updated_at        timestamp,

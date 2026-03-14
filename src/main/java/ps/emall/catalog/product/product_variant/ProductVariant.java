@@ -5,14 +5,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.envers.AuditJoinTable;
-import org.hibernate.envers.AuditTable;
-import org.hibernate.envers.Audited;
 import ps.emall.catalog.attribute.Attribute;
 import ps.emall.catalog.attribute.attribute_options.AttributeOption;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
 import ps.emall.catalog.product.Product;
-import ps.emall.catalog.product.product_image.ProductImage;
+import ps.emall.catalog.product.product_media.ProductMedium;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttribute;
 
 import java.math.BigDecimal;
@@ -47,7 +44,7 @@ public class ProductVariant extends EMallsBaseEntity {
     @Column(name = "base_price", nullable = false)
     private BigDecimal basePrice;
 
-    @Column(name = "is_default")
+    @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -66,16 +63,17 @@ public class ProductVariant extends EMallsBaseEntity {
 
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ProductImage> images = new ArrayList<>();
+    //TODO replace it with media
+    private List<ProductMedium> media = new ArrayList<>();
 
-    public void addImage(ProductImage image) {
-        if (this.images == null) {
-            this.images = new ArrayList<>();
+    public void addMedium(ProductMedium medium) {
+        if (this.media == null) {
+            this.media = new ArrayList<>();
         }
-        images.add(image);
-        image.setProduct(this.getProduct());
-        image.setVariant(this);
-        log.info("adding Variant Image: with ImageId={} and VariantId={}", image.getId(),  image.getVariant().getId());
+        medium.setProduct(this.getProduct());
+        medium.setVariant(this);
+        media.add(medium);
+        log.info("adding Variant Image: with ImageId={} and VariantId={}", medium.getId(),  medium.getVariant().getId());
     }
 
     public void addVariantAttribute(Attribute attribute, AttributeOption option) {

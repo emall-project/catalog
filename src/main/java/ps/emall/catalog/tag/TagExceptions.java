@@ -19,4 +19,12 @@ public class TagExceptions {
                 .message(MessageKey.TAG_NAME_EXIST.getKey())
                 .build();
     }
+
+    public static EMallsException tagHasProducts() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.TAG_HAS_PRODUCTS.getKey())
+                .build();
+    }
+
 }

@@ -1,4 +1,4 @@
-package ps.emall.catalog.product.product_image;
+package ps.emall.catalog.product.product_media;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.envers.AuditTable;
-import org.hibernate.envers.Audited;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
 import ps.emall.catalog.product.Product;
 import ps.emall.catalog.product.product_variant.ProductVariant;
@@ -15,6 +13,7 @@ import ps.emall.catalog.product.product_variant.ProductVariant;
 import java.util.UUID;
 
 @Entity
+// TODO: rename it with product_media
 @Table(name = "product_images", schema = "catalog")
 @Getter
 @Setter
@@ -23,7 +22,7 @@ import java.util.UUID;
 @AllArgsConstructor
 //@Audited
 //@AuditTable(value = "product_images_audit", schema = "audit")
-public class ProductImage extends EMallsBaseEntity {
+public class ProductMedium extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_images_seq")
     @SequenceGenerator(
@@ -47,7 +46,7 @@ public class ProductImage extends EMallsBaseEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
 
-    @Column(name = "image_file_key", nullable = false)
-    private UUID imageFileKey;
+    @Column(name = "media_id", nullable = false)
+    private UUID mediaId;
 
 }

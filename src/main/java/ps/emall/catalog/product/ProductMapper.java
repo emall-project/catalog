@@ -1,7 +1,12 @@
 package ps.emall.catalog.product;
 
+import ps.emall.catalog.brand.Brand;
+import ps.emall.catalog.category.Category;
 import ps.emall.catalog.product.product_variant.ProductVariantMapper;
+import ps.emall.catalog.tag.Tag;
 import ps.emall.catalog.tag.TagMapper;
+
+import java.util.List;
 
 public class ProductMapper {
     public static ProductDto toDto(Product entity) {
@@ -29,7 +34,7 @@ public class ProductMapper {
                 .build();
     }
 
-    public static Product toEntity(ProductDto dto) {
+    public static Product toEntity(ProductDto dto, Category category, Brand brand, List<Tag> tags) {
         return Product.builder()
                 .id(dto.getId())
                 .name(dto.getName())
@@ -39,16 +44,11 @@ public class ProductMapper {
                 .isActive(dto.getIsActive())
                 .shortDescription(dto.getShortDescription())
                 .description(dto.getDescription())
+                .category(category)
+                .brand(brand)
                 .mallId(dto.getMallId())
                 .storeId(dto.getStoreId())
-                .tags(dto.getTags() != null ?
-                        dto.getTags().stream().map(TagMapper::toEntity).toList()
-                        : null
-                )
-                .variants(dto.getVariants() != null ?
-                        dto.getVariants().stream().map(ProductVariantMapper::toEntity).toList()
-                        : null
-                )
+                .tags(tags)
                 .build();
     }
 }

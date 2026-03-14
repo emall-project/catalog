@@ -1,30 +1,41 @@
 package ps.emall.catalog.category;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ps.emall.catalog.client.media_manager.FileDto;
+import ps.emall.catalog.client.media_manager.MediaManagerClient;
+import ps.emall.catalog.client.media_manager.MediaResponse;
+import ps.emall.catalog.common.exception.EMallsException;
+import ps.emall.catalog.product.ProductRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
+    private final MediaManagerClient mediaManagerClient;
 
     @Override
     @Transactional(readOnly = true)
     public Page<CategoryDto> getAll(Specification<Category> spec, Pageable pageable) {
         return categoryRepository.findAll(spec, pageable)
-                .map(CategoryMapper::toDto);
+                .map(CategoryMapper::toDto)
+                .map(this::injectImageUrl);
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -36,7 +47,43 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categories.stream()
                 .map(CategoryMapper::toDto)
+                .map(this::injectImageUrl)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CategoryDto getById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(CategoryExceptions::categoryNotFound);
+        return injectImageUrl(CategoryMapper.toDto(category));
+    }
+
+    // TODO: remove these tow method, cause get all can do the same functionality
+    @Override
+    @Transactional(readOnly = true)
+    public CategoryDto getBySlug(String slug) {
+        Category category = categoryRepository.findBySlug(slug)
+                .orElseThrow(CategoryExceptions::categoryNotFound);
+        return injectImageUrl(CategoryMapper.toDto(category));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryDto> getRoots() {
+        return categoryRepository.findByParentIsNull().stream()
+                .map(CategoryMapper::toDto)
+                .map(this::injectImageUrl)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryDto> getChildren(Long parentId) {
+        return categoryRepository.findByParentId(parentId).stream()
+                .map(CategoryMapper::toDto)
+                .map(this::injectImageUrl)
+                .toList();
     }
 
     @Override
@@ -45,15 +92,11 @@ public class CategoryServiceImpl implements CategoryService {
             throw CategoryExceptions.slugExists();
         }
         validateCategoryParent(dto);
-
-        //  TODO: uncomment when adding implement isFileExist in Media-manager
-//        if (!mediaManagerService.isFileExist(dto.getImageFileKey())) {
-//            throw CategoryExceptions.imageNotFound();
-//        }
+        FileDto image = getAndValidatedImage(dto.getImageId());
 
         Category category = CategoryMapper.toEntity(dto);
         Category saved = categoryRepository.save(category);
-        return CategoryMapper.toDto(saved);
+        return CategoryMapper.toDto(saved, image);
     }
 
     @Override
@@ -66,21 +109,18 @@ public class CategoryServiceImpl implements CategoryService {
         }
         validateCategoryParent(dto);
 
-        //  TODO: uncomment when adding implement isFileExist in Media-manager
-//        if (!mediaManagerService.isFileExist(dto.getImageFileKey())) {
-//            throw CategoryException.imageNotFound();
-//        }
+        FileDto image = getAndValidatedImage(dto.getImageId());
 
-        if(existing.getIsActive().equals(true) &&dto.getIsActive().equals(false)) {
+        if (existing.getIsActive().equals(true) && dto.getIsActive().equals(false)) {
             deactivation(existing);// apply deactivation side effects
         }
-        if(existing.getIsActive().equals(false) &&dto.getIsActive().equals(true)) {
-            activate(existing);// apply activation side effects
+        if (existing.getIsActive().equals(false) && dto.getIsActive().equals(true)) {
+            activation(existing);// apply activation side effects
         }
 
         existing.setName(dto.getName());
         existing.setSlug(dto.getSlug());
-        existing.setImageFileKey(dto.getImageFileKey());
+        existing.setImageId(dto.getImageId());
         existing.setTargetedAudience(dto.getTargetedAudience());
         existing.setAgeGroup(dto.getAgeGroup());
         existing.setIsActive(dto.getIsActive());
@@ -88,41 +128,8 @@ public class CategoryServiceImpl implements CategoryService {
                 Category.builder().id(dto.getParentId()).build() : null);
 
         Category saved = categoryRepository.save(existing);
-        return CategoryMapper.toDto(saved);
+        return CategoryMapper.toDto(saved, image);
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public CategoryDto getById(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(CategoryExceptions::categoryNotFound);
-        return CategoryMapper.toDto(category);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public CategoryDto getBySlug(String slug) {
-        Category category = categoryRepository.findBySlug(slug)
-                .orElseThrow(CategoryExceptions::categoryNotFound);
-        return CategoryMapper.toDto(category);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<CategoryDto> getRoots() {
-        return categoryRepository.findByParentIsNull().stream()
-                .map(CategoryMapper::toDto)
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<CategoryDto> getChildren(Long parentId) {
-        return categoryRepository.findByParentId(parentId).stream()
-                .map(CategoryMapper::toDto)
-                .toList();
-    }
-
 
     @Override
     public void delete(Long id) {
@@ -133,12 +140,17 @@ public class CategoryServiceImpl implements CategoryService {
         if (childCount > 0) {
             throw CategoryExceptions.categoryHasChildren();
         }
-//         TODO:  throw error if there products attached to this category
-//        if(){
-//            throw CategoryExceptions.categoryHasProducts();
-//        }
+        long productCount = productRepository.countByCategory_Id(id);
+        if (productCount > 0) {
+            throw CategoryExceptions.categoryHasProducts();
+        }
         categoryRepository.delete(category);
     }
+
+
+
+
+    //-----------------------HELPER-------------------------------------
 
     private void deactivation(Category category) {
 
@@ -147,33 +159,31 @@ public class CategoryServiceImpl implements CategoryService {
         for (Category child : children) {
             deactivation(child);
         }
-        // TODO:  make all product inactive when deactivate their category
-        // TODO:  notify vendor how have products attached to this Category
 
-        if(Boolean.FALSE.equals(category.getIsActive())){
+        if (Boolean.FALSE.equals(category.getIsActive())) {
             return;
         }
+
+        // TODO:  notify vendor who have products attached to this Category
         category.setIsActive(Boolean.FALSE);
         categoryRepository.save(category);
     }
 
-    private void activate(Category category) {
+    private void activation(Category category) {
 
-        long childCount = categoryRepository.countByParentId(category.getId());
-        // TODO: Check where you need to activate all children or not
-//        for (Category child : children) {
-//            deactivation(child);
-//        }
-        // TODO:  make all product inactive when deactivate their category
+        List<Category> children = categoryRepository.findByParentId(category.getId());
+
+        for (Category child : children) {
+            activation(child);
+        }
         // TODO:  notify vendor how have products attached to this Category
-        if(Boolean.TRUE.equals(category.getIsActive())){
+        if (Boolean.TRUE.equals(category.getIsActive())) {
             return;
         }
         category.setIsActive(Boolean.TRUE);
         categoryRepository.save(category);
 
     }
-
 
     @Override
     public boolean slugExists(String slug) {
@@ -183,13 +193,17 @@ public class CategoryServiceImpl implements CategoryService {
     private void validateCategoryParent(CategoryDto dto) {
         if (dto.getParentId() != null) {
 
-        // TODO : this won't fix the problem cause the dto.getId() will return null so u ganna have to be creative
-//            if (dto.getParentId().equals(dto.getId())) {
-//                throw CategoryExceptions.selfParenting();
-//            }
+            if (!categoryRepository.existsById(dto.getParentId())) {
+                throw CategoryExceptions.parentNotFound();
+            }
 
-            if (isCircularHierarchy(dto.getId(), dto.getParentId())) {
-                throw CategoryExceptions.circularHierarchy();
+            if (dto.getId() != null) {
+                if (dto.getParentId().equals(dto.getId())) {
+                    throw CategoryExceptions.selfParenting();
+                }
+                if (isCircularHierarchy(dto.getId(), dto.getParentId())) {
+                    throw CategoryExceptions.circularHierarchy();
+                }
             }
         }
     }
@@ -205,5 +219,40 @@ public class CategoryServiceImpl implements CategoryService {
             currentParentId = parent.get().getParent() != null ? parent.get().getParent().getId() : null;
         }
         return false;
+    }
+
+    private CategoryDto injectImageUrl(CategoryDto dto) {
+        MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
+        if (response.getErrorCodes() != null) {
+            throw new EMallsException(response.getErrorCodes(), null, response.getStatus(), response.getMessage());
+        }
+        dto.setImage(response.getData());
+        return dto;
+    }
+
+    private boolean isImage(String mimeType) {
+        return mimeType != null && mimeType.startsWith("image/");
+    }
+
+    private FileDto getAndValidatedImage(UUID imageId) {
+            MediaResponse<FileDto> response;
+        try {
+            response = mediaManagerClient.getById(imageId);
+        } catch (FeignException e) {
+            log.info("Could not validate imageId File from MediaManager imageId={}, status={}, message={}",
+                    imageId, e.status(), e.getMessage()
+            );
+            throw CategoryExceptions.imageCouldNotBeValidated();
+        }
+
+        if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
+            throw CategoryExceptions.imageNotFound();
+        }
+        FileDto fileDto = response.getData();
+        log.info("fetching file with name {}", fileDto.getName());
+        if (!isImage(fileDto.getMimeType())) {
+            throw CategoryExceptions.invalidFileType();
+        }
+        return response.getData();
     }
 }

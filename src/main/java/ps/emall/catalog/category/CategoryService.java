@@ -12,13 +12,13 @@ public interface CategoryService {
 
     List<CategoryDto> getAllCategoryList(CategorySpec spec);
 
-    CategoryDto create(CategoryDto categoryDto);
-
-    CategoryDto update(CategoryDto categoryDto);
-
     CategoryDto getById(Long id);
 
     CategoryDto getBySlug(String slug);
+
+    CategoryDto create(CategoryDto categoryDto);
+
+    CategoryDto update(CategoryDto categoryDto);
 
     void delete(Long id);
 

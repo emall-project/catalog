@@ -11,6 +11,9 @@ public final class AttributeExceptions {
 
     private AttributeExceptions() {}
 
+    // ----------------------------
+    // Not Found Exceptions
+    // ----------------------------
     public static EMallsException attributeNotFound() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
@@ -18,20 +21,24 @@ public final class AttributeExceptions {
                 .build();
     }
 
-    public static EMallsException slugExists() {
-        return EMallsException.builder()
-                .httpStatus(HttpStatus.CONFLICT)
-                .message(MessageKey.ATTRIBUTE_SLUG_EXISTS.getKey())
-                .errorCode(List.of(
-                        new ErrorCode("slug", MessageKey.ATTRIBUTE_SLUG_EXISTS.getKey())
-                ))
-                .build();
-    }
-
+    // ----------------------------
+    // Bad Request Exceptions
+    // ----------------------------
     public static EMallsException attributeInactive() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(MessageKey.ATTRIBUTE_INACTIVE.getKey())
+                .build();
+    }
+
+    // ----------------------------
+    // Conflict Exceptions
+    // ----------------------------
+    public static EMallsException slugExists() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.CONFLICT)
+                .message(MessageKey.ATTRIBUTE_SLUG_EXISTS.getKey())
+                .errorCode(List.of(new ErrorCode("slug", MessageKey.ATTRIBUTE_SLUG_EXISTS.getKey())))
                 .build();
     }
 }
