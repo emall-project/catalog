@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
@@ -19,7 +20,7 @@ public class TagController {
     private final TagService tagService;
 
     @GetMapping
-    public EMallsResponseEntity<Page<TagDto>> getAll(TagSpec spec, Pageable pageable) {
+    public EMallsResponseEntity<PaginatedResponse<TagDto>> getAll(TagSpec spec, Pageable pageable) {
         return EMallsResponseEntity.ok(tagService.getAll(spec, pageable));
     }
 

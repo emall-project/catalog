@@ -13,6 +13,7 @@ import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.exception.EMallsException;
+import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.ProductRepository;
 
 import java.util.List;
@@ -31,10 +32,11 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<BrandDto> getAll(Specification<Brand> spec, Pageable pageable) {
-        return brandRepository.findAll(spec, pageable)
+    public PaginatedResponse<BrandDto> getAll(Specification<Brand> spec, Pageable pageable) {
+        Page<BrandDto> page = brandRepository.findAll(spec, pageable)
                 .map(BrandMapper::toDto)
                 .map(this::injectImageUrl);
+        return PaginatedResponse.of(page);
     }
 
     @Override

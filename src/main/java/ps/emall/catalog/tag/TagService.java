@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import ps.emall.catalog.common.page.PaginatedResponse;
 
 import java.util.List;
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.Set;
 @Repository
 public interface TagService {
 
-    Page<TagDto> getAll(Specification<Tag> spec, Pageable pageable);
+    PaginatedResponse<TagDto> getAll(Specification<Tag> spec, Pageable pageable);
 
     List<TagDto> getAllTagsList(Specification<Tag> spec);
 

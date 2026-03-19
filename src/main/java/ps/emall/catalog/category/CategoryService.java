@@ -3,12 +3,13 @@ package ps.emall.catalog.category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import ps.emall.catalog.common.page.PaginatedResponse;
 
 import java.util.List;
 
 public interface CategoryService {
 
-    Page<CategoryDto> getAll(Specification<Category> spec, Pageable pageable);
+    PaginatedResponse<CategoryDto> getAll(Specification<Category> spec, Pageable pageable);
 
     List<CategoryDto> getAllCategoryList(CategorySpec spec);
 

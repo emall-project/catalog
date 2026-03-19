@@ -12,6 +12,7 @@ import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.exception.EMallsException;
+import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.ProductRepository;
 
 import java.util.List;
@@ -31,10 +32,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<CategoryDto> getAll(Specification<Category> spec, Pageable pageable) {
-        return categoryRepository.findAll(spec, pageable)
+    public PaginatedResponse<CategoryDto> getAll(Specification<Category> spec, Pageable pageable) {
+        Page<CategoryDto> page =  categoryRepository.findAll(spec, pageable)
                 .map(CategoryMapper::toDto)
                 .map(this::injectImageUrl);
+        return PaginatedResponse.of(page);
     }
 
     @Override

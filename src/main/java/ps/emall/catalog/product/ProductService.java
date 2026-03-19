@@ -2,12 +2,13 @@ package ps.emall.catalog.product;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import ps.emall.catalog.common.page.PaginatedResponse;
 
 import java.util.List;
 
 public interface ProductService {
 
-    Page<ProductDto> getAll(ProductSpec spec, Pageable pageable);
+    PaginatedResponse<ProductDto> getAll(ProductSpec spec, Pageable pageable);
 
     List<ProductDto> getAllProductList(ProductSpec spec);
 

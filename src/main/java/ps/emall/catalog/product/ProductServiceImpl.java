@@ -11,6 +11,7 @@ import ps.emall.catalog.brand.BrandRepository;
 import ps.emall.catalog.category.Category;
 import ps.emall.catalog.category.CategoryExceptions;
 import ps.emall.catalog.category.CategoryRepository;
+import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.product_variant.ProductVariant;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
 import ps.emall.catalog.product.product_variant.ProductVariantRepository;
@@ -37,10 +38,11 @@ public class ProductServiceImpl implements ProductService {
     private final ProductVariantService productVariantService;
 
     @Override
-    public Page<ProductDto> getAll(ProductSpec spec, Pageable pageable) {
-        return productRepository.findAll(spec, pageable)
+    public PaginatedResponse<ProductDto> getAll(ProductSpec spec, Pageable pageable) {
+        Page<ProductDto> page = productRepository.findAll(spec, pageable)
                 .map(ProductMapper::toDto)
                 .map(this::injectMedia);
+        return PaginatedResponse.of(page);
     }
 
     @Override
@@ -84,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.slugExistsInTheSameStore();
         }
         validateSingleDefaultVariant(dto);
-        if(dto.getVariants().size() > 1){
+        if (dto.getVariants().size() > 1) {
             validateVariantsHaveAttributes(dto.getVariants());
         }
         Product product = ProductMapper.toEntity(dto, category, brand, tags);
@@ -187,14 +189,14 @@ public class ProductServiceImpl implements ProductService {
 
     private static void validateVariantsHaveAttributes(List<ProductVariantDto> variants) {
         for (ProductVariantDto variant : variants) {
-            if(variant.getAttributes() == null || variant.getAttributes().isEmpty()) {
+            if (variant.getAttributes() == null || variant.getAttributes().isEmpty()) {
                 throw ProductExceptions.variantShouldHasAttribute();
             }
         }
     }
 
-    private ProductDto injectMedia(ProductDto dto){
-        for(ProductVariantDto v : dto.getVariants()){
+    private ProductDto injectMedia(ProductDto dto) {
+        for (ProductVariantDto v : dto.getVariants()) {
             productVariantService.injectMedia(v);
         }
         return dto;

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.ProductRepository;
 
 import java.util.List;
@@ -21,9 +22,10 @@ public class TagServiceImpl implements TagService {
     private final ProductRepository productRepository;
     @Override
     @Transactional(readOnly = true)
-    public Page<TagDto> getAll(Specification<Tag> spec, Pageable pageable) {
-        return tagRepository.findAll(spec, pageable)
+    public PaginatedResponse<TagDto> getAll(Specification<Tag> spec, Pageable pageable) {
+        Page<TagDto> page =  tagRepository.findAll(spec, pageable)
                 .map(TagMapper::toDto);
+        return PaginatedResponse.of(page);
     }
 
     @Override

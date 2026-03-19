@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
@@ -20,8 +21,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public EMallsResponseEntity<List<CategoryDto>> getAll(CategorySpec spec, Pageable pageable) {
-        Page<CategoryDto> categories = categoryService.getAll(spec, pageable);
+    public EMallsResponseEntity<PaginatedResponse<CategoryDto>> getAll(CategorySpec spec, Pageable pageable) {
+        PaginatedResponse<CategoryDto> categories = categoryService.getAll(spec, pageable);
         return EMallsResponseEntity.ok(categories);
     }
 
