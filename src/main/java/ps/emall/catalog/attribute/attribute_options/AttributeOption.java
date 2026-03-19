@@ -20,8 +20,8 @@ import ps.emall.catalog.common.base.EMallsBaseEntity;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-//@Audited
-//@AuditTable(value = "attribute_options_audit", schema = "audit")
+@Audited
+@AuditTable(value = "attribute_options_audit", schema = "audit")
 public class AttributeOption extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "attribute_options_seq")

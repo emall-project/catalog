@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
 import ps.emall.catalog.product.Product;
 import ps.emall.catalog.product.product_variant.ProductVariant;
@@ -20,8 +22,8 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-//@Audited
-//@AuditTable(value = "product_images_audit", schema = "audit")
+@Audited
+@AuditTable(value = "product_images_audit", schema = "audit")
 public class ProductMedium extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_images_seq")

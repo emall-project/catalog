@@ -18,8 +18,8 @@ import ps.emall.catalog.common.base.EMallsBaseEntity;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-//@Audited
-//@AuditTable(value = "tags_audit", schema = "audit")
+@Audited
+@AuditTable(value = "tags_audit", schema = "audit")
 
 public class Tag extends EMallsBaseEntity {
     @Id

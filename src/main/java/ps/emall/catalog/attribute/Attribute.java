@@ -19,8 +19,8 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-//@Audited
-//@AuditTable(value = "attributes_audit", schema = "audit")
+@Audited
+@AuditTable(value = "attributes_audit", schema = "audit")
 public class Attribute extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "attributes_seq")

@@ -3,6 +3,8 @@ package ps.emall.catalog.category;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
@@ -18,8 +20,8 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-//@Audited
-//@AuditTable(value = "categories_audit", schema = "audit")
+@Audited
+@AuditTable(value = "categories_audit", schema = "audit")
 public class Category extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categories_seq")

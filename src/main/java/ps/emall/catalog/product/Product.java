@@ -25,8 +25,8 @@ import java.util.*;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-//@Audited
-//@AuditTable(value = "products_audit", schema = "audit")
+@Audited
+@AuditTable(value = "products_audit", schema = "audit")
 public class Product extends EMallsBaseEntity {
 
     @Id
@@ -78,17 +78,17 @@ public class Product extends EMallsBaseEntity {
     private Long storeId;
 
     @ManyToMany
-//    @Audited
+   @Audited
     @JoinTable(
             name = "product_tags",
             schema = "catalog",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-//    @AuditJoinTable(
-//            name = "product_tags_audit",
-//            schema = "audit"
-//    )
+   @AuditJoinTable(
+           name = "product_tags_audit",
+           schema = "audit"
+   )
     private List<Tag> tags = new ArrayList<>();
 
 

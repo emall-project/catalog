@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 import ps.emall.catalog.attribute.Attribute;
 import ps.emall.catalog.attribute.attribute_options.AttributeOption;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
@@ -24,8 +26,8 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-//@Audited
-//@AuditTable(value = "product_variants_audit", schema = "audit")
+@Audited
+@AuditTable(value = "product_variants_audit", schema = "audit")
 public class ProductVariant extends EMallsBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_variants_sequence")

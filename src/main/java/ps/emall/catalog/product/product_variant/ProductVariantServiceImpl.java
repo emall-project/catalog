@@ -14,6 +14,7 @@ import ps.emall.catalog.attribute.attribute_options.AttributeOptionsExceptions;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
+import ps.emall.catalog.common.exception.EMallsException;
 import ps.emall.catalog.product.Product;
 import ps.emall.catalog.product.ProductExceptions;
 import ps.emall.catalog.product.ProductRepository;
@@ -100,7 +101,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         // Validate media limit
         if (media == null || media.isEmpty()) {
             throw ProductVariantExceptions.atLeastOneMediaRequired();
-        }else if(media.size() > 10){
+        } else if (media.size() > 10) {
             throw ProductVariantExceptions.mediaLimitExceeded();
         }
 
@@ -110,25 +111,27 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             if (!orders.add(medium.getSortOrder())) {
                 throw ProductVariantExceptions.duplicateMediumSort();
             }
+            MediaResponse<FileDto> response;
             try {
-                MediaResponse<FileDto> response = mediaManagerClient.getById(medium.getMediaId());
-                if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
-                    throw ProductVariantExceptions.mediumNotFound();
-                }
-                FileDto fileDto = response.getData();
-                if (!validMediumType(fileDto.getMimeType())) {
-                    throw ProductVariantExceptions.mediumTypeInvalid();
-                }
-            } catch (FeignException e) {
-                log.debug("Could not validate mediaId File from MediaManager mediaId={}, status={}, message={}",
+                response = mediaManagerClient.getById(medium.getMediaId());
+            }
+            catch(FeignException e) {
+                log.info("Could not validate mediaId File from MediaManager mediaId={}, status={}, message={}",
                         medium.getMediaId(), e.status(), e.getMessage()
                 );
                 throw ProductVariantExceptions.mediumCouldNotBeValidated();
             } catch (Exception e) {
-                log.debug("Could not validate mediaId File from MediaManager mediaId={},  message={}",
+                log.info("Could not validate mediaId File from MediaManager mediaId={},  message={}",
                         medium.getMediaId(), e.getMessage()
                 );
                 throw ProductVariantExceptions.mediumCouldNotBeValidated();
+            }
+            if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
+                throw ProductVariantExceptions.mediumNotFound();
+            }
+            FileDto fileDto = response.getData();
+            if (!validMediumType(fileDto.getMimeType())) {
+                throw ProductVariantExceptions.mediumTypeInvalid();
             }
         });
     }

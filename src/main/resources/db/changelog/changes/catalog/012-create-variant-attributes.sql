@@ -11,8 +11,8 @@ CREATE SEQUENCE IF NOT EXISTS catalog.variant_attributes_seq
 CREATE TABLE IF NOT EXISTS catalog.variant_attributes
 (
     id           BIGINT PRIMARY KEY DEFAULT nextval('catalog.variant_attributes_seq'),
-    variant_id   BIGINT,
-    attribute_id BIGINT,
+    variant_id   BIGINT NOT NULL,
+    attribute_id BIGINT NOT NULL,
     option_id    BIGINT,
     FOREIGN KEY (variant_id) REFERENCES catalog.product_variants (id) ON DELETE CASCADE,
     FOREIGN KEY (attribute_id) REFERENCES catalog.attributes (id),

@@ -4,5 +4,19 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:e-mall}
     password: ${SPRING_DATASOURCE_PASSWORD:root}
 
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+      org:
+        hibernate:
+          SQL: DEBUG
+          type: TRACE
+
 server:
   port: ${SPRING_PORT:8081}

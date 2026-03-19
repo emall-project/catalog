@@ -16,8 +16,8 @@ import ps.emall.catalog.product.product_variant.ProductVariant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-//@Audited
-//@AuditTable(value = "variant_attributes_audit", schema = "audit")
+@Audited
+@AuditTable(value = "variant_attributes_audit", schema = "audit")
 public class VariantAttribute {
 
     @Id
@@ -30,10 +30,10 @@ public class VariantAttribute {
     private ProductVariant variant;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attribute_id")
+    @JoinColumn(name = "attribute_id", nullable = false)
     private Attribute attribute;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "option_id", nullable = false)
+    @JoinColumn(name = "option_id")
     private AttributeOption option;
 }
