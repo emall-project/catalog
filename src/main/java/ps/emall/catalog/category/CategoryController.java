@@ -1,10 +1,12 @@
 package ps.emall.catalog.category;
 
-import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
@@ -19,9 +21,15 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public EMallsResponseEntity<List<CategoryDto>> getAll(CategorySpec spec) {
-        List<CategoryDto> categories = categoryService.search(spec);
+    public EMallsResponseEntity<PaginatedResponse<CategoryDto>> getAll(CategorySpec spec, Pageable pageable) {
+        PaginatedResponse<CategoryDto> categories = categoryService.getAll(spec, pageable);
         return EMallsResponseEntity.ok(categories);
+    }
+
+    @GetMapping("/all")
+    public EMallsResponseEntity<List<CategoryDto>> getCategories(CategorySpec spec) {
+        List<CategoryDto> getAllCategories = categoryService.getAllCategoryList(spec);
+        return EMallsResponseEntity.ok(getAllCategories);
     }
 
     @GetMapping("/{id}")
@@ -36,40 +44,6 @@ public class CategoryController {
         return EMallsResponseEntity.ok(dto);
     }
 
-    @PostMapping
-    public EMallsResponseEntity<CategoryDto> create(@RequestBody @Validated({Default.class, OnCreate.class}) CategoryDto dto) {
-        CategoryDto created = categoryService.create(dto);
-        return EMallsResponseEntity.created(created);
-    }
-
-    @PutMapping("/{id}")
-    public EMallsResponseEntity<CategoryDto> update(@PathVariable Long id,
-                                                    @RequestBody @Validated({Default.class, OnUpdate.class}) CategoryDto dto) {
-        dto.setId(id);
-        CategoryDto updated = categoryService.update(dto);
-        return EMallsResponseEntity.ok(updated);
-    }
-
-    @DeleteMapping("/{id}")
-    public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
-        categoryService.delete(id);
-        return EMallsResponseEntity.noContent(null);
-    }
-
-
-    @PutMapping("/deactivate/{id}")
-    public EMallsResponseEntity<Void> deactivate(@PathVariable Long id) {
-        categoryService.deactivate(id);
-        return EMallsResponseEntity.noContent(null);
-    }
-
-
-    @PutMapping("/activate/{id}")
-    public EMallsResponseEntity<Void> activate(@PathVariable Long id) {
-        categoryService.activate(id);
-        return EMallsResponseEntity.noContent(null);
-    }
-
     @GetMapping("/roots")
     public EMallsResponseEntity<List<CategoryDto>> getRoots() {
         List<CategoryDto> roots = categoryService.getRoots();
@@ -82,4 +56,21 @@ public class CategoryController {
         return EMallsResponseEntity.ok(children);
     }
 
+    @PostMapping
+    public EMallsResponseEntity<CategoryDto> create(@RequestBody @Validated({Default.class, OnCreate.class}) CategoryDto dto) {
+        CategoryDto created = categoryService.create(dto);
+        return EMallsResponseEntity.created(created);
+    }
+
+    @PutMapping
+    public EMallsResponseEntity<CategoryDto> update(@RequestBody @Validated({Default.class, OnUpdate.class}) CategoryDto dto) {
+        CategoryDto updated = categoryService.update(dto);
+        return EMallsResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
+        categoryService.delete(id);
+        return EMallsResponseEntity.noContent(null);
+    }
 }

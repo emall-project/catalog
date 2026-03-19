@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
+import ps.emall.catalog.common.audience.AgeGroup;
+import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
 
 import java.util.HashSet;
@@ -38,14 +40,22 @@ public class Category extends EMallsBaseEntity {
     @Column(name = "slug", unique = true, nullable = false)
     private String slug;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    @Column(name = "targeted_audience", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TargetedAudience targetedAudience;
 
-    @Column(name = "image_file_key", nullable = false)
-    private UUID imageFileKey;
+    @Column(name = "age_group", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AgeGroup ageGroup;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
+    @Column(name = "image_id", nullable = false)
+    private UUID imageId;
 
     @ManyToOne(fetch =  FetchType.LAZY)
-    @JoinColumn(name = "parent_id", nullable = false)
+    @JoinColumn(name = "parent_id")
     private Category parent;
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)

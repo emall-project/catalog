@@ -1,8 +1,21 @@
 package ps.emall.catalog.category;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import ps.emall.catalog.common.page.PaginatedResponse;
+
 import java.util.List;
 
 public interface CategoryService {
+
+    PaginatedResponse<CategoryDto> getAll(Specification<Category> spec, Pageable pageable);
+
+    List<CategoryDto> getAllCategoryList(CategorySpec spec);
+
+    CategoryDto getById(Long id);
+
+    CategoryDto getBySlug(String slug);
 
     CategoryDto create(CategoryDto categoryDto);
 
@@ -10,21 +23,9 @@ public interface CategoryService {
 
     void delete(Long id);
 
-    void deactivate(Long id);
-
-    void activate(Long id);
-
-    CategoryDto getById(Long id);
-
-    CategoryDto getBySlug(String slug);
-
-    List<CategoryDto> getAll();
-
     List<CategoryDto> getRoots();
 
     List<CategoryDto> getChildren(Long parentId);
-
-    List<CategoryDto> search(CategorySpec spec);
 
     boolean slugExists(String slug);
 }

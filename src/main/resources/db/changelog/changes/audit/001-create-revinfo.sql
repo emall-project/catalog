@@ -10,7 +10,8 @@ CREATE SEQUENCE IF NOT EXISTS audit.revinfo_seq
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE IF NOT EXISTS audit.revinfo (
-        rev INT PRIMARY KEY DEFAULT nextval('audit.revinfo_seq'),
-        revtstmp BIGINT
+CREATE TABLE IF NOT EXISTS audit.revinfo
+(
+    rev      INT PRIMARY KEY DEFAULT nextval('audit.revinfo_seq'),
+    revtstmp BIGINT
 );

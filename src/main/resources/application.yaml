@@ -9,12 +9,10 @@ spring:
     properties:
       hibernate:
         default_schema: public
-      org:
-        hibernate:
-          envers:
-            revision_type_field_name: revtype
-            revision_field_name: rev
-            track_entities_changed_in_revision: false
+        envers:
+          revision_type_field_name: revtype
+          revision_field_name: rev
+          track_entities_changed_in_revision: false
 
   liquibase:
     enabled: true
@@ -31,12 +29,21 @@ services:
   campaigns:
     host: ${CAMPAIGNS_IP_ADDRESS:http://localhost}
     port: ${ACCOUNTS_PORT:8082}
+    username: ${ACCOUNTS_USER_NAME:e-mall}
+    password: ${ACCOUNTS_PASSWORD:e-mall}
   accounts:
     host: ${ACCOUNTS_IP_ADDRESS:http://localhost}
     port: ${ACCOUNTS_PORT:8083}
+    username: ${ACCOUNTS_USER_NAME:e-mall}
+    password: ${ACCOUNTS_PASSWORD:e-mall}
   order-hub:
     host: ${ORDER_HUB_IP_ADDRESS:http://localhost}
     port: ${ORDER_HUB_PORT:8084}
+    username: ${ORDER_HUB_USER_NAME:e-mall}
+    password: ${ORDER_HUB_PASSWORD:e-mall}
   media-manager:
     host: ${MEDIA_MANAGER_IP_ADDRESS:http://localhost}
     port: ${MEDIA_MANAGER_PORT:8085}
+    username: ${MEDIA_MANAGER_USER_NAME:e-mall}
+    password: ${MEDIA_MANAGER_PASSWORD:e-mall}
+
