@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: catalog
   datasource:
     driver-class-name: org.postgresql.Driver
 
@@ -14,11 +16,27 @@ spring:
           revision_field_name: rev
           track_entities_changed_in_revision: false
 
+  jackson:
+    time-zone: Asia/Gaza
+
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
 
 management:
+  otlp:
+    metrics:
+      export:
+        url: ${GRAFANA_URL:http://localhost:4318}/v1/metrics
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${GRAFANA_URL:http://localhost:4318}/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: ${GRAFANA_URL:http://localhost:4318}/v1/logs
   endpoints:
     web:
       exposure:

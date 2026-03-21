@@ -18,5 +18,10 @@ spring:
           SQL: DEBUG
           type: TRACE
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0  # 100% sampling for development
+
 server:
   port: ${SPRING_PORT:8081}
