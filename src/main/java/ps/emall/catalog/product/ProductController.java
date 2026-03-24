@@ -44,6 +44,11 @@ public class ProductController {
         return EMallsResponseEntity.ok(dto);
     }
 
+    @GetMapping("/{id}/info")
+    public EMallsResponseEntity<ProductInfoDto> getProductInfo(@PathVariable Long id) {
+        return EMallsResponseEntity.ok(productService.getProductInfo(id));
+    }
+
     @PostMapping
     public EMallsResponseEntity<ProductDto> create(
             @RequestBody @Validated({Default.class, OnCreate.class}) ProductDto dto
