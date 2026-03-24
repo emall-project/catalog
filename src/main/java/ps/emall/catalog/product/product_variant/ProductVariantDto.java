@@ -42,5 +42,10 @@ public class ProductVariantDto {
     @Valid
     private List<ProductMediaDto> media;
 
+    private Boolean hasDiscount;
+    private BigDecimal discountedPrice;  // final price after discount for this variant
+    private String discountType;
+    private BigDecimal discountValue;
+    private Long offerId;
 
 }

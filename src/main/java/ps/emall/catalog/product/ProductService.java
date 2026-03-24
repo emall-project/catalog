@@ -21,4 +21,6 @@ public interface ProductService {
     ProductDto getBySlug(String slug);
 
     void delete(Long id);
+
+    ProductInfoDto getProductInfo(Long id);
 }
