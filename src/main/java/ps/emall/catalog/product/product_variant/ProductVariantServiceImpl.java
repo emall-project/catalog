@@ -11,15 +11,15 @@ import ps.emall.catalog.attribute.AttributeRepository;
 import ps.emall.catalog.attribute.attribute_options.AttributeOption;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionRepository;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionsExceptions;
+import ps.emall.catalog.category.CategoryExceptions;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
-import ps.emall.catalog.common.exception.EMallsException;
 import ps.emall.catalog.product.Product;
 import ps.emall.catalog.product.ProductExceptions;
 import ps.emall.catalog.product.ProductRepository;
 import ps.emall.catalog.product.product_media.ProductMediumMapper;
-import ps.emall.catalog.product.product_media.ProductMediaDto;
+import ps.emall.catalog.product.product_media.ProductMediumDto;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttribute;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttributeDto;
 
@@ -97,7 +97,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/"));
     }
 
-    private void validateMedia(List<ProductMediaDto> media) {
+    private void validateMedia(List<ProductMediumDto> media) {
         // Validate media limit
         if (media == null || media.isEmpty()) {
             throw ProductVariantExceptions.atLeastOneMediaRequired();
@@ -111,27 +111,27 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             if (!orders.add(medium.getSortOrder())) {
                 throw ProductVariantExceptions.duplicateMediumSort();
             }
-            MediaResponse<FileDto> response;
             try {
-                response = mediaManagerClient.getById(medium.getMediaId());
-            }
-            catch(FeignException e) {
+                MediaResponse<FileDto> response = mediaManagerClient.getById(medium.getMediumId());
+                // validate response not empty
+                if (response == null || response.getData() == null) {
+                    throw ProductVariantExceptions.mediumCouldNotBeValidated();
+                }
+
+                FileDto fileDto = response.getData();
+
+                if (!validMediumType(fileDto.getMimeType())) {
+                    throw ProductVariantExceptions.mediumTypeInvalid();
+                }
+
+            } catch (FeignException e) {
                 log.info("Could not validate mediaId File from MediaManager mediaId={}, status={}, message={}",
-                        medium.getMediaId(), e.status(), e.getMessage()
+                        medium.getMediumId(), e.status(), e.getMessage()
                 );
+                if (e.status() == 404) {
+                    throw ProductVariantExceptions.mediumNotFound();
+                }
                 throw ProductVariantExceptions.mediumCouldNotBeValidated();
-            } catch (Exception e) {
-                log.info("Could not validate mediaId File from MediaManager mediaId={},  message={}",
-                        medium.getMediaId(), e.getMessage()
-                );
-                throw ProductVariantExceptions.mediumCouldNotBeValidated();
-            }
-            if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
-                throw ProductVariantExceptions.mediumNotFound();
-            }
-            FileDto fileDto = response.getData();
-            if (!validMediumType(fileDto.getMimeType())) {
-                throw ProductVariantExceptions.mediumTypeInvalid();
             }
         });
     }
@@ -139,25 +139,28 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     public ProductVariantDto injectMedia(ProductVariantDto dto) {
         if (dto.getMedia() == null || dto.getMedia().isEmpty()) {
-
             return dto;
         }
-        for (ProductMediaDto medium : dto.getMedia()) {
+
+        for (ProductMediumDto medium : dto.getMedia()) {
             try {
-                MediaResponse<FileDto> response = mediaManagerClient.getById(medium.getMediaId());
-                if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
+                MediaResponse<FileDto> response = mediaManagerClient.getById(medium.getMediumId());
+
+                // validate response not empty
+                if (response == null || response.getData() == null) {
                     throw ProductVariantExceptions.mediumNotFound();
                 }
-                medium.setMediaFile(response.getData());
+                //inject medium File
+                medium.setMediumFile(response.getData());
 
             } catch (FeignException e) {
-                log.debug("Could not fetch media File from MediaManager mediaId={}, status={}, message={}",
-                        medium.getMediaId(), e.status(), e.getMessage()
+                if (e.status() == 404) {
+                    throw CategoryExceptions.imageNotFound();
+                }
+                log.error("Could not fetch media File from MediaManager mediaId={}, status={}, message={}",
+                        medium.getMediumId(), e.status(), e.getMessage()
                 );
-            } catch (Exception e) {
-                log.debug("Could not fetch media File from MediaManager mediaId={},  message={}",
-                        medium.getMediaId(), e.getMessage()
-                );
+                throw e;
             }
 
         }

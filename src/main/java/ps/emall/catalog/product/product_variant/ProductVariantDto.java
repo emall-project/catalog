@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import ps.emall.catalog.common.validation.OnCreate;
-import ps.emall.catalog.product.product_media.ProductMediaDto;
+import ps.emall.catalog.product.product_media.ProductMediumDto;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttributeDto;
 
 import java.math.BigDecimal;
@@ -40,7 +40,7 @@ public class ProductVariantDto {
 
     @NotNull(message = "product.variant.media.not.null")
     @Valid
-    private List<ProductMediaDto> media;
+    private List<ProductMediumDto> media;
 
     private Boolean hasDiscount;
     private BigDecimal discountedPrice;  // final price after discount for this variant

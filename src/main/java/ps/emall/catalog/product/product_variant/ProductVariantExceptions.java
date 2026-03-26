@@ -3,6 +3,9 @@ package ps.emall.catalog.product.product_variant;
 import org.springframework.http.HttpStatus;
 import ps.emall.catalog.common.exception.EMallsException;
 import ps.emall.catalog.common.message.MessageKey;
+import ps.emall.catalog.common.response.ErrorCode;
+
+import java.util.List;
 
 public final class ProductVariantExceptions {
 
@@ -25,12 +28,6 @@ public final class ProductVariantExceptions {
                 .build();
     }
 
-    public static EMallsException mediumCouldNotBeValidated() {
-        return EMallsException.builder()
-                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR) // Changed from NOT_FOUND to INTERNAL_SERVER_ERROR
-                .message(MessageKey.PRODUCT_VARIANT_MEDIUM_COULD_NOT_BE_VALIDATED.getKey())
-                .build();
-    }
 
     public static EMallsException mediumTypeInvalid() {
         return EMallsException.builder()
@@ -67,6 +64,16 @@ public final class ProductVariantExceptions {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(MessageKey.PRODUCT_VARIANT_MUST_HAVE_AT_LEAST_ONE_MEDIUM.getKey())
+                .build();
+    }
+
+    // ----------------------------
+    // Internal Server Error Exceptions
+    // ----------------------------
+    public static EMallsException mediumCouldNotBeValidated() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR) // Changed from NOT_FOUND to INTERNAL_SERVER_ERROR
+                .message(MessageKey.PRODUCT_VARIANT_MEDIUM_COULD_NOT_BE_VALIDATED.getKey())
                 .build();
     }
 }

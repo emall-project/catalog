@@ -65,7 +65,6 @@ public class ProductVariant extends EMallsBaseEntity {
 
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    //TODO replace it with media
     private List<ProductMedium> media = new ArrayList<>();
 
     public void addMedium(ProductMedium medium) {

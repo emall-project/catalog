@@ -15,21 +15,20 @@ import ps.emall.catalog.product.product_variant.ProductVariant;
 import java.util.UUID;
 
 @Entity
-// TODO: rename it with product_media
-@Table(name = "product_images", schema = "catalog")
+@Table(name = "product_media", schema = "catalog")
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Audited
-@AuditTable(value = "product_images_audit", schema = "audit")
+@AuditTable(value = "product_media_audit", schema = "audit")
 public class ProductMedium extends EMallsBaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_images_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_media_seq")
     @SequenceGenerator(
-            name = "product_images_seq",
-            sequenceName = "product_images_seq",
+            name = "product_media_seq",
+            sequenceName = "product_media_seq",
             schema = "catalog",
             allocationSize = 1
     )
@@ -48,7 +47,7 @@ public class ProductMedium extends EMallsBaseEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
 
-    @Column(name = "media_id", nullable = false)
-    private UUID mediaId;
+    @Column(name = "medium_id", nullable = false)
+    private UUID mediumId;
 
 }

@@ -15,9 +15,7 @@ import ps.emall.catalog.common.validation.OnUpdate;
 @NoArgsConstructor
 @Builder
 public class AttributeOptionDto {
-    // TODO: THINK about this, is better to always to clear the option then create them?
     @Null(message = "attribute.option.id.null")
-//    @NotNull(groups = OnUpdate.class, message = "attribute.option.id.notnull")
     private Long id;
 
     @NotBlank(message = "attribute.option.value.notblank")

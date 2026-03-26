@@ -11,14 +11,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductMediaDto {
+public class ProductMediumDto {
     private Long id;
 
     @NotNull(message = "product.image.mediaId.notnull")
-    private UUID mediaId;
+    private UUID mediumId;
 
     @NotNull(message = "product.image.sortOrder.notnull")
     private int sortOrder;
 
-    private FileDto mediaFile;
+    private FileDto mediumFile;
 }
