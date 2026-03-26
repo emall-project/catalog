@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ProductVariantRepository
         extends JpaRepository<ProductVariant, Long> {
@@ -24,4 +25,13 @@ public interface ProductVariantRepository
     void clearDefaultForProduct(Long productId);
 
     void deleteByProductId(Long productId);
+
+    @Query("""
+        SELECT v 
+        FROM ProductVariant v
+        JOIN v.media m
+        WHERE m.mediumId = :mediumId
+    """)
+    List<ProductVariant> findByMediumId(UUID mediumId);
+
 }
