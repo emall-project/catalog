@@ -1,5 +1,5 @@
 -- liquibase formatted sql
--- changeset JehadHamid:007-create-attribute-options-table runOnChange:true
+-- changeset JehadHamid:008-create-attribute-options-table runOnChange:true
 
 CREATE SEQUENCE IF NOT EXISTS catalog.attribute_options_seq
     START WITH 1

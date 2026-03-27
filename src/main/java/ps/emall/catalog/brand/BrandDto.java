@@ -40,8 +40,6 @@ public class BrandDto {
     private String slug;
 
     @NotNull(message = "brand.targetedAudience.notnull")
-    // TODO: add validation on the coming value, so u don't end up with INTERNAL_SERVER_ERROR
-    //  due to serializing issue when the entered value not in TargetedAudience enum
     private TargetedAudience targetedAudience;
 
     @NotNull(message = "brand.ageGroup.notnull")

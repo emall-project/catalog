@@ -33,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponse<CategoryDto> getAll(Specification<Category> spec, Pageable pageable) {
-        Page<CategoryDto> page =  categoryRepository.findAll(spec, pageable)
+        Page<CategoryDto> page = categoryRepository.findAll(spec, pageable)
                 .map(CategoryMapper::toDto)
                 .map(this::injectImageUrl);
         return PaginatedResponse.of(page);
@@ -61,7 +61,6 @@ public class CategoryServiceImpl implements CategoryService {
         return injectImageUrl(CategoryMapper.toDto(category));
     }
 
-    // TODO: remove these tow method, cause get all can do the same functionality
     @Override
     @Transactional(readOnly = true)
     public CategoryDto getBySlug(String slug) {
@@ -70,6 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
         return injectImageUrl(CategoryMapper.toDto(category));
     }
 
+    // TODO: remove these tow method, cause get all can do the same functionality
     @Override
     @Transactional(readOnly = true)
     public List<CategoryDto> getRoots() {
@@ -150,8 +150,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
 
-
-
     //-----------------------HELPER-------------------------------------
 
     private void deactivation(Category category) {
@@ -224,12 +222,20 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private CategoryDto injectImageUrl(CategoryDto dto) {
-        MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
-        if (response.getErrorCodes() != null) {
-            throw new EMallsException(response.getErrorCodes(), null, response.getStatus(), response.getMessage());
+        try {
+            MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
+            dto.setImage(response.getData());
+            return dto;
+
+        } catch (FeignException e) {
+            if (e.status() == 404) {
+                throw CategoryExceptions.imageNotFound();
+            }
+            log.error("Could not fetch image File from MediaManager imageId={}, status={}, message={}",
+                    dto.getImageId(), e.status(), e.getMessage()
+            );
+            throw e;
         }
-        dto.setImage(response.getData());
-        return dto;
     }
 
     private boolean isImage(String mimeType) {
@@ -237,24 +243,28 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private FileDto getAndValidatedImage(UUID imageId) {
-            MediaResponse<FileDto> response;
         try {
-            response = mediaManagerClient.getById(imageId);
+            MediaResponse<FileDto> response = mediaManagerClient.getById(imageId);
+            // validate response not empty
+            if (response == null || response.getData() == null) {
+                throw CategoryExceptions.imageCouldNotBeValidated();
+            }
+
+            FileDto fileDto = response.getData();
+
+            // validate file type
+            if (!isImage(fileDto.getMimeType())) {
+                throw CategoryExceptions.invalidFileType();
+            }
+
+            return response.getData();
+
         } catch (FeignException e) {
-            log.info("Could not validate imageId File from MediaManager imageId={}, status={}, message={}",
-                    imageId, e.status(), e.getMessage()
-            );
+            if (e.status() == 404) {
+                throw CategoryExceptions.imageNotFound();
+            }
             throw CategoryExceptions.imageCouldNotBeValidated();
         }
-
-        if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
-            throw CategoryExceptions.imageNotFound();
-        }
-        FileDto fileDto = response.getData();
-        log.info("fetching file with name {}", fileDto.getName());
-        if (!isImage(fileDto.getMimeType())) {
-            throw CategoryExceptions.invalidFileType();
-        }
-        return response.getData();
     }
+
 }

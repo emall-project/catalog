@@ -99,8 +99,6 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     private boolean validateOptionList(List<AttributeOptionDto> options) {
-        //TODO: think about better algo for duplication check
-        //TODO: check if there any thing else u wanna validate
         HashSet<String> value = new HashSet<>();
         HashSet<Integer> orders = new HashSet<>();
         for (AttributeOptionDto option : options) {

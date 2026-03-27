@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long>,
         JpaSpecificationExecutor<Category> {
@@ -15,6 +17,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long>,
     boolean existsBySlug(String slug);
     Optional<Category> findBySlug(String slug);
     long countByParentId(Long parentId);
+
+    List<Category> findByImageId(UUID imageId);
 
 }
 

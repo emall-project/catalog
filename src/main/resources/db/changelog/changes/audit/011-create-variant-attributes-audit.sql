@@ -1,5 +1,5 @@
 -- liquibase formatted sql
--- changeset JehadHamid:11-create-variant-attributes-audit runOnChange:true
+-- changeset JehadHamid:11-create-variant-attributes-audit
 
 CREATE TABLE IF NOT EXISTS audit.variant_attributes_audit
 (

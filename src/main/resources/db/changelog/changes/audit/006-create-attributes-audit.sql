@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset JehadHamid:006-create-attributes
+--changeset JehadHamid:006-create-attributes-audit
 
 CREATE TABLE IF NOT EXISTS audit.attributes_audit
 (

@@ -1,5 +1,5 @@
 -- liquibase formatted sql
--- changeset JehadHamid:005-create-products-table runOnChange:true
+-- changeset JehadHamid:004-create-products-table runOnChange:true
 
 CREATE SEQUENCE IF NOT EXISTS catalog.products_sequence
     START WITH 1

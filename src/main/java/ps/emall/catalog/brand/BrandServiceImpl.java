@@ -8,11 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ps.emall.catalog.category.CategoryExceptions;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
-import ps.emall.catalog.common.exception.EMallsException;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.ProductRepository;
 
@@ -100,7 +98,6 @@ public class BrandServiceImpl implements BrandService {
                 .orElseThrow(BrandExceptions::brandNotFound);
     }
 
-    // TODO remove this in the next issue
     @Override
     @Transactional(readOnly = true)
     public BrandDto findBySlug(String slug) {
@@ -124,7 +121,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     private void activation(Brand brand) {
-        // TODO:  notify vendor how have products attached to this brand
+        // TODO:  notify  vendor how have products attached to this brand
         brandRepository.activateById(brand.getId());
     }
 
@@ -136,12 +133,17 @@ public class BrandServiceImpl implements BrandService {
 
 
     private BrandDto injectImageUrl(BrandDto dto) {
-        MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
-        if (response.getErrorCodes() != null) {
-            throw new EMallsException(response.getErrorCodes(), null, response.getStatus(), response.getMessage());
+        try {
+            MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
+            dto.setImage(response.getData());
+            return dto;
+
+        } catch (FeignException e) {
+            if (e.status() == 404) {
+                throw BrandExceptions.imageNotFound();
+            }
+            throw e;
         }
-        dto.setImage(response.getData());
-        return dto;
     }
 
     private boolean isImage(String mimeType) {
@@ -151,23 +153,24 @@ public class BrandServiceImpl implements BrandService {
     private FileDto getAndValidatedImage(UUID imageId) {
         try {
             MediaResponse<FileDto> response = mediaManagerClient.getById(imageId);
-            if (response.getErrorCodes() != null && !response.getErrorCodes().isEmpty()) {
-                throw BrandExceptions.imageNotFound();
+            // validate response not empty
+            if (response == null || response.getData() == null) {
+                throw BrandExceptions.imageCouldNotBeValidated();
             }
+
             FileDto fileDto = response.getData();
+
+            // validate file type
             if (!isImage(fileDto.getMimeType())) {
                 throw BrandExceptions.invalidFileType();
             }
+
             return response.getData();
+
         } catch (FeignException e) {
-            log.debug("Could not validate imageId File from MediaManager imageId={}, status={}, message={}",
-                    imageId, e.status(), e.getMessage()
-            );
-            throw BrandExceptions.imageCouldNotBeValidated();
-        } catch (Exception e) {
-            log.debug("Could not validate imageId File from MediaManager imageId={},  message={}",
-                    imageId, e.getMessage()
-            );
+            if (e.status() == 404) {
+                throw BrandExceptions.imageNotFound();
+            }
             throw BrandExceptions.imageCouldNotBeValidated();
         }
     }

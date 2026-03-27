@@ -1,4 +1,11 @@
 spring:
+
+  application:
+    name: catalog
+
+  jackson:
+    time-zone: Asia/Gaza
+
   datasource:
     driver-class-name: org.postgresql.Driver
 
@@ -17,6 +24,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
+
 
 management:
   endpoints:
