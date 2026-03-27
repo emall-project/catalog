@@ -5,8 +5,8 @@ public enum AgeGroup {
     INFANT,         // الرضع
     TODDLER,        // الأطفال الصغار
     CHILD,          // الأطفال
-    TEENAGER,       // المراهقين
+    TEENAGER,       // شباب صغار
     YOUTH,          // الشباب
-    ADULT,          // البالغين
+    ADULT,          // رجال
     ALL             // الجميع
 }

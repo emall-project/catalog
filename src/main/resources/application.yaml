@@ -1,4 +1,11 @@
 spring:
+
+  application:
+    name: catalog
+
+  jackson:
+    time-zone: Asia/Gaza
+
   datasource:
     driver-class-name: org.postgresql.Driver
 
@@ -18,8 +25,6 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
 
-  jackson:
-    time-zone: Asia/Gaza
 
 management:
   endpoints:
