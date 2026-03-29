@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.category.audience_config.CategoryAudienceConfigDto;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
@@ -68,9 +69,21 @@ public class CategoryController {
         return EMallsResponseEntity.ok(updated);
     }
 
+    @PutMapping("/{categoryId}/audience")
+    public EMallsResponseEntity<CategoryDto> addAudienceConfig(@PathVariable Long categoryId, @RequestBody @Validated({Default.class, OnCreate.class}) CategoryAudienceConfigDto dto) {
+        CategoryDto created = categoryService.addAudienceConfig(categoryId, dto);
+        return EMallsResponseEntity.created(created);
+    }
+
     @DeleteMapping("/{id}")
     public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
+        return EMallsResponseEntity.noContent(null);
+    }
+
+    @DeleteMapping("/{categoryId}/audience/{id}")
+    public EMallsResponseEntity<CategoryDto> removeAudienceConfig(@PathVariable Long categoryId, @PathVariable Long id) {
+        categoryService.removeAudienceConfig(categoryId, id);
         return EMallsResponseEntity.noContent(null);
     }
 }

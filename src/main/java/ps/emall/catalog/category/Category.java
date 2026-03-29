@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
+import ps.emall.catalog.category.audience_config.CategoryAudienceConfig;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
@@ -54,11 +55,17 @@ public class Category extends EMallsBaseEntity {
     @Column(name = "image_id", nullable = false)
     private UUID imageId;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private Set<Category> children = new HashSet<>();
 
+    @OneToMany(
+            mappedBy = "category",
+//            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<CategoryAudienceConfig> audienceConfig = new HashSet<>();
 }

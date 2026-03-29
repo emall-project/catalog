@@ -29,6 +29,14 @@ public final class CategoryExceptions {
                 .build();
     }
 
+
+    public static EMallsException categoryAudienceConfigNotFound() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.NOT_FOUND)
+                .message(MessageKey.CATEGORY_AUDIENCE_CONFIG_NOT_FOUND.getKey())
+                .errorCode(List.of(new ErrorCode("audienceConfig", MessageKey.CATEGORY_AUDIENCE_CONFIG_NOT_FOUND.getKey())))
+                .build();
+    }
     // ----------------------------
     // Bad Request Exceptions
     // ----------------------------
@@ -77,6 +85,31 @@ public final class CategoryExceptions {
                 .errorCode(List.of(new ErrorCode("parentId", MessageKey.CATEGORY_CIRCULAR_HIERARCHY.getKey())))
                 .build();
     }
+    public static EMallsException duplicateAudienceConfig() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.CATEGORY_AUDIENCE_CONFIG_DUPLICATE.getKey())
+                .errorCode(List.of(new ErrorCode("audienceConfig", MessageKey.CATEGORY_AUDIENCE_CONFIG_DUPLICATE.getKey())))
+                .build();
+    }
+
+    public static EMallsException audienceConfigNotAllowed() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.AUDIENCE_CONFIG_NOT_ALLOWED_HERE.getKey())
+                .errorCode(List.of(new ErrorCode("audienceConfig", MessageKey.AUDIENCE_CONFIG_NOT_ALLOWED_HERE.getKey())))
+                .build();
+    }
+
+    public static EMallsException audienceConfigOutsideCategoryScope() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.AUDIENCE_CONFIG_OUTSIDE_CATEGORY_SCOPE.getKey())
+                .errorCode(List.of(new ErrorCode("audienceConfig", MessageKey.AUDIENCE_CONFIG_OUTSIDE_CATEGORY_SCOPE.getKey())))
+                .build();
+    }
+
+
 
     // ----------------------------
     // Conflict Exceptions

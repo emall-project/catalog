@@ -5,6 +5,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AttributeOptionRepository extends JpaRepository<AttributeOption, Long>,
-        JpaSpecificationExecutor<AttributeOption> {
+public interface AttributeOptionRepository extends JpaRepository<AttributeOption, Long>,JpaSpecificationExecutor<AttributeOption> {
 }
