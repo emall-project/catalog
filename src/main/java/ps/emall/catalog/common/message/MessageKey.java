@@ -17,14 +17,22 @@ public enum MessageKey {
     // =========================================================
     // CATEGORY - ERRORS
     // =========================================================
+
     CATEGORY_NOT_FOUND("category.not.found"),
-    CATEGORY_SLUG_EXISTS("category.slug.exists"),
+    CATEGORY_IMAGE_NOT_FOUND("category.image.not.found"),
     CATEGORY_PARENT_NOT_FOUND("category.parent.not.found"),
+    CATEGORY_AUDIENCE_CONFIG_NOT_FOUND("category.audience.config.not.found"),
+
+    CATEGORY_SLUG_EXISTS("category.slug.exists"),
+
     CATEGORY_SELF_PARENT("category.self.parent"),
     CATEGORY_CIRCULAR_HIERARCHY("category.circular.hierarchy"),
+    CATEGORY_AUDIENCE_CONFIG_DUPLICATE("category.audience.config.duplicate"),
+    AUDIENCE_CONFIG_NOT_ALLOWED_HERE("audience.config.not.allowed.here"),
+    AUDIENCE_CONFIG_OUTSIDE_CATEGORY_SCOPE("audience.config.outside.category.scope"),
     CATEGORY_HAS_CHILDREN("category.has.children"),
     CATEGORY_HAS_PRODUCTS("category.has.product"),
-    CATEGORY_IMAGE_NOT_FOUND("category.image.not.found"),
+
     CATEGORY_IMAGE_COULD_NOT_BE_VALIDATED("category.image.could.not.be.validated"),
     CATEGORY_IMAGE_INVALID("category.image.invalid"),
 
@@ -156,7 +164,8 @@ public enum MessageKey {
     PRODUCT_INACTIVE("product.inactive"),
     PRODUCT_HAS_MULTIPLE_DEFAULT_VARIANTS("product.has.multiple.default.variants"),
     PRODUCT_VARIANT_SHOULD_HAS_ATTRIBUTE("product.variant.should.have.attribute"),
-
+    INVALID_PRODUCT_AUDIENCE_FOR_CATEGORY("invalid.product.audience.for.category"),
+    INVALID_PRODUCT_AGE_GROUP_FOR_CATEGORY("invalid.product.ageGroup.for.category"),
     // =========================================================
     // PRODUCT - DTO VALIDATION
     // =========================================================

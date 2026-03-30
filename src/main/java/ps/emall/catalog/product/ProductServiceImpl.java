@@ -14,6 +14,8 @@ import ps.emall.catalog.category.CategoryExceptions;
 import ps.emall.catalog.category.CategoryRepository;
 import ps.emall.catalog.client.campaigns.ActiveOfferDto;
 import ps.emall.catalog.client.campaigns.CampaignsClient;
+import ps.emall.catalog.common.audience.AgeGroup;
+import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.product_variant.ProductVariant;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
@@ -91,6 +93,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto create(ProductDto dto) {
 
+        // validation
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(ProductExceptions::categoryNotFound);
 
@@ -109,8 +112,12 @@ public class ProductServiceImpl implements ProductService {
         if (dto.getVariants().size() > 1) {
             validateVariantsHaveAttributes(dto.getVariants());
         }
-        Product product = ProductMapper.toEntity(dto, category, brand, tags);
 
+        validateTargetedAudience(dto.getTargetedAudience(), category.getTargetedAudience());
+        validateAgeGroup(dto.getAgeGroup(), category.getAgeGroup());
+
+
+        Product product = ProductMapper.toEntity(dto, category, brand, tags);
         // TODO : replace it with the actual storeId and mallId from the token
         product.setStoreId(1L);
         product.setMallId(1L);
@@ -264,5 +271,15 @@ public class ProductServiceImpl implements ProductService {
             productVariantService.injectMedia(v);
         }
         return dto;
+    }
+    private void validateTargetedAudience(TargetedAudience productTargetedAudience, TargetedAudience categoryTargetedAudience) {
+        if(categoryTargetedAudience == TargetedAudience.ALL)return;
+        if (productTargetedAudience == categoryTargetedAudience)return;
+        throw ProductExceptions.invalidProductAudienceForCategory();
+    }
+    private void validateAgeGroup(AgeGroup productAgeGroup, AgeGroup categoryAgeGroup) {
+        if(categoryAgeGroup == AgeGroup.ALL)return;
+        if(productAgeGroup == categoryAgeGroup)return;
+        throw ProductExceptions.invalidProductAgeGroupForCategory();
     }
 }

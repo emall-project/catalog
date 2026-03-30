@@ -55,4 +55,16 @@ public final class ProductExceptions {
                 .message(MessageKey.PRODUCT_VARIANT_SHOULD_HAS_ATTRIBUTE.getKey())
                 .build();
     }
+    public static EMallsException invalidProductAudienceForCategory(){
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.INVALID_PRODUCT_AUDIENCE_FOR_CATEGORY.getKey())
+                .build();
+    }
+    public static EMallsException invalidProductAgeGroupForCategory(){
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.INVALID_PRODUCT_AGE_GROUP_FOR_CATEGORY.getKey())
+                .build();
+    }
 }

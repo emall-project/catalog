@@ -1,14 +1,17 @@
 package ps.emall.catalog.category;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ps.emall.catalog.category.audience_config.CategoryAudienceConfigDto;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -57,5 +60,10 @@ public class CategoryDto {
 
     private Long parentId;
 
+    @Valid
+    private Set<CategoryAudienceConfigDto> audienceConfig;
+
     private FileDto image;
+
+
 }
