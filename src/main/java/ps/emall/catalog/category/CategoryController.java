@@ -2,7 +2,6 @@ package ps.emall.catalog.category;
 
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +23,11 @@ public class CategoryController {
     @GetMapping
     public EMallsResponseEntity<PaginatedResponse<CategoryDto>> getAll(CategorySpec spec, Pageable pageable) {
         PaginatedResponse<CategoryDto> categories = categoryService.getAll(spec, pageable);
+        return EMallsResponseEntity.ok(categories);
+    }
+    @GetMapping("/light")
+    public EMallsResponseEntity<PaginatedResponse<CategoryLightDto>> getAllLight(CategorySpec spec, Pageable pageable) {
+        PaginatedResponse<CategoryLightDto> categories = categoryService.getAllLight(spec, pageable);
         return EMallsResponseEntity.ok(categories);
     }
 

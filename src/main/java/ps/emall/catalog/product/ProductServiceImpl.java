@@ -14,20 +14,22 @@ import ps.emall.catalog.category.CategoryExceptions;
 import ps.emall.catalog.category.CategoryRepository;
 import ps.emall.catalog.client.campaigns.ActiveOfferDto;
 import ps.emall.catalog.client.campaigns.CampaignsClient;
+import ps.emall.catalog.client.media_manager.FileDto;
+import ps.emall.catalog.client.media_manager.FileLightDto;
+import ps.emall.catalog.client.media_manager.MediaManagerClient;
+import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.page.PaginatedResponse;
-import ps.emall.catalog.product.product_variant.ProductVariant;
-import ps.emall.catalog.product.product_variant.ProductVariantDto;
-import ps.emall.catalog.product.product_variant.ProductVariantRepository;
-import ps.emall.catalog.product.product_variant.ProductVariantService;
+import ps.emall.catalog.product.light.ProductLightDto;
+import ps.emall.catalog.product.light.ProductLightMapper;
+import ps.emall.catalog.product.light.ProductLightRow;
+import ps.emall.catalog.product.product_variant.*;
 import ps.emall.catalog.tag.Tag;
 import ps.emall.catalog.tag.TagService;
 import ps.emall.catalog.tag.TagMapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,6 +45,7 @@ public class ProductServiceImpl implements ProductService {
     private final TagService tagService;
     private final ProductVariantService productVariantService;
     private final CampaignsClient campaignsClient;
+    private final MediaManagerClient mediaManagerClient;
 
     @Override
     public PaginatedResponse<ProductDto> getAll(ProductSpec spec, Pageable pageable) {
@@ -50,20 +53,80 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductMapper::toDto)
                 .map(this::injectMedia)
                 .map(this::injectDiscount);
+
         return PaginatedResponse.of(page);
     }
 
     @Override
     @Transactional(readOnly = true)
+    public PaginatedResponse<ProductLightDto> getAllLight(ProductSpec spec, Pageable pageable) {
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
+
+        List<Long> productIds = productPage.getContent()
+                .stream()
+                .map(Product::getId)
+                .toList();
+
+        List<ProductLightRow> rows = productRepository.findLightRowsByProductIds(productIds);
+
+        Map<Long, ProductLightRow> rowMap = new HashMap<>();
+        List<UUID> mediaIds = new ArrayList<>();
+
+        for (ProductLightRow row : rows) {
+            rowMap.put(row.getProductId(), row);
+            mediaIds.add(row.getMediumId());
+        }
+
+        Map<UUID, FileLightDto> mediaMap = getMedia(mediaIds);
+
+        Page<ProductLightDto> dtoPage = productPage.map(product -> {
+            ProductLightRow row = rowMap.get(product.getId());
+            FileLightDto fileLightDto = mediaMap.get(row.getMediumId());
+
+            ProductLightDto dto = ProductLightDto.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .slug(product.getSlug())
+                    .build();
+
+            if (row != null) {
+                dto.setDefaultVariantId(row.getDefaultVariantId());
+                dto.setBasePrice(row.getBasePrice());
+
+                if (row.getMediumId() != null) {
+                    FileLightDto medium = new FileLightDto();
+                    medium.setId(row.getMediumId());
+                    dto.setMedium(medium);
+                }
+            }
+            if(fileLightDto != null) {
+                dto.setMedium(fileLightDto);
+            }
+
+            return dto;
+        });
+
+        return PaginatedResponse.of(dtoPage);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ProductDto> getAllProductList(ProductSpec spec) {
-        return productRepository.findAll(spec)
+        List<Product> products = (spec == null)
+                ? productRepository.findAll()
+                : productRepository.findAll(spec);
+
+        return products
                 .stream()
                 .map(ProductMapper::toDto)
                 .map(this::injectDiscount)
                 .collect(Collectors.toList());
     }
 
+
     @Override
+    @Transactional(readOnly = true)
     public ProductDto getById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(ProductExceptions::productNotFound);
@@ -71,6 +134,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProductDto getBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(ProductExceptions::productNotFound);
@@ -105,7 +169,6 @@ public class ProductServiceImpl implements ProductService {
 
 
         if (slugExistsInTheSameStore(dto.getSlug(), 1L)) {
-            log.warn("Slug {} already exists", dto.getSlug());
             throw ProductExceptions.slugExistsInTheSameStore();
         }
         validateSingleDefaultVariant(dto);
@@ -126,12 +189,17 @@ public class ProductServiceImpl implements ProductService {
 
 
         List<ProductVariantDto> variantDtos = new ArrayList<>();
+        ProductVariant defaultVariant = null;
         for (ProductVariantDto v : dto.getVariants()) {
             ProductVariantDto savedVariant = productVariantService.create(saved.getId(), v);
             variantDtos.add(savedVariant);
-
+            if (savedVariant.isDefault()) {
+                defaultVariant = ProductVariantMapper.toEntity(savedVariant, product);
+            }
         }
-        ProductDto result = ProductMapper.toDto(saved);
+        saved.setDefaultVariant(defaultVariant);
+        ProductDto result = ProductMapper.toDto(productRepository.save(saved));
+
         result.setVariants(variantDtos);
         return result;
     }
@@ -180,13 +248,18 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductVariantDto> variantDtos = new ArrayList<>();
 
+        ProductVariant defaultVariant = null;
         for (ProductVariantDto variantDto : dto.getVariants()) {
             ProductVariantDto savedVariant =
                     productVariantService.create(savedProduct.getId(), variantDto);
             variantDtos.add(savedVariant);
+            if (savedVariant.isDefault()) {
+                defaultVariant = ProductVariantMapper.toEntity(savedVariant, product);
+            }
         }
+        savedProduct.setDefaultVariant(defaultVariant);
+        ProductDto result = ProductMapper.toDto(productRepository.save(savedProduct));
 
-        ProductDto result = ProductMapper.toDto(savedProduct);
         result.setVariants(variantDtos);
 
         return result;
@@ -266,20 +339,97 @@ public class ProductServiceImpl implements ProductService {
         return dto;
     }
 
+
+    private ProductLightDto injectLightDiscount(ProductLightDto dto) {
+        if (dto == null || dto.getDefaultVariantId() == null) {
+            return dto;
+        }
+
+        try {
+            //TODO : replace it with endpoint that's reutrn the minimal required data
+            var response = campaignsClient.getActiveOfferForProduct(dto.getId());
+            if (response == null || response.getData() == null) { // No active Offer for this product
+                return dto;
+            }
+
+            ActiveOfferDto offer = response.getData();
+            Map<Long, ActiveOfferDto.VariantDiscountDto> priceMap = offer.getVariantPrices()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            ActiveOfferDto.VariantDiscountDto::getVariantId,
+                            vp -> vp
+                    ));
+
+            ActiveOfferDto.VariantDiscountDto discount = priceMap.get(dto.getDefaultVariantId());
+            if (discount != null) {
+                dto.setHasDiscount(true);
+                dto.setDiscountedPrice(discount.getDiscountedPrice());
+            } else {
+                dto.setHasDiscount(false);
+            }
+
+        } catch (FeignException.NotFound e) {
+            log.debug("No Active offer for productId={}", dto.getId());
+        } catch (FeignException e) {
+            log.debug("Campaigns Service unreachable for productId={}. " +
+                    "Returning product without discount info. Status={}", dto.getId(), e.status());
+        } catch (Exception e) {
+            log.debug("Could Not Fetch discount for productId={}: {}", dto.getId(), e.getMessage());
+        }
+
+        return dto;
+    }
+
     private ProductDto injectMedia(ProductDto dto) {
         for (ProductVariantDto v : dto.getVariants()) {
             productVariantService.injectMedia(v);
         }
         return dto;
     }
+
+    private Map<UUID, FileLightDto> getMedia(List<UUID> mediaIds) {
+        if (mediaIds == null || mediaIds.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // TODO REPLACE WITH endpoint that's return FileLightDto
+            MediaResponse<List<FileDto>> response = mediaManagerClient.getById(mediaIds);
+
+            // validate response not empty
+            if (response == null || response.getData() == null) {
+                throw ProductVariantExceptions.mediumNotFound();
+            }
+            //inject medium File
+            Map<UUID, FileLightDto> fileDtoMap = new HashMap<>();
+            for (FileDto fileDto : response.getData()) {
+                FileLightDto fileLightDto = new FileLightDto();
+                fileLightDto.setId(fileDto.getId());
+                fileLightDto.setSmallFileUrl(fileDto.getSmallFileUrl());
+                fileDtoMap.put(fileDto.getId(), fileLightDto);
+            }
+            return fileDtoMap;
+        } catch (FeignException e) {
+            if (e.status() == 404) {
+                throw CategoryExceptions.imageNotFound();
+            }
+            log.error("Could not fetch media File from MediaManager status={}, message={}",
+                    e.status(), e.getMessage()
+            );
+            throw e;
+        }
+
+    }
+
     private void validateTargetedAudience(TargetedAudience productTargetedAudience, TargetedAudience categoryTargetedAudience) {
-        if(categoryTargetedAudience == TargetedAudience.ALL)return;
-        if (productTargetedAudience == categoryTargetedAudience)return;
+        if (categoryTargetedAudience == TargetedAudience.ALL) return;
+        if (productTargetedAudience == categoryTargetedAudience) return;
         throw ProductExceptions.invalidProductAudienceForCategory();
     }
+
     private void validateAgeGroup(AgeGroup productAgeGroup, AgeGroup categoryAgeGroup) {
-        if(categoryAgeGroup == AgeGroup.ALL)return;
-        if(productAgeGroup == categoryAgeGroup)return;
+        if (categoryAgeGroup == AgeGroup.ALL) return;
+        if (productAgeGroup == categoryAgeGroup) return;
         throw ProductExceptions.invalidProductAgeGroupForCategory();
     }
 }

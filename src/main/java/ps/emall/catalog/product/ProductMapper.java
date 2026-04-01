@@ -33,7 +33,6 @@ public class ProductMapper {
                 )
                 .build();
     }
-
     public static Product toEntity(ProductDto dto, Category category, Brand brand, List<Tag> tags) {
         return Product.builder()
                 .id(dto.getId())

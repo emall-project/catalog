@@ -19,7 +19,24 @@ import ps.emall.catalog.tag.Tag;
 import java.util.*;
 
 @Entity
-@Table(name = "products", schema = "catalog")
+@Table(
+        name = "products",
+        schema = "catalog",
+        indexes = {
+                @Index(
+                        name = "idx_product_mall_category_target_age",
+                        columnList = "mall_id, category_id, targeted_audience, age_group"
+                ),
+                @Index(
+                        name = "idx_product_mall_store_target_age",
+                        columnList = "mall_id, store_id, targeted_audience, age_group"
+                ),
+                @Index(
+                        name = "idx_product_mall_brand_target_age",
+                        columnList = "mall_id, brand_id, targeted_audience, age_group"
+                ),
+        }
+)
 @Getter
 @Setter
 @SuperBuilder
@@ -40,10 +57,10 @@ public class Product extends EMallsBaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "slug", nullable = false)
+    @Column(name = "slug", nullable = false, length = 50)
     private String slug;
 
     @Column(name = "targeted_audience", nullable = false)
@@ -57,17 +74,17 @@ public class Product extends EMallsBaseEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    @Column(name = "short_description", nullable = false)
+    @Column(name = "short_description", nullable = false, length = 100)
     private String shortDescription;
 
     @Column(name = "description", nullable = false)
     private String description;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
@@ -78,24 +95,37 @@ public class Product extends EMallsBaseEntity {
     private Long storeId;
 
     @ManyToMany
-   @Audited
+    @Audited
     @JoinTable(
             name = "product_tags",
             schema = "catalog",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-   @AuditJoinTable(
-           name = "product_tags_audit",
-           schema = "audit"
-   )
+    @AuditJoinTable(
+            name = "product_tags_audit",
+            schema = "audit"
+    )
     private List<Tag> tags = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ProductVariant> variants = new ArrayList<>();
+//
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "default_id")
+    private ProductVariant defaultVariant;
 
+//    public ProductVariant getDefaultVariant() {
+//        if (variants == null) {
+//            return null;
+//        }
+//        return variants.stream()
+//                .filter(v -> Boolean.TRUE.equals(v.getIsDefault()))
+//                .findFirst()
+//                .orElse(null);
+//    }
     public void addVariant(ProductVariant variant) {
         if (this.variants == null) {
             this.variants = new ArrayList<>();

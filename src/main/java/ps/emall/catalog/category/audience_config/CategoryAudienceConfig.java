@@ -15,7 +15,16 @@ import ps.emall.catalog.common.audience.TargetedAudience;
 import java.util.UUID;
 
 @Entity
-@Table(name = "category_audience_configs", schema = "catalog")
+@Table(
+        name = "category_audience_configs",
+        schema = "catalog",
+        indexes = {
+                @Index(
+                        name = "idx_cat_audience_cfg_category_target",
+                        columnList = "category_id, targeted_audience, age_group"
+                )
+        }
+)
 @Getter
 @Setter
 @SuperBuilder

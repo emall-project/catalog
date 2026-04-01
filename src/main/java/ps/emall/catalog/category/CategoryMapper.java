@@ -87,4 +87,14 @@ public class CategoryMapper {
 
         return categoryDto;
     }
+    public static CategoryLightDto toLightDto(Category category) {
+        CategoryLightDto lightDto = CategoryLightDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .slug(category.getSlug())
+                .imageId(category.getImageId())
+                .build();
+
+        return lightDto;
+    }
 }

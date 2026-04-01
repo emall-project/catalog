@@ -1,7 +1,6 @@
 package ps.emall.catalog.product.product_variant;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,8 +12,6 @@ public interface ProductVariantRepository
         extends JpaRepository<ProductVariant, Long> {
 
     List<ProductVariant> findByProductId(Long productId);
-
-    Optional<ProductVariant> findByIdAndProductId(Long id, Long productId);
 
     @Modifying
     @Query("""
@@ -34,4 +31,5 @@ public interface ProductVariantRepository
     """)
     List<ProductVariant> findByMediumId(UUID mediumId);
 
+    ProductVariant getFirstByProductIdAndIsDefault(Long productId, Boolean isDefault);
 }

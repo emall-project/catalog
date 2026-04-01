@@ -21,3 +21,7 @@ CREATE TABLE IF NOT EXISTS catalog.product_variants
     updated_by VARCHAR(50),
     FOREIGN KEY (product_id) REFERENCES catalog.products (id) ON DELETE CASCADE
 );
+
+
+CREATE INDEX IF NOT EXISTS idx_product_variant_product_default_price
+    ON catalog.product_variants (product_id, is_default, base_price);

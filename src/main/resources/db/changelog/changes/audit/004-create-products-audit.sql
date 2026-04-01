@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS audit.products_audit
     brand_id          BIGINT,
     category_id       BIGINT,
     mall_id           BIGINT,
+    default_id        BIGINT,
     store_id          BIGINT,
     created_at        timestamp,
     created_by        VARCHAR(50),

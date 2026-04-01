@@ -14,7 +14,16 @@ import ps.emall.catalog.attribute.AttributeType;
 import ps.emall.catalog.common.base.EMallsBaseEntity;
 
 @Entity
-@Table(name = "attribute_options", schema = "catalog")
+@Table(
+        name = "attribute_options",
+        schema = "catalog",
+        indexes = {
+                @Index(
+                        name = "idx_option_attribute_id",
+                        columnList = "attribute_id"
+                ),
+        }
+)
 @Getter
 @Setter
 @SuperBuilder
