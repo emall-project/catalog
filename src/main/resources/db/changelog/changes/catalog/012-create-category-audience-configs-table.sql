@@ -16,4 +16,7 @@ CREATE TABLE IF NOT EXISTS catalog.category_audience_configs
     targeted_audience VARCHAR NOT NULL,
     image_id          uuid    NOT NULL,
     FOREIGN KEY (category_id) REFERENCES catalog.categories (id) ON DELETE CASCADE
-)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cat_audience_cfg_category_target
+    ON catalog.category_audience_configs (category_id, targeted_audience, age_group);

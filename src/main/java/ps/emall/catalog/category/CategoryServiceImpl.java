@@ -13,6 +13,7 @@ import ps.emall.catalog.category.audience_config.CategoryAudienceConfigDto;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigMapper;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigRepository;
 import ps.emall.catalog.client.media_manager.FileDto;
+import ps.emall.catalog.client.media_manager.FileLightDto;
 import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.audience.AgeGroup;
@@ -30,16 +31,46 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final CategoryAudienceConfigRepository  categoryAudienceConfigRepository;
+    private final CategoryAudienceConfigRepository categoryAudienceConfigRepository;
     private final ProductRepository productRepository;
     private final MediaManagerClient mediaManagerClient;
 
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponse<CategoryDto> getAll(Specification<Category> spec, Pageable pageable) {
-        Page<CategoryDto> page = categoryRepository.findAll(spec, pageable)
-                .map(CategoryMapper::toDto)
-                .map(this::injectImages);
+        Page<Category> categoryPage = categoryRepository.findAll(spec, pageable);
+
+        List<UUID> imageIds = categoryPage.getContent().stream()
+                .map(Category::getImageId)
+                .toList();
+
+        Map<UUID, FileDto> imagesMap = getImages(imageIds);
+
+        Page<CategoryDto> page = categoryPage.map(category -> {
+            FileDto image = imagesMap.get(category.getImageId());
+
+            return CategoryMapper.toDto(category, image);
+        });
+        return PaginatedResponse.of(page);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedResponse<CategoryLightDto> getAllLight(Specification<Category> spec, Pageable pageable) {
+        Page<Category> categoryPage = categoryRepository.findAll(spec, pageable);
+
+        List<UUID> imageIds = categoryPage.getContent().stream()
+                .map(Category::getImageId)
+                .toList();
+
+        Map<UUID, FileLightDto> imagesMap = getImagesLight(imageIds);
+
+        Page<CategoryLightDto> page = categoryPage.map(category -> {
+            FileLightDto image = imagesMap.get(category.getImageId());
+
+            return CategoryMapper.toLightDto(category, image);
+        });
+
         return PaginatedResponse.of(page);
     }
 
@@ -51,10 +82,62 @@ public class CategoryServiceImpl implements CategoryService {
                 : categoryRepository.findAll(spec);
 
 
-        return categories.stream()
-                .map(CategoryMapper::toDto)
-                .map(this::injectImages)
-                .collect(Collectors.toList());
+        List<UUID> imageIds = categories.stream()
+                .map(Category::getImageId)
+                .toList();
+
+        Map<UUID, FileDto> imagesMap = getImages(imageIds);
+
+        List<CategoryDto> result = new ArrayList<>();
+
+        for (Category category : categories) {
+            FileDto image = imagesMap.get(category.getImageId());
+
+            CategoryDto dto = CategoryMapper.toDto(category, image);
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    public List<CategoryTreeDto> getTree() {
+
+        List<Category> categories = categoryRepository
+                .findByDepthLevelInOrderByDepthLevelAscIdAsc(List.of(0, 1, 2));
+
+        List<UUID> imageIds = categories.stream()
+                .map(Category::getImageId)
+                .toList();
+
+        Map<UUID, FileLightDto> imagesMap = getImagesLight(imageIds);
+
+
+        Map<Long, CategoryTreeDto> dtoMap = new HashMap<>();
+        List<CategoryTreeDto> roots = new ArrayList<>();
+
+        for (Category category : categories) {
+            FileLightDto fileLightDto = imagesMap.get(category.getImageId());
+
+            CategoryTreeDto dto = CategoryMapper.toTreeDto(category, fileLightDto);
+            dtoMap.put(dto.getId(), dto);
+        }
+
+        for (Category category : categories) {
+            CategoryTreeDto current = dtoMap.get(category.getId());
+
+            if (category.getParent() == null) {
+                roots.add(current);
+                continue;
+            }
+
+            CategoryTreeDto parentDto = dtoMap.get(category.getParent().getId());
+
+            if (parentDto != null) {
+                parentDto.getChildren().add(current);
+            }
+        }
+
+        return roots;
     }
 
     @Override
@@ -73,31 +156,13 @@ public class CategoryServiceImpl implements CategoryService {
         return injectImageUrl(CategoryMapper.toDto(category));
     }
 
-    // TODO: remove these tow method, cause get all can do the same functionality
-    @Override
-    @Transactional(readOnly = true)
-    public List<CategoryDto> getRoots() {
-        return categoryRepository.findByParentIsNull().stream()
-                .map(CategoryMapper::toDto)
-                .map(this::injectImages)
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<CategoryDto> getChildren(Long parentId) {
-        return categoryRepository.findByParentId(parentId).stream()
-                .map(CategoryMapper::toDto)
-                .map(this::injectImages)
-                .toList();
-    }
-
     @Override
     public CategoryDto create(CategoryDto dto) {
         if (slugExists(dto.getSlug())) {
             throw CategoryExceptions.slugExists();
         }
 
+        // validation
         validateCategoryParent(dto);
         validateAudienceConfigAllowed(dto);
         validateAudienceConfig(dto);
@@ -105,7 +170,16 @@ public class CategoryServiceImpl implements CategoryService {
         FileDto categoryImage = getAndValidatedImage(dto.getImageId());
         validateAudienceConfigImages(dto.getAudienceConfig());
 
+
+        // set depth level
+        if (dto.getParentId() == null) {
+            dto.setDepthLevel(0);
+        } else {
+            Category parent = categoryRepository.findById(dto.getParentId()).orElseThrow(CategoryExceptions::categoryNotFound);
+            dto.setDepthLevel(parent.getDepthLevel() + 1);
+        }
         Category category = CategoryMapper.toEntity(dto);
+
         Category saved = categoryRepository.save(category);
 
         return injectImages(CategoryMapper.toDto(saved, categoryImage));
@@ -146,6 +220,15 @@ public class CategoryServiceImpl implements CategoryService {
 
         syncAudienceConfigs(existing, dto.getAudienceConfig());
 
+
+        // set depth level
+        if (dto.getParentId() == null) {
+            dto.setDepthLevel(0);
+        } else {
+            Category parent = categoryRepository.findById(dto.getParentId()).orElseThrow(CategoryExceptions::categoryNotFound);
+            dto.setDepthLevel(parent.getDepthLevel() + 1);
+        }
+
         Category saved = categoryRepository.save(existing);
         return injectImages(CategoryMapper.toDto(saved, categoryImage));
     }
@@ -158,7 +241,7 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryDto categoryDto = CategoryMapper.toDto(category);
         categoryDto.getAudienceConfig().add(categoryAudienceConfigDto);
 
-        if(!isAudienceConfigAllowed(categoryDto)){
+        if (!isAudienceConfigAllowed(categoryDto)) {
             throw CategoryExceptions.audienceConfigNotAllowed();
         }
         validateAudienceConfig(categoryDto);
@@ -270,51 +353,8 @@ public class CategoryServiceImpl implements CategoryService {
         return false;
     }
 
-    private CategoryDto injectImageUrl(CategoryDto dto) {
-        try {
-            MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
-            dto.setImage(response.getData());
-            return dto;
 
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            log.error("Could not fetch image File from MediaManager imageId={}, status={}, message={}",
-                    dto.getImageId(), e.status(), e.getMessage()
-            );
-            throw e;
-        }
-    }
-
-    private boolean isImage(String mimeType) {
-        return mimeType != null && mimeType.startsWith("image/");
-    }
-
-    private FileDto getAndValidatedImage(UUID imageId) {
-        try {
-            MediaResponse<FileDto> response = mediaManagerClient.getById(imageId);
-            // validate response not empty
-            if (response == null || response.getData() == null) {
-                throw CategoryExceptions.imageCouldNotBeValidated();
-            }
-
-            FileDto fileDto = response.getData();
-
-            // validate file type
-            if (!isImage(fileDto.getMimeType())) {
-                throw CategoryExceptions.invalidFileType();
-            }
-
-            return response.getData();
-
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            throw CategoryExceptions.imageCouldNotBeValidated();
-        }
-    }
+    // Audience Validation
 
     private void syncAudienceConfigs(Category category, Set<CategoryAudienceConfigDto> dtos) {
         if (dtos == null) {
@@ -392,16 +432,8 @@ public class CategoryServiceImpl implements CategoryService {
         return audienceMatches && ageMatches && !bothGeneral;
     }
 
-    private void validateAudienceConfigImages(Set<CategoryAudienceConfigDto> configs) {
-        if (configs == null || configs.isEmpty()) {
-            return;
-        }
 
-        for (var config : configs) {
-            getAndValidatedImage(config.getImageId());
-        }
-    }
-
+    // Image Injection
 
     private CategoryDto injectImages(CategoryDto dto) {
         dto = injectImageUrl(dto);
@@ -433,4 +465,130 @@ public class CategoryServiceImpl implements CategoryService {
             throw e;
         }
     }
+
+    private CategoryDto injectImageUrl(CategoryDto dto) {
+        try {
+            MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
+            dto.setImage(response.getData());
+            return dto;
+
+        } catch (FeignException e) {
+            if (e.status() == 404) {
+                throw CategoryExceptions.imageNotFound();
+            }
+            log.error("Could not fetch image File from MediaManager imageId={}, status={}, message={}",
+                    dto.getImageId(), e.status(), e.getMessage()
+            );
+            throw e;
+        }
+    }
+
+
+    private Map<UUID, FileLightDto> getImagesLight(List<UUID> imageIds) {
+
+        if (imageIds == null || imageIds.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // TODO REPLACE WITH endpoint that's return FileLightDto
+            MediaResponse<List<FileDto>> response = mediaManagerClient.getById(imageIds);
+
+            // validate response not empty
+            if (response == null || response.getData() == null) {
+                throw CategoryExceptions.imageNotFound();
+            }
+            //inject image File
+            Map<UUID, FileLightDto> fileDtoMap = new HashMap<>();
+            for (FileDto fileDto : response.getData()) {
+                FileLightDto fileLightDto = new FileLightDto();
+                fileLightDto.setId(fileDto.getId());
+                fileLightDto.setSmallFileUrl(fileDto.getSmallFileUrl());
+                fileDtoMap.put(fileDto.getId(), fileLightDto);
+            }
+            return fileDtoMap;
+        } catch (FeignException e) {
+            if (e.status() == 404) {
+                throw CategoryExceptions.imageNotFound();
+            }
+            log.error("Could not fetch media File from MediaManager status={}, message={}",
+                    e.status(), e.getMessage()
+            );
+            throw e;
+        }
+    }
+
+    private Map<UUID, FileDto> getImages(List<UUID> imageIds) {
+
+        if (imageIds == null || imageIds.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // TODO REPLACE WITH endpoint that's return FileLightDto
+            MediaResponse<List<FileDto>> response = mediaManagerClient.getById(imageIds);
+
+            // validate response not empty
+            if (response == null || response.getData() == null) {
+                throw CategoryExceptions.imageNotFound();
+            }
+            //inject image File
+            Map<UUID, FileDto> fileDtoMap = new HashMap<>();
+            for (FileDto fileDto : response.getData()) {
+                fileDtoMap.put(fileDto.getId(), fileDto);
+            }
+            return fileDtoMap;
+        } catch (FeignException e) {
+            if (e.status() == 404) {
+                throw CategoryExceptions.imageNotFound();
+            }
+            log.error("Could not fetch media File from MediaManager status={}, message={}",
+                    e.status(), e.getMessage()
+            );
+            throw e;
+        }
+    }
+
+
+
+    // Image Validation
+    private boolean isImage(String mimeType) {
+        return mimeType != null && mimeType.startsWith("image/");
+    }
+
+    private FileDto getAndValidatedImage(UUID imageId) {
+        try {
+            MediaResponse<FileDto> response = mediaManagerClient.getById(imageId);
+            // validate response not empty
+            if (response == null || response.getData() == null) {
+                throw CategoryExceptions.imageCouldNotBeValidated();
+            }
+
+            FileDto fileDto = response.getData();
+
+            // validate file type
+            if (!isImage(fileDto.getMimeType())) {
+                throw CategoryExceptions.invalidFileType();
+            }
+
+            return response.getData();
+
+        } catch (FeignException e) {
+            if (e.status() == 404) {
+                throw CategoryExceptions.imageNotFound();
+            }
+            throw CategoryExceptions.imageCouldNotBeValidated();
+        }
+    }
+
+    private void validateAudienceConfigImages(Set<CategoryAudienceConfigDto> configs) {
+        if (configs == null || configs.isEmpty()) {
+            return;
+        }
+
+        for (var config : configs) {
+            getAndValidatedImage(config.getImageId());
+        }
+    }
+
 }

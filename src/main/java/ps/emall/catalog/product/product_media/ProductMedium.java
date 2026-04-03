@@ -15,7 +15,16 @@ import ps.emall.catalog.product.product_variant.ProductVariant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "product_media", schema = "catalog")
+@Table(
+        name = "product_media",
+        schema = "catalog",
+        indexes = {
+                @Index(
+                        name = "idx_product_media_variant",
+                        columnList = "variant_id"
+                ),
+        }
+)
 @Getter
 @Setter
 @SuperBuilder

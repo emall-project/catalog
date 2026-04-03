@@ -10,7 +10,17 @@ import ps.emall.catalog.attribute.attribute_options.AttributeOption;
 import ps.emall.catalog.product.product_variant.ProductVariant;
 
 @Entity
-@Table(name = "variant_attributes", schema = "catalog")
+@Table(
+        name = "variant_attributes",
+        schema = "catalog",
+        indexes = {
+
+                @Index(
+                        name = "idx_variant_attributes_variant_attribute_option",
+                        columnList = "variant_id, attribute_id, option_id"
+                ),
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor

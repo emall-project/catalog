@@ -19,4 +19,7 @@ CREATE TABLE IF NOT EXISTS catalog.attribute_options
     updated_at   timestamp            DEFAULT now(),
     updated_by   VARCHAR(50),
     UNIQUE (value, attribute_id)
-)
+);
+
+CREATE INDEX IF NOT EXISTS idx_option_attribute_id
+    ON catalog.attribute_options (attribute_id);

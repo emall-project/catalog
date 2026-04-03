@@ -23,3 +23,5 @@ CREATE TABLE IF NOT EXISTS catalog.product_media
     FOREIGN KEY (variant_id) REFERENCES catalog.product_variants (id) ON DELETE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS idx_product_media_variant
+    ON catalog.product_media (variant_id);

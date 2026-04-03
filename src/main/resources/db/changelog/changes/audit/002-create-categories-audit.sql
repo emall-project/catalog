@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS audit.categories_audit
     is_active         BOOLEAN,
     image_id          UUID,
     parent_id         BIGINT,
+    depth_level       INTEGER,
     created_at        timestamp,
     created_by        VARCHAR(50),
     updated_at        timestamp,

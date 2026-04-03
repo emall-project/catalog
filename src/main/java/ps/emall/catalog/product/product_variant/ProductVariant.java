@@ -20,7 +20,16 @@ import java.util.List;
 
 @Slf4j
 @Entity
-@Table(name = "product_variants", schema = "catalog")
+@Table(
+        name = "product_variants",
+        schema = "catalog",
+        indexes = {
+                @Index(
+                        name = "idx_product_variant_product_default_price",
+                        columnList = "product_id, is_default, base_price"
+                ),
+        }
+)
 @Getter
 @Setter
 @SuperBuilder
@@ -49,7 +58,7 @@ public class ProductVariant extends EMallsBaseEntity {
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 

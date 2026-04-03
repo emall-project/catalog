@@ -18,4 +18,7 @@ CREATE TABLE IF NOT EXISTS catalog.variant_attributes
     FOREIGN KEY (attribute_id) REFERENCES catalog.attributes (id),
     FOREIGN KEY (option_id) REFERENCES catalog.attribute_options (id)
 
-)
+);
+
+CREATE INDEX IF NOT EXISTS idx_variant_attributes_variant_attribute_option
+    ON catalog.variant_attributes (variant_id, attribute_id, option_id);

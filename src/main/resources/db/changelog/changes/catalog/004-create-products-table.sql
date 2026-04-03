@@ -31,3 +31,12 @@ CREATE TABLE IF NOT EXISTS catalog.products
     FOREIGN KEY (category_id) REFERENCES catalog.categories (id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_product_mall_category_target_age
+    ON catalog.products (mall_id, category_id, targeted_audience, age_group);
+
+CREATE INDEX IF NOT EXISTS idx_product_mall_store_target_age
+    ON catalog.products (mall_id, store_id, targeted_audience, age_group);
+
+CREATE INDEX IF NOT EXISTS idx_product_mall_brand_target_age
+    ON catalog.products (mall_id, brand_id, targeted_audience, age_group);
+

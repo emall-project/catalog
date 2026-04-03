@@ -166,6 +166,8 @@ public enum MessageKey {
     PRODUCT_VARIANT_SHOULD_HAS_ATTRIBUTE("product.variant.should.have.attribute"),
     INVALID_PRODUCT_AUDIENCE_FOR_CATEGORY("invalid.product.audience.for.category"),
     INVALID_PRODUCT_AGE_GROUP_FOR_CATEGORY("invalid.product.ageGroup.for.category"),
+    PRODUCT_DOSE_NOT_BELONG_TO_MALL("product.dose.not.belong.to.mall"),
+    PRODUCT_DOSE_NOT_BELONG_TO_STORE("product.dose.not.belong.to.store"),
     // =========================================================
     // PRODUCT - DTO VALIDATION
     // =========================================================

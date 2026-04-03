@@ -2,7 +2,6 @@ package ps.emall.catalog.category;
 
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +25,22 @@ public class CategoryController {
         PaginatedResponse<CategoryDto> categories = categoryService.getAll(spec, pageable);
         return EMallsResponseEntity.ok(categories);
     }
+    @GetMapping("/light")
+    public EMallsResponseEntity<PaginatedResponse<CategoryLightDto>> getAllLight(CategorySpec spec, Pageable pageable) {
+        PaginatedResponse<CategoryLightDto> categories = categoryService.getAllLight(spec, pageable);
+        return EMallsResponseEntity.ok(categories);
+    }
 
     @GetMapping("/all")
     public EMallsResponseEntity<List<CategoryDto>> getCategories(CategorySpec spec) {
-        List<CategoryDto> getAllCategories = categoryService.getAllCategoryList(spec);
-        return EMallsResponseEntity.ok(getAllCategories);
+        List<CategoryDto> categories = categoryService.getAllCategoryList(spec);
+        return EMallsResponseEntity.ok(categories);
+    }
+
+    @GetMapping("/tree")
+    public EMallsResponseEntity<List<CategoryTreeDto>> getCategories() {
+        List<CategoryTreeDto> categories = categoryService.getTree();
+        return EMallsResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
@@ -43,18 +53,6 @@ public class CategoryController {
     public EMallsResponseEntity<CategoryDto> getBySlug(@PathVariable String slug) {
         CategoryDto dto = categoryService.getBySlug(slug);
         return EMallsResponseEntity.ok(dto);
-    }
-
-    @GetMapping("/roots")
-    public EMallsResponseEntity<List<CategoryDto>> getRoots() {
-        List<CategoryDto> roots = categoryService.getRoots();
-        return EMallsResponseEntity.ok(roots);
-    }
-
-    @GetMapping("/{parentId}/children")
-    public EMallsResponseEntity<List<CategoryDto>> getChildren(@PathVariable Long parentId) {
-        List<CategoryDto> children = categoryService.getChildren(parentId);
-        return EMallsResponseEntity.ok(children);
     }
 
     @PostMapping

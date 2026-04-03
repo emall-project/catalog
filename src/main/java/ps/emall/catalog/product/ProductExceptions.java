@@ -6,7 +6,8 @@ import ps.emall.catalog.common.message.MessageKey;
 
 public final class ProductExceptions {
 
-    private ProductExceptions() {}
+    private ProductExceptions() {
+    }
 
     // ----------------------------
     // Not Found Exceptions
@@ -55,16 +56,33 @@ public final class ProductExceptions {
                 .message(MessageKey.PRODUCT_VARIANT_SHOULD_HAS_ATTRIBUTE.getKey())
                 .build();
     }
-    public static EMallsException invalidProductAudienceForCategory(){
+
+    public static EMallsException invalidProductAudienceForCategory() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(MessageKey.INVALID_PRODUCT_AUDIENCE_FOR_CATEGORY.getKey())
                 .build();
     }
-    public static EMallsException invalidProductAgeGroupForCategory(){
+
+    public static EMallsException invalidProductAgeGroupForCategory() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(MessageKey.INVALID_PRODUCT_AGE_GROUP_FOR_CATEGORY.getKey())
                 .build();
     }
+
+    public static EMallsException productDoesNotBelongToMall() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.PRODUCT_DOSE_NOT_BELONG_TO_MALL.getKey())
+                .build();
+    }
+
+    public static EMallsException productDoesNotBelongToStore() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.PRODUCT_DOSE_NOT_BELONG_TO_STORE.getKey())
+                .build();
+    }
+
 }
