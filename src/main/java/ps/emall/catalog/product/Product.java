@@ -7,7 +7,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.AuditJoinTable;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
 import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.category.Category;
 import ps.emall.catalog.common.audience.AgeGroup;
@@ -117,15 +116,7 @@ public class Product extends EMallsBaseEntity {
     @JoinColumn(name = "default_id")
     private ProductVariant defaultVariant;
 
-//    public ProductVariant getDefaultVariant() {
-//        if (variants == null) {
-//            return null;
-//        }
-//        return variants.stream()
-//                .filter(v -> Boolean.TRUE.equals(v.getIsDefault()))
-//                .findFirst()
-//                .orElse(null);
-//    }
+
     public void addVariant(ProductVariant variant) {
         if (this.variants == null) {
             this.variants = new ArrayList<>();

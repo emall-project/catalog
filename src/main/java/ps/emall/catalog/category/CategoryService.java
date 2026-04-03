@@ -15,13 +15,11 @@ public interface CategoryService {
 
     List<CategoryDto> getAllCategoryList(CategorySpec spec);
 
+    List<CategoryTreeDto> getTree();
+
     CategoryDto getById(Long id);
 
     CategoryDto getBySlug(String slug);
-
-    List<CategoryDto> getRoots();
-
-    List<CategoryDto> getChildren(Long parentId);
 
     CategoryDto create(CategoryDto categoryDto);
 
@@ -32,5 +30,6 @@ public interface CategoryService {
     void delete(Long id);
 
     void removeAudienceConfig(Long categoryId, Long id);
+
     boolean slugExists(String slug);
 }

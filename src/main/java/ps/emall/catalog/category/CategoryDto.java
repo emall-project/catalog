@@ -60,6 +60,8 @@ public class CategoryDto {
 
     private Long parentId;
 
+    private Integer depthLevel;
+
     @Valid
     private Set<CategoryAudienceConfigDto> audienceConfig;
 

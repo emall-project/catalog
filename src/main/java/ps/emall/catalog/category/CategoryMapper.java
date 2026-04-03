@@ -3,6 +3,7 @@ package ps.emall.catalog.category;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfig;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigMapper;
 import ps.emall.catalog.client.media_manager.FileDto;
+import ps.emall.catalog.client.media_manager.FileLightDto;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +20,7 @@ public class CategoryMapper {
                 .ageGroup(categoryDto.getAgeGroup())
                 .isActive(categoryDto.getIsActive())
                 .imageId(categoryDto.getImageId())
+                .depthLevel(categoryDto.getDepthLevel())
                 .build();
 
         if (categoryDto.getParentId() != null) {
@@ -46,6 +48,7 @@ public class CategoryMapper {
                 .ageGroup(category.getAgeGroup())
                 .isActive(category.getIsActive())
                 .imageId(category.getImageId())
+                .depthLevel(category.getDepthLevel())
                 .audienceConfig(
                         category.getAudienceConfig() != null
                                 ? category.getAudienceConfig().stream()
@@ -71,6 +74,7 @@ public class CategoryMapper {
                 .ageGroup(category.getAgeGroup())
                 .isActive(category.getIsActive())
                 .imageId(category.getImageId())
+                .depthLevel(category.getDepthLevel())
                 .image(image)
                 .audienceConfig(
                         category.getAudienceConfig() != null
@@ -88,13 +92,35 @@ public class CategoryMapper {
         return categoryDto;
     }
     public static CategoryLightDto toLightDto(Category category) {
-        CategoryLightDto lightDto = CategoryLightDto.builder()
+        return CategoryLightDto.builder()
                 .id(category.getId())
                 .name(category.getName())
-                .slug(category.getSlug())
-                .imageId(category.getImageId())
+                .depthLevel(category.getDepthLevel())
                 .build();
+    }
+    public static CategoryLightDto toLightDto(Category category, FileLightDto image) {
+        return CategoryLightDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .depthLevel(category.getDepthLevel())
+                .image(image)
+                .build();
+    }
 
-        return lightDto;
+    public static CategoryTreeDto toTreeDto(Category category) {
+        return CategoryTreeDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .depthLevel(category.getDepthLevel())
+                .build();
+    }
+
+    public static CategoryTreeDto toTreeDto(Category category, FileLightDto image) {
+        return CategoryTreeDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .depthLevel(category.getDepthLevel())
+                .image(image)
+                .build();
     }
 }

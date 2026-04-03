@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS catalog.categories
     is_active         BOOLEAN            NOT NULL DEFAULT TRUE,
     image_id          UUID,
     parent_id         BIGINT,
+    depth_level       INTEGER,
     created_at        timestamp          NOT NULL DEFAULT now(),
     created_by        VARCHAR(50)        NOT NULL,
     updated_at        timestamp                   DEFAULT now(),

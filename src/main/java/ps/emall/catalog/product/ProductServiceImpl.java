@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ps.emall.catalog.brand.Brand;
@@ -20,9 +21,9 @@ import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
+import ps.emall.catalog.product.summary.*;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.light.ProductLightDto;
-import ps.emall.catalog.product.light.ProductLightMapper;
 import ps.emall.catalog.product.light.ProductLightRow;
 import ps.emall.catalog.product.product_variant.*;
 import ps.emall.catalog.tag.Tag;
@@ -46,9 +47,10 @@ public class ProductServiceImpl implements ProductService {
     private final ProductVariantService productVariantService;
     private final CampaignsClient campaignsClient;
     private final MediaManagerClient mediaManagerClient;
-
+    private final ProductSpecificationBuilder productSpecificationBuilder;
     @Override
-    public PaginatedResponse<ProductDto> getAll(ProductSpec spec, Pageable pageable) {
+    public PaginatedResponse<ProductDto> getAll(ProductFilter filter, Pageable pageable) {
+        Specification<Product> spec =  productSpecificationBuilder.build(filter);
         Page<ProductDto> page = productRepository.findAll(spec, pageable)
                 .map(ProductMapper::toDto)
                 .map(this::injectMedia)
@@ -59,12 +61,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public PaginatedResponse<ProductLightDto> getAllLight(ProductSpec spec, Pageable pageable) {
-        Page<Product> productPage = productRepository.findAll(spec, pageable);
+    public PaginatedResponse<ProductLightDto> getAllLight(ProductFilter filter, Pageable pageable) {
+        Specification<Product> spec =  productSpecificationBuilder.build(filter);
+        Page<Long> productPage = productRepository.findIdsBySpecification(spec, pageable);
 
         List<Long> productIds = productPage.getContent()
                 .stream()
-                .map(Product::getId)
                 .toList();
 
         List<ProductLightRow> rows = productRepository.findLightRowsByProductIds(productIds);
@@ -79,27 +81,26 @@ public class ProductServiceImpl implements ProductService {
 
         Map<UUID, FileLightDto> mediaMap = getMedia(mediaIds);
 
-        Page<ProductLightDto> dtoPage = productPage.map(product -> {
-            ProductLightRow row = rowMap.get(product.getId());
+        Page<ProductLightDto> dtoPage = productPage.map(productId -> {
+            ProductLightRow row = rowMap.get(productId);
             FileLightDto fileLightDto = mediaMap.get(row.getMediumId());
 
             ProductLightDto dto = ProductLightDto.builder()
-                    .id(product.getId())
-                    .name(product.getName())
-                    .slug(product.getSlug())
+                    .id(row.getProductId())
                     .build();
 
             if (row != null) {
                 dto.setDefaultVariantId(row.getDefaultVariantId());
                 dto.setBasePrice(row.getBasePrice());
-
+                dto.setName(row.getProductName());
+                dto.setSlug(row.getProductSlug());
                 if (row.getMediumId() != null) {
                     FileLightDto medium = new FileLightDto();
                     medium.setId(row.getMediumId());
                     dto.setMedium(medium);
                 }
             }
-            if(fileLightDto != null) {
+            if (fileLightDto != null) {
                 dto.setMedium(fileLightDto);
             }
 
@@ -110,9 +111,32 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+    //    @Cacheable
+    public ProductSummary getSummary(ProductFilter filter) {
+        Specification<Product> spec =  productSpecificationBuilder.build(filter);
+        long productCount = productRepository.count(spec);
+        AudienceDistribution audienceDistribution = productRepository.getAudienceDistribution(spec);
+        AgeDistribution ageDistribution = productRepository.getAgeDistribution(spec);
+        List<CategoryDistribution> categoryDistributions = productRepository.getCategoryDistribution(spec);
+        List<BrandDistribution> brandDistributions = productRepository.getBrandDistribution(spec);
+        PriceRange priceRange = productRepository.getPriceRange(spec);
+        List<AttributeSummary> attributeSummary = productRepository.getAttributeSummary(spec);
+
+        return new ProductSummary(
+                productCount,
+                audienceDistribution,
+                ageDistribution,
+                categoryDistributions,
+                brandDistributions,
+                priceRange,
+                attributeSummary
+        );
+    }
+
     @Override
     @Transactional(readOnly = true)
-    public List<ProductDto> getAllProductList(ProductSpec spec) {
+    public List<ProductDto> getAllProductList(ProductFilter filter) {
+        Specification<Product> spec =  productSpecificationBuilder.build(filter);
         List<Product> products = (spec == null)
                 ? productRepository.findAll()
                 : productRepository.findAll(spec);
@@ -155,7 +179,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto create(ProductDto dto) {
+    public ProductDto create(ProductDto dto, Long mallId, Long storeId) {
 
         // validation
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -182,8 +206,8 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = ProductMapper.toEntity(dto, category, brand, tags);
         // TODO : replace it with the actual storeId and mallId from the token
-        product.setStoreId(1L);
-        product.setMallId(1L);
+        product.setMallId(mallId);
+        product.setStoreId(storeId);
 
         Product saved = productRepository.save(product);
 
@@ -205,7 +229,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto update(ProductDto dto) {
+    public ProductDto update(ProductDto dto, Long mallId, Long storeId) {
 
         Product product = productRepository.findById(dto.getId())
                 .orElseThrow(ProductExceptions::productNotFound);
@@ -222,6 +246,13 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.slugExistsInTheSameStore();
         }
 
+        if(product.getMallId() != mallId){
+            throw ProductExceptions.productDoesNotBelongToMall();
+        }
+
+        if(product.getStoreId() != storeId){
+            throw ProductExceptions.productDoesNotBelongToStore();
+        }
         validateSingleDefaultVariant(dto);
 
         // Resolve tags

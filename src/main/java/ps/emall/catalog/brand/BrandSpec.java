@@ -10,6 +10,8 @@ import org.springframework.data.jpa.domain.Specification;
         @Spec(params = "name", path = "name", spec = LikeIgnoreCase.class),
         @Spec(params = "slug", path = "slug", spec = LikeIgnoreCase.class),
         @Spec(params = "is-active", path = "isActive", spec = Equal.class),
+        @Spec(params = "targeted-audience", path = "targetedAudience", spec = Equal.class),
+        @Spec(params = "age-group", path = "ageGroup", spec = Equal.class)
 })
 public interface BrandSpec extends Specification<Brand> {
 }

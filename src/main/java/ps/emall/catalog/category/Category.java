@@ -59,6 +59,9 @@ public class Category extends EMallsBaseEntity {
     @JoinColumn(name = "parent_id")
     private Category parent;
 
+    @Column(name = "depth_level", nullable = false)
+    private Integer depthLevel;
+
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private Set<Category> children = new HashSet<>();
 
