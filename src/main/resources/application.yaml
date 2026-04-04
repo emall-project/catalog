@@ -21,6 +21,9 @@ spring:
           revision_field_name: rev
           track_entities_changed_in_revision: false
 
+  config:
+    import: "optional:dotenv:"
+
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
@@ -47,6 +50,9 @@ moderation:
     retry-interval-minutes: 10  # Wait 10 min between retries
     retry-interval-ms: 600000   # Same value in milliseconds for @Scheduled
 
+app:
+  jwt:
+    secret: ${JWT_SECRET}
 
 services:
   campaigns:

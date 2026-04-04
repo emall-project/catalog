@@ -29,6 +29,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_PORT: 8080
       SPRING_PROFILES_ACTIVE: prod
+      JWT_SECRET: ${JWT_SECRET}
 
       ##-------- Services Urls ---------
       CAMPAIGNS_IP_ADDRESS: campaigns-app
@@ -56,7 +57,7 @@ services:
       SPRING_DATASOURCE_USERNAME: e-mall
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      OPENAI_MODERATION_API_KEY: ${OPENAI_MODERATION_API_KEY}
+      OPENAI_MODERATION_API_KEY: {OPENAI_MODERATION_API_KEY}
 
     entrypoint: [ "mvn" ]
     command: [ "-B", "test" ]

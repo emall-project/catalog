@@ -22,3 +22,7 @@ spring:
 moderation:
   openai:
     api-key: ${OPENAI_MODERATION_API_KEY}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}

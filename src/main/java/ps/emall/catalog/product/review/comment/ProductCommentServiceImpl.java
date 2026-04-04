@@ -11,6 +11,7 @@ import ps.emall.catalog.product.Product;
 import ps.emall.catalog.product.ProductExceptions;
 import ps.emall.catalog.product.ProductRepository;
 import ps.emall.catalog.product.review.moderation.ModerationService;
+import ps.emall.catalog.security.SecurityContextUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,12 +75,13 @@ public class ProductCommentServiceImpl implements ProductCommentService {
     public ProductCommentDto create(Long productId, ProductCommentDto dto) {
         Product product = verifyProductExists(productId);
 
-        // TODO: replace with security context after Spring Security is implemented
-        validateUserExists(dto.getUserId());
+        Long userId = SecurityContextUtil.getCurrentUserId();
 
-        if (commentRepository.existsByProduct_IdAndUserId(productId, dto.getUserId())) {
+        if (commentRepository.existsByProduct_IdAndUserId(productId, userId)) {
             throw CommentExceptions.commentAlreadyExists();
         }
+
+        dto.setUserId(userId);
 
         ProductComment comment = ProductCommentMapper.toEntity(dto, product);
         ProductComment saved = commentRepository.save(comment);
@@ -99,7 +101,6 @@ public class ProductCommentServiceImpl implements ProductCommentService {
                 .findByProduct_IdAndUserId(productId, userId)
                 .orElseThrow(CommentExceptions::commentNotFound);
 
-        // TODO: replace with security context after Spring Security is implemented
         if (!existing.getUserId().equals(userId)) {
             throw CommentExceptions.notYourComment();
         }
@@ -133,7 +134,6 @@ public class ProductCommentServiceImpl implements ProductCommentService {
                 .findByProduct_IdAndUserId(productId, userId)
                 .orElseThrow(CommentExceptions::commentNotFound);
 
-        // TODO: replace with security context after Spring Security is implemented
         if (!comment.getUserId().equals(userId)) {
             throw CommentExceptions.notYourComment();
         }

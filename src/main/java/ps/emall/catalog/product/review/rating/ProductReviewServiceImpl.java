@@ -10,6 +10,7 @@ import ps.emall.catalog.common.exception.EMallsException;
 import ps.emall.catalog.product.Product;
 import ps.emall.catalog.product.ProductExceptions;
 import ps.emall.catalog.product.ProductRepository;
+import ps.emall.catalog.security.SecurityContextUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,12 +63,13 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     public ProductReviewDto create(Long productId, ProductReviewDto dto) {
         Product product = verifyProductExists(productId);
 
-        // TODO: replace with security context after Spring Security is implemented
-        validateUserExists(dto.getUserId());
+        Long userId = SecurityContextUtil.getCurrentUserId();
 
-        if (reviewRepository.existsByProduct_IdAndUserId(productId, dto.getUserId())) {
+        if (reviewRepository.existsByProduct_IdAndUserId(productId, userId)) {
             throw ReviewExceptions.reviewAlreadyExists();
         }
+
+        dto.setUserId(userId);
 
         ProductReview review = ProductReviewMapper.toEntity(dto, product);
         ProductReview saved = reviewRepository.save(review);
@@ -91,7 +93,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 .findByProduct_IdAndUserId(productId, userId)
                 .orElseThrow(ReviewExceptions::reviewNotFound);
 
-        // TODO: replace with security context after Spring Security is implemented
         if (!existing.getUserId().equals(userId)) {
             throw ReviewExceptions.cannotUpdateOtherUserReview();
         }
@@ -118,7 +119,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 .findByProduct_IdAndUserId(productId, userId)
                 .orElseThrow(ReviewExceptions::reviewNotFound);
 
-        // TODO: replace with security context after Spring Security is implemented
         if (!review.getUserId().equals(userId)) {
             throw ReviewExceptions.cannotUpdateOtherUserReview();
         }
