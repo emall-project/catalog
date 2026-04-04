@@ -24,6 +24,21 @@ management:
       exposure:
         include: health, info
 
+moderation:
+  openai:
+    api-key: ${OPENAI_MODERATION_API_KEY}
+    rate-limit-retries: 2
+    rate-limit-retry-delay-ms: 3000
+
+  worker:
+    transaction-commit-delay-ms: 300
+    delay-between-calls-ms: 1200
+
+  scheduler:
+    max-retries: 3              # AI called at most 3 times per comment on failure
+    retry-interval-minutes: 10  # Wait 10 min between retries
+    retry-interval-ms: 600000   # Same value in milliseconds for @Scheduled
+
 
 services:
   campaigns:

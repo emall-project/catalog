@@ -229,7 +229,22 @@ public enum MessageKey {
     HTTP_CONFLICT("http.conflict"),
 
     HTTP_INTERNAL_SERVER_ERROR("http.internal.server.error"),
-    HTTP_SERVICE_UNAVAILABLE("http.service.unavailable");
+    HTTP_SERVICE_UNAVAILABLE("http.service.unavailable"),
+
+    // Reviews
+    REVIEW_NOT_FOUND("review.not.found"),
+    REVIEW_ALREADY_EXISTS("review.already.exists"),
+    USER_NOT_FOUND_FOR_REVIEW("user.not.found.for.review"),
+
+    // Comments
+    COMMENT_NOT_FOUND("comment.not.found"),
+    COMMENT_ALREADY_EXISTS("comment.already.exists"),
+    COMMENT_REJECTED_BY_MODERATION("comment.rejected.by.moderation"),
+    COMMENT_CANNOT_EDIT_REJECTED("comment.cannot.edit.rejected"),
+    COMMENT_ALREADY_REPORTED("comment.already.reported"),
+    COMMENT_CANNOT_REPORT_OWN("comment.cannot.report.own"),
+    COMMENT_NOT_APPROVED_FOR_REPORT("comment.not.approved.for.report"),
+    COMMENT_EDIT_NOT_ALLOWED_UNDER_INVESTIGATION("comment.edit.not.allowed.under.investigation");
 
     private final String key;
 }
