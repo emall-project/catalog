@@ -39,7 +39,7 @@ services:
       ORDER_HUB_PORT: 8080
       MEDIA_MANAGER_IP_ADDRESS: media-manager-app
       MEDIA_MANAGER_PORT: 8080
-      OPENAI_MODERATION_API_KEY: {OPENAI_MODERATION_API_KEY}
+      OPENAI_MODERATION_API_KEY: ${OPENAI_MODERATION_API_KEY}
     networks:
       - services
       - catalog
@@ -56,7 +56,7 @@ services:
       SPRING_DATASOURCE_USERNAME: e-mall
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      OPENAI_MODERATION_API_KEY: {OPENAI_MODERATION_API_KEY}
+      OPENAI_MODERATION_API_KEY: ${OPENAI_MODERATION_API_KEY}
 
     entrypoint: [ "mvn" ]
     command: [ "-B", "test" ]
