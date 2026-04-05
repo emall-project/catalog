@@ -9,4 +9,5 @@
     <includeAll path="changes/catalog" relativeToChangelogFile="true"/>
 
     <includeAll path="changes/audit" relativeToChangelogFile="true"/>
+    <includeAll path="changes/product_review" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -17,3 +17,8 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
+
+
+moderation:
+  openai:
+    api-key: ${OPENAI_MODERATION_API_KEY}
