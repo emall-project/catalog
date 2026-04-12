@@ -25,6 +25,19 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
 
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:emall}
+    password: ${SPRING_RABBITMQ_PASSWORD:emallpass}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        default-requeue-rejected: false
+        concurrency: 1
+        max-concurrency: 4
+        prefetch: 20
+
 
 management:
   endpoints:
@@ -70,3 +83,7 @@ services:
     username: ${MEDIA_MANAGER_USER_NAME:e-mall}
     password: ${MEDIA_MANAGER_PASSWORD:e-mall}
 
+
+app:
+  rabbit:
+    enabled: false
