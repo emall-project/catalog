@@ -20,6 +20,9 @@ public class ProductInfoDto {
     private String brandName;
     private Boolean isActive;
 
+    private Long storeId;
+    private Long mallId;
+
     private List<VariantPriceInfoDto> variants;
 
     @Getter

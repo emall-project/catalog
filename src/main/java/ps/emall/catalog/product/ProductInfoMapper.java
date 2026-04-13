@@ -32,6 +32,8 @@ public class ProductInfoMapper {
                         ? entity.getBrand().getName() : null)
                 .isActive(entity.getIsActive())
                 .variants(variants)
+                .storeId(entity.getStoreId())
+                .mallId(entity.getMallId())
                 .build();
     }
 }
