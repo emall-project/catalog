@@ -159,6 +159,7 @@ public enum MessageKey {
     // PRODUCT - ERRORS
     // =========================================================
     PRODUCT_NOT_FOUND("product.not.found"),
+    PRODUCT_NOT_ACTIVE("product.not.active"),
     PRODUCT_SLUG_EXISTS("product.slug.exists"),
     PRODUCT_SLUG_EXISTS_IN_THE_SAME_STORE("product.slug.exists.in.the.same.store"),
     PRODUCT_INACTIVE("product.inactive"),

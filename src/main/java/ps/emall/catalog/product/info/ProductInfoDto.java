@@ -1,4 +1,4 @@
-package ps.emall.catalog.product;
+package ps.emall.catalog.product.info;
 
 import lombok.*;
 

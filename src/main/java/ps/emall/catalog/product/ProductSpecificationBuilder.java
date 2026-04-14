@@ -29,6 +29,8 @@ public final class ProductSpecificationBuilder {
                 slugSpec(filter.getSlug()),
                 categorySpec(filter.getCategoryId()),
                 brandSpec(filter.getBrandId()),
+                mallSpec(filter.getMallId()),
+                storeSpec(filter.getStoreId()),
                 isActiveSpec(filter.getIsActive()),
                 targetedAudienceSpec(filter.getTargetedAudience()),
                 ageGroupSpec(filter.getAgeGroup()),
@@ -63,6 +65,7 @@ public final class ProductSpecificationBuilder {
         };
     }
 
+
     public static Specification<Product> categorySpec(Long categoryId) {
         return (root, query, cb) -> {
             if (categoryId == null) {
@@ -72,12 +75,31 @@ public final class ProductSpecificationBuilder {
         };
     }
 
+
     public static Specification<Product> brandSpec(Long brandId) {
         return (root, query, cb) -> {
             if (brandId == null) {
                 return null;
             }
             return cb.equal(root.get("brand").get("id"), brandId);
+        };
+    }
+
+    public static Specification<Product> mallSpec(Long mallId) {
+        return (root, query, cb) -> {
+            if (mallId == null) {
+                return null;
+            }
+            return cb.equal(root.get("mallId"), mallId);
+        };
+    }
+
+    public static Specification<Product> storeSpec(Long storeId) {
+        return (root, query, cb) -> {
+            if (storeId == null) {
+                return null;
+            }
+            return cb.equal(root.get("storeId"), storeId);
         };
     }
 

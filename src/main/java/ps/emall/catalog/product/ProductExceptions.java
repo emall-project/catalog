@@ -26,6 +26,14 @@ public final class ProductExceptions {
                 .build();
     }
 
+    public static EMallsException productNotActive() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.UNAUTHORIZED)
+                .message(MessageKey.PRODUCT_NOT_FOUND.getKey())
+                .build();
+    }
+
+
     public static EMallsException categoryNotFound() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
@@ -73,14 +81,14 @@ public final class ProductExceptions {
 
     public static EMallsException productDoesNotBelongToMall() {
         return EMallsException.builder()
-                .httpStatus(HttpStatus.BAD_REQUEST)
+                .httpStatus(HttpStatus.UNAUTHORIZED)
                 .message(MessageKey.PRODUCT_DOSE_NOT_BELONG_TO_MALL.getKey())
                 .build();
     }
 
     public static EMallsException productDoesNotBelongToStore() {
         return EMallsException.builder()
-                .httpStatus(HttpStatus.BAD_REQUEST)
+                .httpStatus(HttpStatus.UNAUTHORIZED)
                 .message(MessageKey.PRODUCT_DOSE_NOT_BELONG_TO_STORE.getKey())
                 .build();
     }
