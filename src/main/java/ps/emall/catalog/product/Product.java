@@ -112,7 +112,7 @@ public class Product extends EMallsBaseEntity {
     @Builder.Default
     private List<ProductVariant> variants = new ArrayList<>();
 //
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "default_id")
     private ProductVariant defaultVariant;
 

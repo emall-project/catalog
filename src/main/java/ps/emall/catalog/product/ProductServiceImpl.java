@@ -21,6 +21,8 @@ import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
+import ps.emall.catalog.product.info.ProductInfoDto;
+import ps.emall.catalog.product.info.ProductInfoMapper;
 import ps.emall.catalog.product.summary.*;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.light.ProductLightDto;
@@ -48,12 +50,13 @@ public class ProductServiceImpl implements ProductService {
     private final CampaignsClient campaignsClient;
     private final MediaManagerClient mediaManagerClient;
     private final ProductSpecificationBuilder productSpecificationBuilder;
+
     @Override
     public PaginatedResponse<ProductDto> getAll(ProductFilter filter, Pageable pageable) {
-        Specification<Product> spec =  productSpecificationBuilder.build(filter);
+        Specification<Product> spec = productSpecificationBuilder.build(filter);
         Page<ProductDto> page = productRepository.findAll(spec, pageable)
                 .map(ProductMapper::toDto)
-                .map(this::injectMedia)
+                .map(this::injectMedium)
                 .map(this::injectDiscount);
 
         return PaginatedResponse.of(page);
@@ -62,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponse<ProductLightDto> getAllLight(ProductFilter filter, Pageable pageable) {
-        Specification<Product> spec =  productSpecificationBuilder.build(filter);
+        Specification<Product> spec = productSpecificationBuilder.build(filter);
         Page<Long> productPage = productRepository.findIdsBySpecification(spec, pageable);
 
         List<Long> productIds = productPage.getContent()
@@ -113,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
 
     //    @Cacheable
     public ProductSummary getSummary(ProductFilter filter) {
-        Specification<Product> spec =  productSpecificationBuilder.build(filter);
+        Specification<Product> spec = productSpecificationBuilder.build(filter);
         long productCount = productRepository.count(spec);
         AudienceDistribution audienceDistribution = productRepository.getAudienceDistribution(spec);
         AgeDistribution ageDistribution = productRepository.getAgeDistribution(spec);
@@ -136,7 +139,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductDto> getAllProductList(ProductFilter filter) {
-        Specification<Product> spec =  productSpecificationBuilder.build(filter);
+        Specification<Product> spec = productSpecificationBuilder.build(filter);
         List<Product> products = (spec == null)
                 ? productRepository.findAll()
                 : productRepository.findAll(spec);
@@ -154,7 +157,20 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto getById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(ProductExceptions::productNotFound);
-        return injectDiscount(injectMedia(ProductMapper.toDto(product)));
+
+        if (product.getIsActive().equals(Boolean.FALSE)) {
+            throw ProductExceptions.productNotActive();
+        }
+
+        return injectDiscount(injectMedium(ProductMapper.toDto(product)));
+    }
+
+    @Override
+    public ProductDto getByStoreIdAndId(Long storeId, Long id) {
+        Product product = productRepository.findByStoreIdAndId(storeId, id)
+                .orElseThrow(ProductExceptions::productNotFound);
+
+        return injectDiscount(injectMedium(ProductMapper.toDto(product)));
     }
 
     @Override
@@ -162,7 +178,22 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto getBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(ProductExceptions::productNotFound);
-        return injectDiscount(injectMedia(ProductMapper.toDto(product)));
+
+        if (product.getIsActive().equals(Boolean.FALSE)) {
+            throw ProductExceptions.productNotActive();
+        }
+
+        return injectDiscount(injectMedium(ProductMapper.toDto(product)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductDto getByStoreIdAndSlug(Long storeId, String slug) {
+        log.info("storeId : {}, slug : {}", storeId, slug);
+        Product product = productRepository.findByStoreIdAndSlug(storeId, slug)
+                .orElseThrow(ProductExceptions::productNotFound);
+
+        return injectDiscount(injectMedium(ProductMapper.toDto(product)));
     }
 
     @Override
@@ -171,8 +202,8 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(ProductExceptions::productNotFound);
 
-        if (Boolean.FALSE.equals(product.getIsActive())) {
-            throw ProductExceptions.productNotFound();
+        if (product.getIsActive().equals(Boolean.FALSE)) {
+            throw ProductExceptions.productNotActive();
         }
 
         return ProductInfoMapper.toInfoDto(product);
@@ -188,8 +219,11 @@ public class ProductServiceImpl implements ProductService {
         Brand brand = brandRepository.findById(dto.getBrandId())
                 .orElseThrow(ProductExceptions::brandNotFound);
 
-        List<Tag> tags = tagService.resolveTags(dto.getTags())
-                .stream().map(TagMapper::toEntity).toList();
+        List<Tag> tags = null;
+        if (dto.getTags() != null) {
+            tags = tagService.resolveTags(dto.getTags())
+                    .stream().map(TagMapper::toEntity).toList();
+        }
 
 
         if (slugExistsInTheSameStore(dto.getSlug(), 1L)) {
@@ -246,21 +280,27 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.slugExistsInTheSameStore();
         }
 
-        if(product.getMallId() != mallId){
+        if (product.getMallId() != mallId) {
             throw ProductExceptions.productDoesNotBelongToMall();
         }
 
-        if(product.getStoreId() != storeId){
+        if (product.getStoreId() != storeId) {
             throw ProductExceptions.productDoesNotBelongToStore();
         }
         validateSingleDefaultVariant(dto);
 
         // Resolve tags
-        List<Tag> tags = tagService.resolveTags(dto.getTags())
-                .stream()
-                .map(TagMapper::toEntity)
-                .toList();
 
+        List<Tag> tags = new ArrayList<>();
+        if (dto.getTags() != null) {
+            tags = tagService.resolveTags(dto.getTags())
+                    .stream()
+                    .map(TagMapper::toEntity)
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+
+        log.info("tag was resolved");
         // Update basic fields
         product.setName(dto.getName());
         product.setSlug(dto.getSlug());
@@ -271,10 +311,13 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(dto.getDescription());
         product.setCategory(category);
         product.setBrand(brand);
-        product.setTags(tags);
+
+        product.getTags().clear();
+        product.getTags().addAll(tags);
+        product.setDefaultVariant(null);
 
         Product savedProduct = productRepository.save(product);
-        //
+
         productVariantRepository.deleteByProductId(savedProduct.getId());
 
         List<ProductVariantDto> variantDtos = new ArrayList<>();
@@ -297,9 +340,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id, Long storeId) {
         Product product = productRepository.findById(id)
                 .orElseThrow(ProductExceptions::productNotFound);
+        if (product.getStoreId() != storeId) {
+            throw ProductExceptions.productDoesNotBelongToStore();
+        }
         productRepository.delete(product);
     }
 
@@ -411,7 +457,7 @@ public class ProductServiceImpl implements ProductService {
         return dto;
     }
 
-    private ProductDto injectMedia(ProductDto dto) {
+    private ProductDto injectMedium(ProductDto dto) {
         for (ProductVariantDto v : dto.getVariants()) {
             productVariantService.injectMedia(v);
         }

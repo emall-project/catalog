@@ -23,8 +23,8 @@ public class FeignConfig {
     @Bean
     public Request.Options feignRequestOptions() {
         return new Request.Options(
-                5, TimeUnit.SECONDS,   // connectTimeout
-                10, TimeUnit.SECONDS,  // readTimeout
+                2, TimeUnit.SECONDS,   // connectTimeout
+                3, TimeUnit.SECONDS,  // readTimeout
                 true                    // followRedirects
         );
     }
@@ -37,7 +37,7 @@ public class FeignConfig {
      */
     @Bean
     public Retryer feignRetryer() {
-        return new Retryer.Default(1000, 3000, 3);
+        return new Retryer.Default(500, 1000, 3);
     }
 
     /**

@@ -1,5 +1,6 @@
 package ps.emall.catalog.product;
 
+import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ public class ProductFilter {
     private Long categoryId;
     private Long brandId;
     private Boolean isActive;
+    private Long mallId;
+    private Long storeId;
     private TargetedAudience targetedAudience;
     private AgeGroup ageGroup;
     private Map<Long, List<Long>> selectedOptionsByAttribute;

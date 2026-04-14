@@ -2,6 +2,7 @@ package ps.emall.catalog.product;
 
 import org.springframework.data.domain.Pageable;
 import ps.emall.catalog.common.page.PaginatedResponse;
+import ps.emall.catalog.product.info.ProductInfoDto;
 import ps.emall.catalog.product.light.ProductLightDto;
 import ps.emall.catalog.product.summary.ProductSummary;
 
@@ -21,9 +22,13 @@ public interface ProductService {
 
     ProductDto getById(Long id);
 
+    ProductDto getByStoreIdAndId(Long storeId, Long id);
+
     ProductDto getBySlug(String slug);
 
-    void delete(Long id);
+    ProductDto getByStoreIdAndSlug(Long storeId, String slug);
+
+    void delete(Long id, Long storeId);
 
     ProductInfoDto getProductInfo(Long id);
 

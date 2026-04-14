@@ -1,6 +1,7 @@
 package ps.emall.catalog.tag;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -68,6 +70,7 @@ public class TagServiceImpl implements TagService {
 
     @Transactional
     public List<TagDto> resolveTags(List<TagDto> tagNames) {
+        log.info("Resolving tags");
         return tagNames.stream()
                 .map(tag -> tag.getName())
                 .map(this::normalize)
