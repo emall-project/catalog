@@ -1,4 +1,6 @@
-package ps.emall.catalog.product;
+package ps.emall.catalog.product.info;
+
+import ps.emall.catalog.product.Product;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +34,8 @@ public class ProductInfoMapper {
                         ? entity.getBrand().getName() : null)
                 .isActive(entity.getIsActive())
                 .variants(variants)
+                .storeId(entity.getStoreId())
+                .mallId(entity.getMallId())
                 .build();
     }
 }

@@ -1,4 +1,4 @@
-package ps.emall.catalog.product;
+package ps.emall.catalog.product.info;
 
 import lombok.*;
 
@@ -19,6 +19,9 @@ public class ProductInfoDto {
     private String categoryName;
     private String brandName;
     private Boolean isActive;
+
+    private Long storeId;
+    private Long mallId;
 
     private List<VariantPriceInfoDto> variants;
 

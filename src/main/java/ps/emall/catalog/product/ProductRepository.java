@@ -43,5 +43,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     List<Long> findIdsBySpecification(Specification<Product> spec);
 
+    Optional<Product> findByStoreIdAndSlug(Long storeId, String slug);
+
+    Optional<Product> findByStoreIdAndId(Long storeId, Long id);
+
+
 }
 
