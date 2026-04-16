@@ -49,6 +49,7 @@ public class CategoryMapper {
                 .isActive(category.getIsActive())
                 .imageId(category.getImageId())
                 .depthLevel(category.getDepthLevel())
+
                 .audienceConfig(
                         category.getAudienceConfig() != null
                                 ? category.getAudienceConfig().stream()

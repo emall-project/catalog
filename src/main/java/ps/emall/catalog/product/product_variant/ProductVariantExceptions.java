@@ -67,6 +67,13 @@ public final class ProductVariantExceptions {
                 .build();
     }
 
+    public static EMallsException defaultVariantDeletionNotAllowed() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.PRODUCT_DEFAULT_VARIANT_DELETION_NOT_ALLOWED.getKey())
+                .build();
+    }
+
     // ----------------------------
     // Internal Server Error Exceptions
     // ----------------------------

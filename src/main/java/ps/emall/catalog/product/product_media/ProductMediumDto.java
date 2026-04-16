@@ -1,6 +1,7 @@
 package ps.emall.catalog.product.product_media;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import lombok.*;
 import ps.emall.catalog.client.media_manager.FileDto;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class ProductMediumDto {
+    @Null(message = "product.image.id.null")
     private Long id;
 
     @NotNull(message = "product.image.mediaId.notnull")

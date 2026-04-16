@@ -35,6 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     void deactivateByStoreId(Long storeId);
 
     boolean existsByTags_Id(Long tagsId);
+
     boolean existsBySlugIgnoreCaseAndStoreId(String slug, Long storeId);
 
     @Override
@@ -46,6 +47,46 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     Optional<Product> findByStoreIdAndSlug(Long storeId, String slug);
 
     Optional<Product> findByStoreIdAndId(Long storeId, Long id);
+
+    @Modifying
+    @Query("""
+                UPDATE Product p
+                SET p.isActive = true
+                WHERE p.category.id = :categoryId
+            """)
+    void activateProductsByCategoryId(Long categoryId);
+
+    @Modifying
+    @Query("""
+                UPDATE Product p
+                SET p.isActive = false
+                WHERE p.category.id = :categoryId
+            """)
+    void deactivateProductsByCategoryId(Long categoryId);
+
+    @Modifying
+    @Query("""
+                UPDATE Product p
+                SET p.isActive = true
+                WHERE p.brand.id = :brandId
+            """)
+    void activateProductsByBrandId(Long brandId);
+
+    @Modifying
+    @Query("""
+                UPDATE Product p
+                SET p.isActive = false
+                WHERE p.brand.id = :brandId
+            """)
+    void deactivateProductsByBrandId(Long brandId);
+
+    @Modifying
+    @Query("""
+                UPDATE Product p
+                SET p.defaultVariant.id = :defaultVariantId
+                WHERE p.id = :id
+            """)
+    void updateDefaultVariant(Long id, Long defaultVariantId);
 
 
 }

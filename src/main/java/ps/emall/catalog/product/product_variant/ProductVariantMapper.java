@@ -29,7 +29,7 @@ public class ProductVariantMapper {
                 .id(dto.getId())
                 .name(dto.getName())
                 .basePrice(dto.getBasePrice())
-                .isDefault(dto.isDefault())
+                .isDefault(dto.getIsDefault())
                 .product(product)
                 .build();
     }

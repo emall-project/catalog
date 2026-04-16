@@ -19,13 +19,6 @@ public class PublicProductController {
     private final ProductService productService;
 
     @PostMapping("/all")
-    public EMallsResponseEntity<PaginatedResponse<ProductDto>> getAll(@RequestBody ProductFilter filter, Pageable pageable) {
-        filter.setIsActive(true);
-        PaginatedResponse<ProductDto> products = productService.getAll(filter, pageable);
-        return EMallsResponseEntity.ok(products);
-    }
-
-    @PostMapping("/light")
     public EMallsResponseEntity<PaginatedResponse<ProductLightDto>> getAllLight(@RequestBody ProductFilter filter, Pageable pageable) {
         filter.setIsActive(true);
         PaginatedResponse<ProductLightDto> products = productService.getAllLight(filter, pageable);
@@ -39,12 +32,6 @@ public class PublicProductController {
         return EMallsResponseEntity.ok(productsSummary);
     }
 
-    @PostMapping("/all/list")
-    public EMallsResponseEntity<List<ProductDto>> getAllList(@RequestBody ProductFilter filter) {
-        filter.setIsActive(true);
-        List<ProductDto> products = productService.getAllProductList(filter);
-        return EMallsResponseEntity.ok(products);
-    }
 
     @GetMapping("/{id}")
     public EMallsResponseEntity<ProductDto> getById(@PathVariable Long id) {

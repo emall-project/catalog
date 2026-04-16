@@ -32,4 +32,14 @@ public interface ProductVariantRepository
     List<ProductVariant> findByMediumId(UUID mediumId);
 
     ProductVariant getFirstByProductIdAndIsDefault(Long productId, Boolean isDefault);
+
+
+    @Query("""
+        SELECT v 
+        FROM ProductVariant v
+        WHERE v.product.storeId = :storeId AND 
+         v.product.id = :productId AND
+         v.id = :id
+    """)
+    Optional<ProductVariant> findByStoreIdAndProductIdAndId(Long storeId, Long productId, Long id);
 }
