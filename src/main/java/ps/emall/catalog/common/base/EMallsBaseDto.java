@@ -1,10 +1,16 @@
 package ps.emall.catalog.common.base;
 
-import lombok.Data;
+import jakarta.persistence.MappedSuperclass;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-@Data
+@MappedSuperclass
+@SuperBuilder(toBuilder = true)
+@Setter
+@Getter
+@NoArgsConstructor
 public class EMallsBaseDto {
     private LocalDateTime createdAt;
     private String createdBy;

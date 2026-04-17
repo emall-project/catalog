@@ -6,6 +6,10 @@ public class ProductMediumMapper {
                 .id(entity.getId())
                 .mediumId(entity.getMediumId())
                 .sortOrder(entity.getSortOrder())
+                .createdAt(entity.getCreatedAt())
+                .createdBy(entity.getCreatedBy())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedBy(entity.getUpdatedBy())
                 .build();
     }
     public static ProductMedium toEntity(ProductMediumDto dto) {

@@ -23,6 +23,12 @@ public class ProductMapper {
                 .brandId(entity.getBrand().getId())
                 .mallId(entity.getMallId())
                 .storeId(entity.getStoreId())
+
+                .createdAt(entity.getCreatedAt())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedAt(entity.getUpdatedAt())
+
                 .tags(entity.getTags() != null ?
                         entity.getTags().stream().map(TagMapper::toDto).toList()
                         : null

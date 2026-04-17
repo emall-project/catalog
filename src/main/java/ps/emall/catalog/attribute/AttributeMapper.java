@@ -14,6 +14,10 @@ public class AttributeMapper {
                 .options(entity.getOptions() != null
                         ? entity.getOptions().stream().map(AttributeOptionMapper::toDto).toList()
                         : null)
+                .createdAt(entity.getCreatedAt())
+                .createdBy(entity.getCreatedBy())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedBy(entity.getUpdatedBy())
                 .isActive(entity.getIsActive())
                 .build();
     }

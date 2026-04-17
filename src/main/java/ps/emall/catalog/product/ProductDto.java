@@ -3,8 +3,10 @@ package ps.emall.catalog.product;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
+import ps.emall.catalog.common.base.EMallsBaseDto;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
@@ -17,8 +19,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ProductDto {
+@SuperBuilder
+public class ProductDto extends EMallsBaseDto {
 
     @Null(groups = OnCreate.class, message = "product.id.null")
     @NotNull(groups = OnUpdate.class, message = "product.id.notnull")

@@ -13,6 +13,10 @@ public class TagMapper {
         return TagDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
+                .createdAt(entity.getCreatedAt())
+                .createdBy(entity.getCreatedBy())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedBy(entity.getUpdatedBy())
                 .build();
     }
 }
