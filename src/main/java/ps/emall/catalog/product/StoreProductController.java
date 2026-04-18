@@ -65,6 +65,7 @@ public class StoreProductController {
     @PostMapping
     public EMallsResponseEntity<ProductDto> create(@PathVariable Long storeId, @RequestBody @Validated({Default.class, OnCreate.class}) ProductDto dto) {
         // TODO: git mallId from token
+        dto.setStoreId(storeId);
         ProductDto created = productService.create(dto, 1L, storeId);
         return EMallsResponseEntity.created(created);
     }
@@ -72,6 +73,7 @@ public class StoreProductController {
     @PutMapping
     public EMallsResponseEntity<ProductDto> update(@PathVariable Long storeId, @RequestBody @Validated({Default.class, OnUpdate.class}) ProductDto dto) {
         // TODO: git mallId from token
+        dto.setStoreId(storeId);
         ProductDto updated = productService.update(dto, 1L, storeId);
         return EMallsResponseEntity.ok(updated);
     }

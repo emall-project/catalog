@@ -8,7 +8,7 @@ public record CatalogEvent(
         InteractionType interactionType,
         Instant occurredAt,
         String source,
-        String correlationId,
+        Long correlationId,
         String metadata
 ) {
 }
