@@ -3,6 +3,7 @@ package ps.emall.catalog.brand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.common.page.PaginatedResponse;
@@ -45,18 +46,21 @@ public class BrandController {
     }
 
     @PostMapping
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<BrandDto> create(@Validated(OnCreate.class) @RequestBody BrandDto dto) {
         BrandDto created = brandService.create(dto);
         return EMallsResponseEntity.created(created);
     }
 
     @PutMapping
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<BrandDto> update(@Validated(OnUpdate.class) @RequestBody BrandDto dto) {
         BrandDto updated = brandService.update(dto);
         return EMallsResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
         brandService.delete(id);
         return EMallsResponseEntity.noContent(null);

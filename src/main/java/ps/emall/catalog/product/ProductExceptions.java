@@ -100,4 +100,12 @@ public final class ProductExceptions {
                 .build();
     }
 
+    public static EMallsException subscriptionWriteAccessDenied() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.FORBIDDEN)
+                .message(MessageKey.SUBSCRIPTION_WRITE_ACCESS_DENIED.getKey())
+                .errorCode(List.of(new ErrorCode("shopId",
+                        MessageKey.SUBSCRIPTION_WRITE_ACCESS_DENIED.getKey())))
+                .build();
+    }
 }

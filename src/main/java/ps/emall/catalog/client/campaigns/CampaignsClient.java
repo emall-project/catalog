@@ -12,4 +12,7 @@ public interface CampaignsClient {
 
     @GetMapping("/api/offers/product/{productId}/active-price")
     CampaignsResponse getActiveOfferForProduct(@PathVariable("productId") Long productId);
+
+    @GetMapping("/api/subscriptions/shop/{shopId}/write-access")
+    Boolean hasWriteAccess(@PathVariable("shopId") Long shopId);
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
@@ -53,6 +54,7 @@ public class AttributeController {
     }
 
     @PostMapping
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<AttributeDto> create(
             @Validated(OnCreate.class) @RequestBody AttributeDto dto
     ) {
@@ -62,6 +64,7 @@ public class AttributeController {
     }
 
     @PutMapping
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<AttributeDto> update(@Validated(OnUpdate.class) @RequestBody AttributeDto dto) {
         return EMallsResponseEntity.ok(
                 attributeService.update(dto)
@@ -69,6 +72,7 @@ public class AttributeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
         attributeService.delete(id);
         return EMallsResponseEntity.noContent(null);

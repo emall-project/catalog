@@ -3,6 +3,7 @@ package ps.emall.catalog.category;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigDto;
@@ -70,12 +71,14 @@ public class CategoryController {
     }
 
     @PostMapping
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<CategoryDto> create(@RequestBody @Validated({Default.class, OnCreate.class}) CategoryDto dto) {
         CategoryDto created = categoryService.create(dto);
         return EMallsResponseEntity.created(created);
     }
 
     @PutMapping
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<CategoryDto> update(@RequestBody @Validated({Default.class, OnUpdate.class}) CategoryDto dto) {
         CategoryDto updated = categoryService.update(dto);
         return EMallsResponseEntity.ok(updated);
@@ -88,6 +91,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
         return EMallsResponseEntity.noContent(null);
