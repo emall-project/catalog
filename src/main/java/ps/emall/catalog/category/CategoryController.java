@@ -21,25 +21,39 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public EMallsResponseEntity<PaginatedResponse<CategoryDto>> getAll(CategorySpec spec, Pageable pageable) {
-        PaginatedResponse<CategoryDto> categories = categoryService.getAll(spec, pageable);
+    public EMallsResponseEntity<PaginatedResponse<CategoryDto>> getAll(@ModelAttribute CategoryFilter categoryFilter, Pageable pageable) {
+//        if(notAdmin){
+//            categoryFilter.setIsActive(true);
+//        }
+        PaginatedResponse<CategoryDto> categories = categoryService.getAll(categoryFilter, pageable);
         return EMallsResponseEntity.ok(categories);
     }
+
     @GetMapping("/light")
-    public EMallsResponseEntity<PaginatedResponse<CategoryLightDto>> getAllLight(CategorySpec spec, Pageable pageable) {
-        PaginatedResponse<CategoryLightDto> categories = categoryService.getAllLight(spec, pageable);
+    public EMallsResponseEntity<PaginatedResponse<CategoryLightDto>> getAllLight(@ModelAttribute CategoryFilter categoryFilter, Pageable pageable) {
+        //        if(notAdmin){
+//            categoryFilter.setIsActive(true);
+//        }
+        PaginatedResponse<CategoryLightDto> categories = categoryService.getAllLight(categoryFilter, pageable);
         return EMallsResponseEntity.ok(categories);
     }
 
     @GetMapping("/all")
-    public EMallsResponseEntity<List<CategoryDto>> getCategories(CategorySpec spec) {
-        List<CategoryDto> categories = categoryService.getAllCategoryList(spec);
+    public EMallsResponseEntity<List<CategoryDto>> getCategories(@ModelAttribute CategoryFilter categoryFilter) {
+        //        if(notAdmin){
+//            categoryFilter.setIsActive(true);
+//        }
+        List<CategoryDto> categories = categoryService.getAllCategoryList(categoryFilter);
         return EMallsResponseEntity.ok(categories);
     }
 
     @GetMapping("/tree")
     public EMallsResponseEntity<List<CategoryTreeDto>> getCategories() {
-        List<CategoryTreeDto> categories = categoryService.getTree();
+        Boolean isActive = null;
+        //        if(notAdmin){
+//            isActive = true ;
+//        }
+        List<CategoryTreeDto> categories = categoryService.getTree(isActive);
         return EMallsResponseEntity.ok(categories);
     }
 

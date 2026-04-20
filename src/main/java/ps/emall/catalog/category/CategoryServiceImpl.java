@@ -26,9 +26,12 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final CategoryServiceHelper categoryServiceHelper;
+    private final CategorySpecificationBuilder specificationBuilder;
+
     @Override
     @Transactional(readOnly = true)
-    public PaginatedResponse<CategoryDto> getAll(Specification<Category> spec, Pageable pageable) {
+    public PaginatedResponse<CategoryDto> getAll(CategoryFilter categoryFilter, Pageable pageable) {
+        Specification<Category> spec = specificationBuilder.build(categoryFilter);
         Page<Category> categoryPage = categoryRepository.findAll(spec, pageable);
 
         List<UUID> imageIds = categoryPage.getContent().stream()
@@ -47,7 +50,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public PaginatedResponse<CategoryLightDto> getAllLight(Specification<Category> spec, Pageable pageable) {
+    public PaginatedResponse<CategoryLightDto> getAllLight(CategoryFilter categoryFilter, Pageable pageable) {
+        Specification<Category> spec = specificationBuilder.build(categoryFilter);
+
         Page<Category> categoryPage = categoryRepository.findAll(spec, pageable);
 
         List<UUID> imageIds = categoryPage.getContent().stream()
@@ -67,7 +72,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CategoryDto> getAllCategoryList(CategorySpec spec) {
+    public List<CategoryDto> getAllCategoryList(CategoryFilter categoryFilter) {
+        Specification<Category> spec = specificationBuilder.build(categoryFilter);
+
         List<Category> categories = (spec == null)
                 ? categoryRepository.findAll()
                 : categoryRepository.findAll(spec);
@@ -91,10 +98,10 @@ public class CategoryServiceImpl implements CategoryService {
         return result;
     }
 
-    public List<CategoryTreeDto> getTree() {
+    public List<CategoryTreeDto> getTree(Boolean isActive) {
 
         List<Category> categories = categoryRepository
-                .findByDepthLevelInOrderByDepthLevelAscIdAsc(List.of(0, 1, 2));
+                .findByDepthLevelInAndIsActiveOrderByDepthLevelAsc(List.of(0, 1, 2), isActive);
 
         List<UUID> imageIds = categories.stream()
                 .map(Category::getImageId)

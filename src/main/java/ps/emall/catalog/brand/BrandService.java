@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface BrandService {
 
-    PaginatedResponse<BrandDto> getAll(Specification<Brand> spec, Pageable pageable);
+    PaginatedResponse<BrandDto> getAll(BrandFilter filter, Pageable pageable);
 
-    List<BrandDto> getAllBrandsList(Specification<Brand> spec);
+    List<BrandDto> getAllBrandsList(BrandFilter filter);
 
     BrandDto create(BrandDto dto);
 

@@ -23,10 +23,12 @@ public class BrandServiceImpl implements BrandService {
     private final BrandRepository brandRepository;
     private final ProductRepository productRepository;
     private final BrandServiceHelper brandServiceHelper;
-
+    private final BrandSpecificationBuilder brandSpecificationBuilder;
     @Override
     @Transactional(readOnly = true)
-    public PaginatedResponse<BrandDto> getAll(Specification<Brand> spec, Pageable pageable) {
+    public PaginatedResponse<BrandDto> getAll(BrandFilter filter, Pageable pageable) {
+        Specification<Brand> spec = brandSpecificationBuilder.build(filter);
+
         Page<BrandDto> page = brandRepository.findAll(spec, pageable)
                 .map(BrandMapper::toDto)
                 .map(brandServiceHelper::injectImageUrl);
@@ -34,7 +36,9 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public List<BrandDto> getAllBrandsList(Specification<Brand> spec) {
+    public List<BrandDto> getAllBrandsList(BrandFilter filter) {
+        Specification<Brand> spec = brandSpecificationBuilder.build(filter);
+
         List<Brand> brands = (spec == null)
                 ? brandRepository.findAll()
                 : brandRepository.findAll(spec);
