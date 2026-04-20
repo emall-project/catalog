@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ps.emall.catalog.attribute.AttributeType;
+import ps.emall.catalog.common.base.EMallsBaseDto;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 
@@ -13,8 +15,8 @@ import ps.emall.catalog.common.validation.OnUpdate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class AttributeOptionDto {
+@SuperBuilder
+public class AttributeOptionDto extends EMallsBaseDto {
     @Null(message = "attribute.option.id.null")
     private Long id;
 

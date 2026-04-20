@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionDto;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionMapper;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionsExceptions;
+import ps.emall.catalog.product.product_variant.ProductVariantRepository;
+import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttributeRepository;
 
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.List;
 public class AttributeServiceImpl implements AttributeService {
 
     private final AttributeRepository attributeRepository;
+    private final ProductVariantRepository productVariantRepository;
+    private final VariantAttributeRepository variantAttributeRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -95,6 +99,9 @@ public class AttributeServiceImpl implements AttributeService {
         Attribute attribute = attributeRepository.findById(id)
                 .orElseThrow(AttributeExceptions::attributeNotFound);
 
+        if (variantAttributeRepository.existsByAttribute_Id(attribute.getId())) {
+            throw AttributeExceptions.attributeHasProducts();
+        }
         attributeRepository.delete(attribute);
     }
 

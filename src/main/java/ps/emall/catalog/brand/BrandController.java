@@ -20,14 +20,14 @@ public class BrandController {
     private final BrandService brandService;
 
     @GetMapping
-    public EMallsResponseEntity<PaginatedResponse<BrandDto>> getAll(BrandSpec spec, Pageable pageable) {
-        PaginatedResponse<BrandDto> page = brandService.getAll(spec, pageable);
+    public EMallsResponseEntity<PaginatedResponse<BrandDto>> getAll(BrandFilter filter, Pageable pageable) {
+        PaginatedResponse<BrandDto> page = brandService.getAll(filter, pageable);
         return EMallsResponseEntity.ok(page);
     }
 
     @GetMapping("/all")
-    public EMallsResponseEntity<List<BrandDto>> getBrands(BrandSpec spec) {
-        List<BrandDto> brands = brandService.getAllBrandsList(spec);
+    public EMallsResponseEntity<List<BrandDto>> getBrands(BrandFilter filter) {
+        List<BrandDto> brands = brandService.getAllBrandsList(filter);
         return EMallsResponseEntity.ok(brands);
     }
 

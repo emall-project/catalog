@@ -31,6 +31,13 @@ public final class AttributeExceptions {
                 .build();
     }
 
+    public static EMallsException attributeHasProducts() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.ATTRIBUTE_HAS_PRODUCTS.getKey())
+                .build();
+    }
+
     // ----------------------------
     // Conflict Exceptions
     // ----------------------------

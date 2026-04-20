@@ -18,6 +18,4 @@ public class ProductLightDto {
     private Boolean hasDiscount;
     private BigDecimal discountedPrice;
     private FileLightDto medium;
-
-
 }

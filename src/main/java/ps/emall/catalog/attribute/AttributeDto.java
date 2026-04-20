@@ -3,7 +3,9 @@ package ps.emall.catalog.attribute;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ps.emall.catalog.attribute.attribute_options.AttributeOptionDto;
+import ps.emall.catalog.common.base.EMallsBaseDto;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 
@@ -13,8 +15,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class AttributeDto {
+@SuperBuilder
+public class AttributeDto extends EMallsBaseDto {
     @Null(groups = OnCreate.class, message = "attribute.id.null")
     @NotNull(groups = OnUpdate.class, message = "attribute.id.notnull")
     private Long id;

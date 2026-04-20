@@ -6,7 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import ps.emall.catalog.common.base.EMallsBaseDto;
 import ps.emall.catalog.common.validation.OnCreate;
+import ps.emall.catalog.common.validation.OnUpdate;
 import ps.emall.catalog.product.product_media.ProductMediumDto;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttributeDto;
 
@@ -18,11 +21,11 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ProductVariantDto {
+@SuperBuilder
+public class ProductVariantDto extends EMallsBaseDto {
 
     @Null(groups = OnCreate.class, message = "product.variant.id.null")
-//    @NotNull(groups = OnUpdate.class, message = "product.variant.id.notnull")
+    @NotNull(groups = OnUpdate.class, message = "product.variant.id.notnull")
     private Long id;
 
     @NotBlank(message = "product.variant.name.notblank")
@@ -33,7 +36,7 @@ public class ProductVariantDto {
     private BigDecimal basePrice;
 
     @NotNull(message = "product.variant.isDefault.notnull")
-    private boolean isDefault;
+    private Boolean isDefault;
 
     @Valid
     private List<VariantAttributeDto> attributes;

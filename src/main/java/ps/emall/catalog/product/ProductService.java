@@ -1,6 +1,7 @@
 package ps.emall.catalog.product;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.info.ProductInfoDto;
 import ps.emall.catalog.product.light.ProductLightDto;
@@ -8,17 +9,17 @@ import ps.emall.catalog.product.summary.ProductSummary;
 
 import java.util.List;
 
+@Service
 public interface ProductService {
 
-    PaginatedResponse<ProductDto> getAll(ProductFilter filter, Pageable pageable);
 
     PaginatedResponse<ProductLightDto> getAllLight(ProductFilter filter, Pageable pageable);
 
-    List<ProductDto> getAllProductList(ProductFilter filter);
+    List<ProductLightDto> getAllProductList(ProductFilter filter);
 
-    ProductDto create(ProductDto productDto, Long mallId, Long storeId);
+    ProductDto create(Long storeId, ProductDto productDto, Long mallId);
 
-    ProductDto update(ProductDto productDto, Long mallId, Long storeId);
+    ProductDto update(Long storeId, ProductDto productDto, Long mallId);
 
     ProductDto getById(Long id);
 
@@ -28,7 +29,7 @@ public interface ProductService {
 
     ProductDto getByStoreIdAndSlug(Long storeId, String slug);
 
-    void delete(Long id, Long storeId);
+    void delete(Long storeId, Long id);
 
     ProductInfoDto getProductInfo(Long id);
 

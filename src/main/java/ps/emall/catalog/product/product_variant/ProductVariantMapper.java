@@ -13,6 +13,11 @@ public class ProductVariantMapper {
                 .name(entity.getName())
                 .basePrice(entity.getBasePrice())
                 .isDefault(entity.getIsDefault())
+
+                .createdAt(entity.getCreatedAt())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .media(entity.getMedia() != null ?
                         entity.getMedia().stream().map(ProductMediumMapper::toDto).toList()
                         : null
@@ -29,7 +34,7 @@ public class ProductVariantMapper {
                 .id(dto.getId())
                 .name(dto.getName())
                 .basePrice(dto.getBasePrice())
-                .isDefault(dto.isDefault())
+                .isDefault(dto.getIsDefault())
                 .product(product)
                 .build();
     }
