@@ -24,6 +24,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long>,
 
     List<Category> findByImageId(UUID imageId);
 
-    List<Category> findByDepthLevelInOrderByDepthLevelAscIdAsc(Collection<Integer> depthLevels);
+    List<Category> findByDepthLevelInAndIsActiveOrderByDepthLevelAsc(Collection<Integer> depthLevels, Boolean isActive);
 }
 
