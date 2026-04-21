@@ -231,6 +231,14 @@ public enum MessageKey {
     PRODUCT_VARIANT_MEDIA_NOT_NULL("product.variant.media.not.null"),
 
     // =========================================================
+    // FAVORITE ERROR
+    // =========================================================
+    FAVORITE_NOT_FOUND("favorite.not.found"),
+    FAVORITE_PRODUCT_NOT_FOUND("favorite.product.not.found"),
+    FAVORITE_ALREADY_EXISTS("favorite.already.exists"),
+    FAVORITE_ACCESS_DENIED("favorite.access.denied"),
+
+    // =========================================================
     // HTTP STATUS
     // =========================================================
     HTTP_OK("http.ok"),
