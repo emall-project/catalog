@@ -177,7 +177,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto create(Long storeId, ProductDto dto, Long mallId) {
+    public ProductDto create(Long mallId, Long storeId, ProductDto dto) {
 
         // validation
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -228,7 +228,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     // update only product basic info
-    public ProductDto update(Long storeId, ProductDto dto, Long mallId) {
+    public ProductDto update(Long mallId, Long storeId, ProductDto dto) {
 
         Product existing = productRepository.findById(dto.getId())
                 .orElseThrow(ProductExceptions::productNotFound);

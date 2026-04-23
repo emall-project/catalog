@@ -17,9 +17,9 @@ public interface ProductService {
 
     List<ProductLightDto> getAllProductList(ProductFilter filter);
 
-    ProductDto create(Long storeId, ProductDto productDto, Long mallId);
+    ProductDto create(Long mallId, Long storeId, ProductDto productDto);
 
-    ProductDto update(Long storeId, ProductDto productDto, Long mallId);
+    ProductDto update(Long mallId, Long storeId, ProductDto productDto);
 
     ProductDto getById(Long id);
 
