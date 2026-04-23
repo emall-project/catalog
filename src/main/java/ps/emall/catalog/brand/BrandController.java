@@ -5,11 +5,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 import ps.emall.catalog.security.SecurityContextUtilBean;
+import ps.emall.catalog.security.userdetails.Gender;
 
 import java.util.List;
 
@@ -26,12 +28,20 @@ public class BrandController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
+        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        if (isMale) {
+            filter.setTargetedAudience(TargetedAudience.MALE);
+        }
         PaginatedResponse<BrandDto> page = brandService.getAll(filter, pageable);
         return EMallsResponseEntity.ok(page);
     }
 
     @GetMapping("/all")
     public EMallsResponseEntity<List<BrandDto>> getBrands(BrandFilter filter) {
+        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        if (isMale) {
+            filter.setTargetedAudience(TargetedAudience.MALE);
+        }
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }

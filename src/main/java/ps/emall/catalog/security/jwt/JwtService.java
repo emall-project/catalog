@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ps.emall.catalog.security.SecurityConstants;
 import ps.emall.catalog.security.dto.StoreRef;
+import ps.emall.catalog.security.userdetails.Gender;
 
 import javax.crypto.SecretKey;
 import java.util.Collections;
@@ -51,9 +52,9 @@ public class JwtService {
         return null;
     }
 
-    public String extractGender(String token) {
+    public Gender extractGender(String token) {
         return extractClaim(token, claims ->
-                claims.get(SecurityConstants.CLAIM_GENDER, String.class));
+                claims.get(SecurityConstants.CLAIM_GENDER, Gender.class));
     }
 
     @SuppressWarnings("unchecked")

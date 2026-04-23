@@ -2,6 +2,9 @@ package ps.emall.catalog.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ps.emall.catalog.security.userdetails.Gender;
+
+import java.util.Optional;
 
 @Component("auth")
 @RequiredArgsConstructor
@@ -27,6 +30,9 @@ public class SecurityContextUtilBean {
         return SecurityContextUtil.getCurrentUsername();
     }
 
+    public Optional<Integer> getCurrentAge(){return SecurityContextUtil.getCurrentAge();}
+
+    public Gender getCurrentGender(){return SecurityContextUtil.getCurrentGender();}
     /**
      * True if the current user is ADMIN, or is a SHOP_OWNER who owns the given shop.
      * Use this in @PreAuthorize for any shop-scoped write operation.

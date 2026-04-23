@@ -62,7 +62,7 @@ public class StoreProductController {
     @PostMapping
     public EMallsResponseEntity<ProductDto> create(@PathVariable Long storeId, @RequestBody @Validated({Default.class, OnCreate.class}) ProductDto dto) {
         // TODO: git mallId from token
-        ProductDto created = productService.create(1L, dto, storeId);
+        ProductDto created = productService.create(storeId, dto, 1L);
         return EMallsResponseEntity.created(created);
     }
 

@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import ps.emall.catalog.security.dto.StoreRef;
 import ps.emall.catalog.security.userdetails.CustomUserDetails;
+import ps.emall.catalog.security.userdetails.Gender;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +13,8 @@ import java.util.Optional;
 
 public final class SecurityContextUtil {
 
-    private SecurityContextUtil() {}
+    private SecurityContextUtil() {
+    }
 
     // ==================== Get Authentication ====================
 
@@ -67,8 +69,9 @@ public final class SecurityContextUtil {
         return getCurrentUserDetails().map(CustomUserDetails::getAge);
     }
 
-    public static Optional<String> getCurrentGender() {
-        return getCurrentUserDetails().map(CustomUserDetails::getGender);
+    public static Gender getCurrentGender() {
+        return getCurrentUserDetails().map(CustomUserDetails::getGender)
+                .orElseThrow(() -> new SecurityException("User doesn't have gender"));
     }
 
     public static List<StoreRef> getCurrentShopIds() {

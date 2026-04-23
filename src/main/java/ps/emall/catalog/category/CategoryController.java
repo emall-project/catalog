@@ -7,11 +7,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigDto;
+import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 import ps.emall.catalog.security.SecurityContextUtilBean;
+import ps.emall.catalog.security.userdetails.Gender;
 
 import java.util.List;
 
@@ -24,29 +26,41 @@ public class CategoryController {
     private final SecurityContextUtilBean auth;
 
     @GetMapping
-    public EMallsResponseEntity<PaginatedResponse<CategoryDto>> getAll(@ModelAttribute CategoryFilter categoryFilter, Pageable pageable) {
+    public EMallsResponseEntity<PaginatedResponse<CategoryDto>> getAll(@ModelAttribute CategoryFilter filter, Pageable pageable) {
         if (!auth.isAdmin()) {
-            categoryFilter.setIsActive(true);
+            filter.setIsActive(true);
         }
-        PaginatedResponse<CategoryDto> categories = categoryService.getAll(categoryFilter, pageable);
+        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        if (isMale) {
+            filter.setTargetedAudience(TargetedAudience.MALE);
+        }
+        PaginatedResponse<CategoryDto> categories = categoryService.getAll(filter, pageable);
         return EMallsResponseEntity.ok(categories);
     }
 
     @GetMapping("/light")
-    public EMallsResponseEntity<PaginatedResponse<CategoryLightDto>> getAllLight(@ModelAttribute CategoryFilter categoryFilter, Pageable pageable) {
+    public EMallsResponseEntity<PaginatedResponse<CategoryLightDto>> getAllLight(@ModelAttribute CategoryFilter filter, Pageable pageable) {
         if (!auth.isAdmin()) {
-            categoryFilter.setIsActive(true);
+            filter.setIsActive(true);
         }
-        PaginatedResponse<CategoryLightDto> categories = categoryService.getAllLight(categoryFilter, pageable);
+        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        if (isMale) {
+            filter.setTargetedAudience(TargetedAudience.MALE);
+        }
+        PaginatedResponse<CategoryLightDto> categories = categoryService.getAllLight(filter, pageable);
         return EMallsResponseEntity.ok(categories);
     }
 
     @GetMapping("/all")
-    public EMallsResponseEntity<List<CategoryDto>> getCategories(@ModelAttribute CategoryFilter categoryFilter) {
+    public EMallsResponseEntity<List<CategoryDto>> getCategories(@ModelAttribute CategoryFilter filter) {
         if (!auth.isAdmin()) {
-            categoryFilter.setIsActive(true);
+            filter.setIsActive(true);
         }
-        List<CategoryDto> categories = categoryService.getAllCategoryList(categoryFilter);
+        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        if (isMale) {
+            filter.setTargetedAudience(TargetedAudience.MALE);
+        }
+        List<CategoryDto> categories = categoryService.getAllCategoryList(filter);
         return EMallsResponseEntity.ok(categories);
     }
 
@@ -64,7 +78,7 @@ public class CategoryController {
     public EMallsResponseEntity<CategoryDto> getById(@PathVariable Long id) {
         boolean isAdmin = auth.isAdmin();
 
-        CategoryDto dto = isAdmin? categoryService.getById(id): categoryService.getActiveById(id);
+        CategoryDto dto = isAdmin ? categoryService.getById(id) : categoryService.getActiveById(id);
         return EMallsResponseEntity.ok(dto);
     }
 
@@ -72,7 +86,7 @@ public class CategoryController {
     public EMallsResponseEntity<CategoryDto> getBySlug(@PathVariable String slug) {
         boolean isAdmin = auth.isAdmin();
 
-        CategoryDto dto = isAdmin? categoryService.getBySlug(slug): categoryService.getActiveBySlug(slug);
+        CategoryDto dto = isAdmin ? categoryService.getBySlug(slug) : categoryService.getActiveBySlug(slug);
         return EMallsResponseEntity.ok(dto);
     }
 

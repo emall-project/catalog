@@ -19,12 +19,12 @@ public class CustomUserDetails implements UserDetails {
     private final String fullName;
     private final String roleCode;
     private final Integer age;
-    private final String gender;
+    private final Gender gender;
     private final List<StoreRef> shopIds;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(Long userId, String username, String fullName,
-                             String roleCode, Integer age, String gender,
+                             String roleCode, Integer age, Gender gender,
                              List<StoreRef> shopIds) {
         this.userId = userId;
         this.username = username;

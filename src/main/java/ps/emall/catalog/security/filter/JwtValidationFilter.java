@@ -18,6 +18,7 @@ import ps.emall.catalog.security.SecurityConstants;
 import ps.emall.catalog.security.dto.StoreRef;
 import ps.emall.catalog.security.jwt.JwtService;
 import ps.emall.catalog.security.userdetails.CustomUserDetails;
+import ps.emall.catalog.security.userdetails.Gender;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -60,7 +61,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                     String fullName = jwtService.extractFullName(jwt);
                     String role = jwtService.extractRole(jwt);
                     Integer age = jwtService.extractAge(jwt);
-                    String gender = jwtService.extractGender(jwt);
+                    Gender gender = jwtService.extractGender(jwt);
                     List<StoreRef> shopIds = jwtService.extractShopIds(jwt);
 
                     CustomUserDetails userDetails =
