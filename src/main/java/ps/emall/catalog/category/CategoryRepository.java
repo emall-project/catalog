@@ -20,6 +20,10 @@ public interface CategoryRepository extends JpaRepository<Category, Long>,
 
     Optional<Category> findBySlug(String slug);
 
+    Optional<Category> findBySlugAndIsActiveTrue(String slug);
+
+    Optional<Category> findByIdAndIsActiveTrue(Long id);
+
     long countByParentId(Long parentId);
 
     List<Category> findByImageId(UUID imageId);

@@ -34,5 +34,11 @@ public final class SecurityConstants {
             "/v3/api-docs/**",
             "/swagger-resources/**",
             "/actuator/**",
+            "/products",
+            "/categories",
+            "/categories/{id}",
+            "/categories/all",
+            "/brands",
+            "/attributes",
     };
 }

@@ -3,6 +3,7 @@ package ps.emall.catalog.product;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.common.page.PaginatedResponse;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("stores/{storeId}/products")
-//   @PreAuthorize("@auth.isAdminOrShopOwnerOf()")
+@PreAuthorize("@auth.isAdminOrShopOwnerOf(#storeId)")
 @RequiredArgsConstructor
 public class StoreProductController {
 

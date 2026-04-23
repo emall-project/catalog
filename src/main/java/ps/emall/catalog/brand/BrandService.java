@@ -1,8 +1,6 @@
 package ps.emall.catalog.brand;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import ps.emall.catalog.common.page.PaginatedResponse;
 
 import java.util.List;
@@ -17,9 +15,13 @@ public interface BrandService {
 
     BrandDto update(BrandDto dto);
 
-    BrandDto findById(Long id);
+    BrandDto getById(Long id);
 
-    BrandDto findBySlug(String slug);
+    BrandDto getActiveById(Long id);
+
+    BrandDto getBySlug(String slug);
+
+    BrandDto getActiveBySlug(String slug);
 
     void delete(Long id);
 

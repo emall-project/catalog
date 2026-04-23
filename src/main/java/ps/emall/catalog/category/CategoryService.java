@@ -19,7 +19,11 @@ public interface CategoryService {
 
     CategoryDto getById(Long id);
 
+    CategoryDto getActiveById(Long id);
+
     CategoryDto getBySlug(String slug);
+
+    CategoryDto getActiveBySlug(String slug);
 
     CategoryDto create(CategoryDto categoryDto);
 

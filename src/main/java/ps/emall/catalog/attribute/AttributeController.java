@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
+import ps.emall.catalog.security.SecurityContextUtilBean;
 
 import java.util.List;
 
@@ -20,36 +21,43 @@ import java.util.List;
 public class AttributeController {
 
     private final AttributeService attributeService;
+    private final SecurityContextUtilBean auth;
 
     @GetMapping
-    public EMallsResponseEntity<Page<AttributeDto>> getAll(
-            AttributeSpec spec,
-            Pageable pageable
-    ) {
+    public EMallsResponseEntity<Page<AttributeDto>> getAll(@ModelAttribute AttributeFilter filter, Pageable pageable) {
+        if (!auth.isAdmin()) {
+            filter.setIsActive(true);
+        }
         return EMallsResponseEntity.ok(
-                attributeService.getAll(spec, pageable)
+                attributeService.getAll(filter, pageable)
         );
     }
 
     @GetMapping("/all")
-    public EMallsResponseEntity<List<AttributeDto>> getAllList(AttributeSpec spec) {
+    public EMallsResponseEntity<List<AttributeDto>> getAllList(@ModelAttribute AttributeFilter filter) {
+        if (!auth.isAdmin()) {
+            filter.setIsActive(true);
+        }
         return EMallsResponseEntity.ok(
-                attributeService.getAllList(spec)
+                attributeService.getAllList(filter)
         );
     }
 
     @GetMapping("/{id}")
     public EMallsResponseEntity<AttributeDto> getById(@PathVariable Long id) {
         log.info("Getting attribute by id {}", id);
+        boolean isAdmin = auth.isAdmin();
         return EMallsResponseEntity.ok(
-                attributeService.findById(id)
+                isAdmin ? attributeService.findById(id) : attributeService.findActiveById(id)
         );
     }
 
     @GetMapping("/slug/{slug}")
     public EMallsResponseEntity<AttributeDto> getBySlug(@PathVariable String slug) {
+        boolean isAdmin = auth.isAdmin();
+
         return EMallsResponseEntity.ok(
-                attributeService.findBySlug(slug)
+                isAdmin ? attributeService.findBySlug(slug) : attributeService.findActiveBySlug(slug)
         );
     }
 

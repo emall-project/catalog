@@ -15,7 +15,13 @@ public interface BrandRepository extends JpaRepository<Brand, Long>,
         JpaSpecificationExecutor<Brand> {
 
     boolean existsBySlug(String slug);
+
     Optional<Brand> findBySlug(String slug);
+
+    Optional<Brand> findBySlugAndIsActiveTrue(String slug);
+
+    Optional<Brand> findByIdAndIsActiveTrue(Long id);
+
     long countByIsActive(boolean isActive);
 
     @Modifying
