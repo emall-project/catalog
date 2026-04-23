@@ -21,9 +21,6 @@ spring:
           revision_field_name: rev
           track_entities_changed_in_revision: false
 
-  config:
-    import: "optional:dotenv:"
-
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml

@@ -14,6 +14,9 @@ import ps.emall.catalog.product.light.ProductLightDto;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
 import ps.emall.catalog.product.product_variant.ProductVariantService;
 import ps.emall.catalog.product.summary.ProductSummary;
+import ps.emall.catalog.security.SecurityContextUtil;
+import ps.emall.catalog.security.SecurityContextUtilBean;
+import ps.emall.catalog.security.dto.StoreRef;
 
 import java.util.List;
 
@@ -25,6 +28,8 @@ public class StoreProductController {
 
     private final ProductService productService;
     private final ProductVariantService productVariantService;
+    private final SecurityContextUtilBean auth;
+
 
     @PostMapping("/all")
     public EMallsResponseEntity<PaginatedResponse<ProductLightDto>> getAllLight(@PathVariable Long storeId, @RequestBody ProductFilter filter, Pageable pageable) {
@@ -61,15 +66,15 @@ public class StoreProductController {
 
     @PostMapping
     public EMallsResponseEntity<ProductDto> create(@PathVariable Long storeId, @RequestBody @Validated({Default.class, OnCreate.class}) ProductDto dto) {
-        // TODO: git mallId from token
-        ProductDto created = productService.create(1L, storeId, dto);
+        Long mallId = auth.getMallId(storeId);
+        ProductDto created = productService.create(mallId, storeId, dto);
         return EMallsResponseEntity.created(created);
     }
 
     @PutMapping
     public EMallsResponseEntity<ProductDto> update(@PathVariable Long storeId, @RequestBody @Validated({Default.class, OnUpdate.class}) ProductDto dto) {
-        // TODO: git mallId from token
-        ProductDto updated = productService.update(1L, storeId, dto);
+        Long mallId = auth.getMallId(storeId);
+        ProductDto updated = productService.update(mallId, storeId, dto);
         return EMallsResponseEntity.ok(updated);
     }
 

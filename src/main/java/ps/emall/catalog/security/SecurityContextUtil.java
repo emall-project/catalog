@@ -122,6 +122,14 @@ public final class SecurityContextUtil {
                 .anyMatch(ref -> ref.getStoreId().equals(shopId));
     }
 
+    public static Long getMallId(Long shopId) {
+        return getCurrentShopIds().stream()
+                .filter(storeRef -> storeRef.getStoreId().equals(shopId))
+                .map(StoreRef::getMallId)
+                .findFirst()
+                .orElse(null);
+    }
+
     // ==================== Authentication Checks ====================
 
     public static boolean isAuthenticated() {
