@@ -26,6 +26,10 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
 
   rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:emall}
+    password: ${SPRING_RABBITMQ_PASSWORD:emallpass}
     listener:
       simple:
         acknowledge-mode: auto

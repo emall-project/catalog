@@ -14,10 +14,12 @@ import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
+import ps.emall.catalog.job.ProductCreatedJob;
 import ps.emall.catalog.product.light.ProductLightDto;
 import ps.emall.catalog.product.product_media.ProductMediumDto;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
 import ps.emall.catalog.product.product_variant.ProductVariantExceptions;
+import ps.emall.catalog.publisher.JobPublisher;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,7 +34,7 @@ public class ProductServiceHelper {
     private final ProductRepository productRepository;
     private final CampaignsClient campaignsClient;
     private final MediaManagerClient mediaManagerClient;
-
+    private final JobPublisher jobPublisher;
 
     boolean slugExistsInTheSameStore(String slug, Long storeId) {
         boolean result = productRepository.existsBySlugIgnoreCaseAndStoreId(slug, storeId);
@@ -186,6 +188,11 @@ public class ProductServiceHelper {
 
     }
 
+    public void publishCreatedJob(Product product) {
+        ProductCreatedJob productCreatedJob = ProductMapper.toProductCreatedJob(product);
+        jobPublisher.publishProductCreatedJob(productCreatedJob);
+    }
+
     public void validateTargetedAudience(TargetedAudience productTargetedAudience, TargetedAudience categoryTargetedAudience) {
         if (categoryTargetedAudience == TargetedAudience.ALL) return;
         if (productTargetedAudience == categoryTargetedAudience) return;
@@ -310,4 +317,6 @@ public class ProductServiceHelper {
                     .setScale(2, RoundingMode.HALF_UP);
         };
     }
+
+
 }

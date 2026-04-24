@@ -237,6 +237,7 @@ public class ProductServiceImpl implements ProductService {
         ProductDto result = ProductMapper.toDto(productRepository.save(saved));
 
         result.setVariants(variantDtos);
+        productServiceHelper.publishCreatedJob(product);
         return result;
     }
 
