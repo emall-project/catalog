@@ -49,7 +49,7 @@ public class MediaService {
             inUse = true;
             for (CategoryAudienceConfig audienceConfig : audienceConfigs) {
                 Reference reference = Reference.builder()
-                        .entity(Entity.CategoryAudienceConfig)
+                        .entity(Entity.CATEGORY_AUDIENCE_CONFIG)
                         .entityId(audienceConfig.getId())
                         .entityName(audienceConfig.getCategory().getName() + " " + audienceConfig.getTargetedAudience() + " " + audienceConfig.getAgeGroup())
                         .build();

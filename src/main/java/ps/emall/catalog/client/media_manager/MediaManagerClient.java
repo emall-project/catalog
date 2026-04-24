@@ -11,7 +11,7 @@ import java.util.UUID;
 @FeignClient(name = "media-manager-service", url = "${services.media-manager.host}:${services.media-manager.port}")
 public interface MediaManagerClient {
     @GetMapping("files/{id}/exists")
-    Boolean exists(@PathVariable("id") UUID id);
+    MediaResponse<Boolean> exists(@PathVariable("id") UUID id);
 
     @GetMapping("/files/{id}")
     MediaResponse<FileDto> getById(@PathVariable("id") UUID id);

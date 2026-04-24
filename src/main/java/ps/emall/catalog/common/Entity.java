@@ -1,10 +1,8 @@
 package ps.emall.catalog.common;
 
-import ps.emall.catalog.category.audience_config.CategoryAudienceConfig;
-
 public enum Entity {
     CATEGORY,
-    CategoryAudienceConfig,
+    CATEGORY_AUDIENCE_CONFIG,
     BRAND,
     TAG,
     ATTRIBUTE,
