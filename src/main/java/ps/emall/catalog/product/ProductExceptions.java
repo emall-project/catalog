@@ -28,7 +28,7 @@ public final class ProductExceptions {
 
     public static EMallsException productNotActive() {
         return EMallsException.builder()
-                .httpStatus(HttpStatus.UNAUTHORIZED)
+                .httpStatus(HttpStatus.FORBIDDEN)
                 .message(MessageKey.PRODUCT_NOT_FOUND.getKey())
                 .build();
     }
@@ -58,6 +58,13 @@ public final class ProductExceptions {
                 .build();
     }
 
+    public static EMallsException defaultVariantRequired() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageKey.DEFAULT_VARIANTS_REQUIRED.getKey())
+                .build();
+    }
+
     public static EMallsException variantShouldHasAttribute() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
@@ -81,14 +88,14 @@ public final class ProductExceptions {
 
     public static EMallsException productDoesNotBelongToMall() {
         return EMallsException.builder()
-                .httpStatus(HttpStatus.UNAUTHORIZED)
+                .httpStatus(HttpStatus.FORBIDDEN)
                 .message(MessageKey.PRODUCT_DOSE_NOT_BELONG_TO_MALL.getKey())
                 .build();
     }
 
     public static EMallsException productDoesNotBelongToStore() {
         return EMallsException.builder()
-                .httpStatus(HttpStatus.UNAUTHORIZED)
+                .httpStatus(HttpStatus.FORBIDDEN)
                 .message(MessageKey.PRODUCT_DOSE_NOT_BELONG_TO_STORE.getKey())
                 .build();
     }

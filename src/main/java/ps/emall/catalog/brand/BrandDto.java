@@ -2,9 +2,11 @@ package ps.emall.catalog.brand;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
+import ps.emall.catalog.common.base.EMallsBaseDto;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 import java.util.UUID;
@@ -13,8 +15,8 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class BrandDto {
+@SuperBuilder
+public class BrandDto extends EMallsBaseDto {
     @Null(groups = OnCreate.class, message = "brand.id.null")
     @NotNull(groups = OnUpdate.class, message = "brand.id.notnull")
     private Long id;

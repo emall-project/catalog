@@ -1,13 +1,16 @@
 package ps.emall.catalog.category;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigDto;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
+import ps.emall.catalog.common.base.EMallsBaseDto;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 
@@ -19,8 +22,26 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class CategoryDto {
+@SuperBuilder
+//@JsonPropertyOrder({
+//        "id",
+//        "name",
+//        "slug",
+//        "targetedAudience",
+//        "ageGroup",
+//        "isActive",
+//        "imageId",
+//        "parentId",
+//        "depthLevel",
+//        "audienceConfig",
+//        "image",
+//        "createdAt",
+//        "createdBy",
+//        "updatedAt",
+//        "updatedBy"
+//})
+
+public class CategoryDto extends EMallsBaseDto {
     @Null(groups = OnCreate.class, message = "category.id.null")
     @NotNull(groups = OnUpdate.class, message = "category.id.notnull")
     private Long id;

@@ -23,6 +23,11 @@ public class BrandMapper {
                 .ageGroup(entity.getAgeGroup())
                 .isActive(entity.getIsActive())
                 .imageId(entity.getImageId())
+
+                .createdAt(entity.getCreatedAt())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
     public static BrandDto toDto(Brand entity, FileDto image) {
@@ -35,6 +40,11 @@ public class BrandMapper {
                 .isActive(entity.getIsActive())
                 .imageId(entity.getImageId())
                 .image(image)
+
+                .createdAt(entity.getCreatedAt())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 }

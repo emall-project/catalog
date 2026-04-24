@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface CategoryService {
 
-    PaginatedResponse<CategoryDto> getAll(Specification<Category> spec, Pageable pageable);
+    PaginatedResponse<CategoryDto> getAll(CategoryFilter categoryFilter, Pageable pageable);
 
-    PaginatedResponse<CategoryLightDto> getAllLight(Specification<Category> spec, Pageable pageable);
+    PaginatedResponse<CategoryLightDto> getAllLight(CategoryFilter categoryFilter, Pageable pageable);
 
-    List<CategoryDto> getAllCategoryList(CategorySpec spec);
+    List<CategoryDto> getAllCategoryList(CategoryFilter categoryFilter);
 
-    List<CategoryTreeDto> getTree();
+    List<CategoryTreeDto> getTree(Boolean isActive);
 
     CategoryDto getById(Long id);
 

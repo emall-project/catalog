@@ -6,6 +6,10 @@ public class AttributeOptionMapper {
                 .id(entity.getId())
                 .value(entity.getValue())
                 .sortOrder(entity.getSortOrder())
+                .createdAt(entity.getCreatedAt())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
     public static AttributeOption toEntity(AttributeOptionDto dto) {

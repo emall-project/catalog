@@ -135,6 +135,7 @@ public enum MessageKey {
     ATTRIBUTE_NOT_FOUND("attribute.not.found"),
     ATTRIBUTE_SLUG_EXISTS("attribute.slug.exists"),
     ATTRIBUTE_INACTIVE("attribute.inactive"),
+    ATTRIBUTE_HAS_PRODUCTS("attribute.has.products"),
 
     // =========================================================
     // ATTRIBUTE - DTO VALIDATION
@@ -164,6 +165,7 @@ public enum MessageKey {
     PRODUCT_SLUG_EXISTS_IN_THE_SAME_STORE("product.slug.exists.in.the.same.store"),
     PRODUCT_INACTIVE("product.inactive"),
     PRODUCT_HAS_MULTIPLE_DEFAULT_VARIANTS("product.has.multiple.default.variants"),
+    DEFAULT_VARIANTS_REQUIRED("default.variants.required"),
     PRODUCT_VARIANT_SHOULD_HAS_ATTRIBUTE("product.variant.should.have.attribute"),
     INVALID_PRODUCT_AUDIENCE_FOR_CATEGORY("invalid.product.audience.for.category"),
     INVALID_PRODUCT_AGE_GROUP_FOR_CATEGORY("invalid.product.ageGroup.for.category"),
@@ -207,6 +209,7 @@ public enum MessageKey {
     PRODUCT_VARIANT_DUPLICATE_MEDIUM_SORT("product.variant.duplicate.image.sort"),
     PRODUCT_VARIANT_MEDIA_LIMIT_EXCEEDED("product.variant.image.limitExceeded"),
     PRODUCT_VARIANT_MUST_HAVE_AT_LEAST_ONE_MEDIUM("product.variant.must.haveAtLeastOne"),
+    PRODUCT_DEFAULT_VARIANT_DELETION_NOT_ALLOWED("product.default.variant.deletion.notallowed"),
     PRODUCT_VARIANT_MEDIUM_NOT_FOUND("product.variant.image.not.found"),
     PRODUCT_VARIANT_MEDIUM_COULD_NOT_BE_VALIDATED("product.variant.image.couldNotBeValidated"),
     PRODUCT_VARIANT_MEDIUM_TYPE_INVALID("product.variant.type.invalid"),
@@ -226,6 +229,14 @@ public enum MessageKey {
     PRODUCT_VARIANT_IS_DEFAULT_NOT_NULL("product.variant.isDefault.notnull"),
 
     PRODUCT_VARIANT_MEDIA_NOT_NULL("product.variant.media.not.null"),
+
+    // =========================================================
+    // FAVORITE ERROR
+    // =========================================================
+    FAVORITE_NOT_FOUND("favorite.not.found"),
+    FAVORITE_PRODUCT_NOT_FOUND("favorite.product.not.found"),
+    FAVORITE_ALREADY_EXISTS("favorite.already.exists"),
+    FAVORITE_ACCESS_DENIED("favorite.access.denied"),
 
     // =========================================================
     // HTTP STATUS

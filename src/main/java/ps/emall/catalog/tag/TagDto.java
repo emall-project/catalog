@@ -2,13 +2,15 @@ package ps.emall.catalog.tag;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import ps.emall.catalog.common.base.EMallsBaseDto;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class TagDto {
+@SuperBuilder
+public class TagDto extends EMallsBaseDto {
 
     @Null(message = "tag.id.null")
     private Long id;
