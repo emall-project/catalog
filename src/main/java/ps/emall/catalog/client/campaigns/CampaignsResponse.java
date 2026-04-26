@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CampaignsResponse {
-    private ActiveOfferDto data;
+public class CampaignsResponse<T> {
+    private T data;
 }

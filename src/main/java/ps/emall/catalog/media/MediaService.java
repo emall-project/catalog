@@ -6,6 +6,8 @@ import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.brand.BrandRepository;
 import ps.emall.catalog.category.Category;
 import ps.emall.catalog.category.CategoryRepository;
+import ps.emall.catalog.category.audience_config.CategoryAudienceConfig;
+import ps.emall.catalog.category.audience_config.CategoryAudienceConfigRepository;
 import ps.emall.catalog.common.Entity;
 import ps.emall.catalog.product.product_variant.ProductVariant;
 import ps.emall.catalog.product.product_variant.ProductVariantRepository;
@@ -20,9 +22,11 @@ public class MediaService {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final CategoryAudienceConfigRepository categoryAudienceConfigRepository;
 
     public MediaUsageDto getMediumUsage(UUID mediumId) {
         List<Category> categories = categoryRepository.findByImageId(mediumId);
+        List<CategoryAudienceConfig> audienceConfigs = categoryAudienceConfigRepository.findByImageId(mediumId);
         List<Brand> brands = brandRepository.findByImageId(mediumId);
         List<ProductVariant> variants = productVariantRepository.findByMediumId(mediumId);
 
@@ -36,6 +40,18 @@ public class MediaService {
                         .entity(Entity.CATEGORY)
                         .entityId(category.getId())
                         .entityName(category.getName())
+                        .build();
+                references.add(reference);
+            }
+        }
+
+        if (audienceConfigs.size() > 0) {
+            inUse = true;
+            for (CategoryAudienceConfig audienceConfig : audienceConfigs) {
+                Reference reference = Reference.builder()
+                        .entity(Entity.CATEGORY_AUDIENCE_CONFIG)
+                        .entityId(audienceConfig.getId())
+                        .entityName(audienceConfig.getCategory().getName() + " " + audienceConfig.getTargetedAudience() + " " + audienceConfig.getAgeGroup())
                         .build();
                 references.add(reference);
             }

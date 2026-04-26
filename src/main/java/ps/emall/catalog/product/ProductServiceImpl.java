@@ -11,6 +11,7 @@ import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.brand.BrandRepository;
 import ps.emall.catalog.category.Category;
 import ps.emall.catalog.category.CategoryRepository;
+import ps.emall.catalog.client.campaigns.ActiveProductDiscountDto;
 import ps.emall.catalog.client.media_manager.FileLightDto;
 import ps.emall.catalog.product.info.ProductInfoDto;
 import ps.emall.catalog.product.info.ProductInfoMapper;
@@ -51,23 +52,35 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .toList();
 
-        List<ProductLightRow> productLightRow = productRepository.findLightRowsByProductIds(productIds);
+        List<ProductLightRow> productLightRows = productRepository.findLightRowsByProductIds(productIds);
 
         Map<Long, ProductLightRow> productLightRowMap = new HashMap<>();
         List<UUID> mediaIds = new ArrayList<>();
 
-        for (ProductLightRow row : productLightRow) {
+        for (ProductLightRow row : productLightRows) {
             productLightRowMap.put(row.getProductId(), row);
-            mediaIds.add(row.getMediumId());
+            if (row.getMediumId() != null) {
+                mediaIds.add(row.getMediumId());
+            }
         }
 
         Map<UUID, FileLightDto> mediaMap = productServiceHelper.getMedia(mediaIds);
 
-        Page<ProductLightDto> dtoPage = productPage.map(productId -> ProductLightMapper.toProductLightDto(productId, productLightRowMap, mediaMap));
+        Map<Long, ActiveProductDiscountDto> discountMap =
+                productServiceHelper.getActiveDiscounts(productIds);
+
+        Page<ProductLightDto> dtoPage = productPage.map(productId -> {
+            ProductLightDto dto = ProductLightMapper.toProductLightDto(
+                    productId,
+                    productLightRowMap,
+                    mediaMap
+            );
+
+            return productServiceHelper.injectLightDiscount(dto, discountMap);
+        });
 
         return PaginatedResponse.of(dtoPage);
     }
-
     //    @Cacheable
     public ProductSummary getSummary(ProductFilter filter) {
         Specification<Product> spec = productSpecificationBuilder.build(filter);
@@ -112,6 +125,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductLightDto> dtoList = productIds.stream().map(productId -> ProductLightMapper.toProductLightDto(productId, result.rowMap(), result.mediaMap())).toList();
 
+//        productServiceHelper.injectLightDiscount()
         return dtoList;
     }
 
@@ -223,6 +237,7 @@ public class ProductServiceImpl implements ProductService {
         ProductDto result = ProductMapper.toDto(productRepository.save(saved));
 
         result.setVariants(variantDtos);
+        productServiceHelper.publishCreatedJob(product);
         return result;
     }
 
@@ -247,11 +262,11 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.slugExistsInTheSameStore();
         }
 
-        if (existing.getMallId().equals(mallId)) {
+        if (!existing.getMallId().equals(mallId)) {
             throw ProductExceptions.productDoesNotBelongToMall();
         }
 
-        if (existing.getStoreId().equals(storeId)) {
+        if (!existing.getStoreId().equals(storeId)) {
             throw ProductExceptions.productDoesNotBelongToStore();
         }
 
@@ -288,7 +303,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository.save(existing);
 
-
+        productServiceHelper.publishUpdatedJob(savedProduct);
         return ProductMapper.toDto(savedProduct);
     }
 
@@ -298,6 +313,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(ProductExceptions::productNotFound);
 
         // todo check if there any order, discount, variant
+        productServiceHelper.publishDeletedJob(product.getId());
         productRepository.delete(product);
     }
 
