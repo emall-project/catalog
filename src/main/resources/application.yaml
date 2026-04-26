@@ -63,8 +63,6 @@ moderation:
 app:
   jwt:
     secret: ${JWT_SECRET}
-  rabbit:
-    enabled: false
 
 services:
   campaigns:
