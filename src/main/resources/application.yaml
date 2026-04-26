@@ -63,6 +63,8 @@ moderation:
 app:
   jwt:
     secret: ${JWT_SECRET}
+  rabbit:
+    enabled: false
 
 services:
   campaigns:
@@ -85,8 +87,3 @@ services:
     port: ${MEDIA_MANAGER_PORT:8085}
     username: ${MEDIA_MANAGER_USER_NAME:e-mall}
     password: ${MEDIA_MANAGER_PASSWORD:e-mall}
-
-
-app:
-  rabbit:
-    enabled: false
