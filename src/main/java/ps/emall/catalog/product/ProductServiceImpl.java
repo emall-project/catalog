@@ -191,7 +191,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto create(Long storeId, ProductDto dto, Long mallId) {
+    public ProductDto create(Long mallId, Long storeId, ProductDto dto) {
 
         // validation
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -237,12 +237,13 @@ public class ProductServiceImpl implements ProductService {
         ProductDto result = ProductMapper.toDto(productRepository.save(saved));
 
         result.setVariants(variantDtos);
+        productServiceHelper.publishCreatedJob(product);
         return result;
     }
 
     @Override
     // update only product basic info
-    public ProductDto update(Long storeId, ProductDto dto, Long mallId) {
+    public ProductDto update(Long mallId, Long storeId, ProductDto dto) {
 
         Product existing = productRepository.findById(dto.getId())
                 .orElseThrow(ProductExceptions::productNotFound);
@@ -261,11 +262,11 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.slugExistsInTheSameStore();
         }
 
-        if (existing.getMallId().equals(mallId)) {
+        if (!existing.getMallId().equals(mallId)) {
             throw ProductExceptions.productDoesNotBelongToMall();
         }
 
-        if (existing.getStoreId().equals(storeId)) {
+        if (!existing.getStoreId().equals(storeId)) {
             throw ProductExceptions.productDoesNotBelongToStore();
         }
 
@@ -302,7 +303,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository.save(existing);
 
-
+        productServiceHelper.publishUpdatedJob(savedProduct);
         return ProductMapper.toDto(savedProduct);
     }
 
@@ -312,6 +313,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(ProductExceptions::productNotFound);
 
         // todo check if there any order, discount, variant
+        productServiceHelper.publishDeletedJob(product.getId());
         productRepository.delete(product);
     }
 
