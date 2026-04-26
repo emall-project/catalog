@@ -3,6 +3,9 @@ package ps.emall.catalog.product;
 import org.springframework.http.HttpStatus;
 import ps.emall.catalog.common.exception.EMallsException;
 import ps.emall.catalog.common.message.MessageKey;
+import ps.emall.catalog.common.response.ErrorCode;
+
+import java.util.List;
 
 public final class ProductExceptions {
 
@@ -100,4 +103,12 @@ public final class ProductExceptions {
                 .build();
     }
 
+    public static EMallsException subscriptionWriteAccessDenied() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.FORBIDDEN)
+                .message(MessageKey.SUBSCRIPTION_WRITE_ACCESS_DENIED.getKey())
+                .errorCode(List.of(new ErrorCode("shopId",
+                        MessageKey.SUBSCRIPTION_WRITE_ACCESS_DENIED.getKey())))
+                .build();
+    }
 }

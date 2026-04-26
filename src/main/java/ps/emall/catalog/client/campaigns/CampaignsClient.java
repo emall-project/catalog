@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+import java.util.List;
+
 @FeignClient(
         name = "campaigns-service",
         url = "${services.campaigns.host}:${services.campaigns.port}"
@@ -15,7 +17,10 @@ import java.util.List;
 public interface CampaignsClient {
 
     @GetMapping("/api/offers/product/{productId}/active-price")
-    CampaignsResponse<ActiveOfferDto> getActiveOfferForProduct(@PathVariable("productId") Long productId);
+    CampaignsResponse getActiveOfferForProduct(@PathVariable("productId") Long productId);
+
+    @GetMapping("/api/subscriptions/shop/{shopId}/write-access")
+    Boolean hasWriteAccess(@PathVariable("shopId") Long shopId);
 
     @PostMapping("/api/offers/products/active-discounts")
     CampaignsResponse<List<ActiveProductDiscountDto>> getActiveDiscountsForProducts(

@@ -23,17 +23,22 @@ public class AttributeServiceImpl implements AttributeService {
     private final AttributeRepository attributeRepository;
     private final ProductVariantRepository productVariantRepository;
     private final VariantAttributeRepository variantAttributeRepository;
+    private final AttributeSpecificationBuilder attributeSpecificationBuilder;
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AttributeDto> getAll(Specification<Attribute> spec, Pageable pageable) {
+    public Page<AttributeDto> getAll(AttributeFilter filter, Pageable pageable) {
+        Specification<Attribute> spec = attributeSpecificationBuilder.build(filter);
+
         return attributeRepository.findAll(spec, pageable)
                 .map(AttributeMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AttributeDto> getAllList(Specification<Attribute> spec) {
+    public List<AttributeDto> getAllList(AttributeFilter filter) {
+        Specification<Attribute> spec = attributeSpecificationBuilder.build(filter);
+
         List<Attribute> attributes = (spec == null)
                 ? attributeRepository.findAll()
                 : attributeRepository.findAll(spec);
@@ -88,8 +93,24 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     @Transactional(readOnly = true)
+    public AttributeDto findActiveById(Long id) {
+        return attributeRepository.findByIdAndIsActiveTrue(id)
+                .map(AttributeMapper::toDto)
+                .orElseThrow(AttributeExceptions::attributeNotFound);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public AttributeDto findBySlug(String slug) {
         return attributeRepository.findBySlug(slug)
+                .map(AttributeMapper::toDto)
+                .orElseThrow(AttributeExceptions::attributeNotFound);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AttributeDto findActiveBySlug(String slug) {
+        return attributeRepository.findBySlugAndIsActiveTrue(slug)
                 .map(AttributeMapper::toDto)
                 .orElseThrow(AttributeExceptions::attributeNotFound);
     }
@@ -112,8 +133,8 @@ public class AttributeServiceImpl implements AttributeService {
             value.add(option.getValue().trim().toLowerCase());
             orders.add(option.getSortOrder());
         }
-        if(options.size() != value.size()) throw AttributeOptionsExceptions.duplicationInValue();
-        if(options.size() != orders.size()) throw AttributeOptionsExceptions.duplicationInOrderSort();
+        if (options.size() != value.size()) throw AttributeOptionsExceptions.duplicationInValue();
+        if (options.size() != orders.size()) throw AttributeOptionsExceptions.duplicationInOrderSort();
         return true;
     }
 }

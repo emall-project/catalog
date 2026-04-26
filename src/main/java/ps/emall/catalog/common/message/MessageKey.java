@@ -259,6 +259,8 @@ public enum MessageKey {
     REVIEW_ALREADY_EXISTS("review.already.exists"),
     USER_NOT_FOUND_FOR_REVIEW("user.not.found.for.review"),
 
+    SUBSCRIPTION_WRITE_ACCESS_DENIED("subscription.write.access.denied"),
+
     // Comments
     COMMENT_NOT_FOUND("comment.not.found"),
     COMMENT_ALREADY_EXISTS("comment.already.exists"),

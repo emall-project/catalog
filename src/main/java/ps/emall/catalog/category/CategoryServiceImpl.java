@@ -147,9 +147,23 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public CategoryDto getActiveById(Long id) {
+        Category category = categoryRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(CategoryExceptions::categoryNotFound);
+        return categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public CategoryDto getBySlug(String slug) {
         Category category = categoryRepository.findBySlug(slug)
+                .orElseThrow(CategoryExceptions::categoryNotFound);
+        return categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category));
+    }
+
+    @Override
+    public CategoryDto getActiveBySlug(String slug) {
+        Category category = categoryRepository.findBySlugAndIsActiveTrue(slug)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
         return categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category));
     }

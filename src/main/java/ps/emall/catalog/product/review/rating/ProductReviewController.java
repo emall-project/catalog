@@ -2,11 +2,13 @@ package ps.emall.catalog.product.review.rating;
 
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
+import ps.emall.catalog.security.SecurityContextUtil;
 
 import java.util.List;
 
@@ -17,20 +19,26 @@ public class ProductReviewController {
 
     private final ProductReviewService reviewService;
 
+    // PUBLIC
+
     @GetMapping
     public EMallsResponseEntity<List<ProductReviewDto>> getAll(
             @PathVariable Long productId) {
         return EMallsResponseEntity.ok(reviewService.getByProductId(productId));
     }
 
-    @GetMapping("/user/{userId}")
-    public EMallsResponseEntity<ProductReviewDto> getByUser(
-            @PathVariable Long productId,
-            @PathVariable Long userId) {
+    @GetMapping("/me")
+    @PreAuthorize("@auth.isCustomer()")
+    public EMallsResponseEntity<ProductReviewDto> getMyReview(
+            @PathVariable Long productId) {
+        Long userId = SecurityContextUtil.getCurrentUserId();
         return EMallsResponseEntity.ok(reviewService.getByProductIdAndUserId(productId, userId));
     }
 
+    // CUSTOMER: WRITE
+
     @PostMapping
+    @PreAuthorize("@auth.isCustomer()")
     public EMallsResponseEntity<ProductReviewDto> create(
             @PathVariable Long productId,
             @RequestBody @Validated({Default.class, OnCreate.class}) ProductReviewDto dto) {
@@ -38,18 +46,19 @@ public class ProductReviewController {
         return EMallsResponseEntity.created(reviewService.create(productId, dto));
     }
 
-    @PutMapping("/user/{userId}")
+    @PutMapping
+    @PreAuthorize("@auth.isCustomer()")
     public EMallsResponseEntity<ProductReviewDto> update(
             @PathVariable Long productId,
-            @PathVariable Long userId,
             @RequestBody @Validated({Default.class, OnUpdate.class}) ProductReviewDto dto) {
+        Long userId = SecurityContextUtil.getCurrentUserId();
         return EMallsResponseEntity.ok(reviewService.update(productId, userId, dto));
     }
 
-    @DeleteMapping("/user/{userId}")
-    public EMallsResponseEntity<Void> delete(
-            @PathVariable Long productId,
-            @PathVariable Long userId) {
+    @DeleteMapping
+    @PreAuthorize("@auth.isCustomer()")
+    public EMallsResponseEntity<Void> delete(@PathVariable Long productId) {
+        Long userId = SecurityContextUtil.getCurrentUserId();
         reviewService.delete(productId, userId);
         return EMallsResponseEntity.noContent(null);
     }

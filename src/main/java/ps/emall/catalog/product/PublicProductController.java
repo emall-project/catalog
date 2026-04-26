@@ -3,11 +3,14 @@ package ps.emall.catalog.product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.product.info.ProductInfoDto;
 import ps.emall.catalog.product.light.ProductLightDto;
 import ps.emall.catalog.product.summary.ProductSummary;
+import ps.emall.catalog.security.SecurityContextUtilBean;
+import ps.emall.catalog.security.userdetails.Gender;
 
 import java.util.List;
 
@@ -17,10 +20,15 @@ import java.util.List;
 public class PublicProductController {
 
     private final ProductService productService;
+    private final SecurityContextUtilBean auth;
 
     @PostMapping("/all")
     public EMallsResponseEntity<PaginatedResponse<ProductLightDto>> getAllLight(@RequestBody ProductFilter filter, Pageable pageable) {
         filter.setIsActive(true);
+        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        if (isMale) {
+            filter.setTargetedAudience(TargetedAudience.MALE);
+        }
         PaginatedResponse<ProductLightDto> products = productService.getAllLight(filter, pageable);
         return EMallsResponseEntity.ok(products);
     }
@@ -28,6 +36,10 @@ public class PublicProductController {
     @PostMapping("/summary")
     public EMallsResponseEntity<ProductSummary> getSummary(@RequestBody ProductFilter filter) {
         filter.setIsActive(true);
+        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        if (isMale) {
+            filter.setTargetedAudience(TargetedAudience.MALE);
+        }
         ProductSummary productsSummary = productService.getSummary(filter);
         return EMallsResponseEntity.ok(productsSummary);
     }

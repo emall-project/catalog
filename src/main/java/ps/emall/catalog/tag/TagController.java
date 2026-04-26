@@ -3,6 +3,7 @@ package ps.emall.catalog.tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ps.emall.catalog.common.page.PaginatedResponse;
@@ -40,17 +41,20 @@ public class TagController {
     }
 
     @PostMapping
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<TagDto> create(
             @Validated(OnCreate.class) @RequestBody TagDto dto) {
         return EMallsResponseEntity.created(tagService.create(dto));
     }
 
     @PutMapping
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<TagDto> update(@Validated(OnUpdate.class) @RequestBody TagDto dto) {
         return EMallsResponseEntity.ok(tagService.update(dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@auth.isAdmin()")
     public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
         tagService.delete(id);
         return EMallsResponseEntity.noContent(null);

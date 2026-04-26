@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import ps.emall.catalog.security.SecurityContextUtil;
 
 import java.time.LocalDateTime;
 
@@ -32,13 +33,13 @@ public class EMallsBaseEntity {
 
     @PrePersist
     public void prePersist() {
-        this.createdBy = "admin"; // change after impl users
+        this.createdBy = SecurityContextUtil.getCurrentUsernameOrSystem();
         this.createdAt = LocalDateTime.now();
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.updatedBy = "admin"; // change after impl users
+        this.updatedBy = SecurityContextUtil.getCurrentUsernameOrSystem();
         this.updatedAt = LocalDateTime.now();
     }
 }

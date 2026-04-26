@@ -24,6 +24,7 @@ public class BrandServiceImpl implements BrandService {
     private final ProductRepository productRepository;
     private final BrandServiceHelper brandServiceHelper;
     private final BrandSpecificationBuilder brandSpecificationBuilder;
+
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponse<BrandDto> getAll(BrandFilter filter, Pageable pageable) {
@@ -78,7 +79,7 @@ public class BrandServiceImpl implements BrandService {
             brandServiceHelper.deactivation(existing);
         }
         if (existing.getIsActive().equals(false) && dto.getIsActive().equals(true)) {
-           brandServiceHelper.activation(existing);
+            brandServiceHelper.activation(existing);
         }
         existing.setName(dto.getName());
         existing.setSlug(dto.getSlug());
@@ -92,20 +93,34 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional(readOnly = true)
-    public BrandDto findById(Long id) {
+    public BrandDto getById(Long id) {
         return brandRepository.findById(id)
                 .map(BrandMapper::toDto)
                 .orElseThrow(BrandExceptions::brandNotFound);
     }
 
     @Override
+    public BrandDto getActiveById(Long id) {
+
+        return brandRepository.findByIdAndIsActiveTrue(id)
+                .map(BrandMapper::toDto)
+                .orElseThrow(BrandExceptions::brandNotFound);
+    }
+
+    @Override
     @Transactional(readOnly = true)
-    public BrandDto findBySlug(String slug) {
+    public BrandDto getBySlug(String slug) {
         return brandRepository.findBySlug(slug)
                 .map(BrandMapper::toDto)
                 .orElseThrow(BrandExceptions::brandNotFound);
     }
 
+    @Override
+    public BrandDto getActiveBySlug(String slug) {
+        return brandRepository.findBySlugAndIsActiveTrue(slug)
+                .map(BrandMapper::toDto)
+                .orElseThrow(BrandExceptions::brandNotFound);
+    }
 
     @Override
     public void delete(Long id) {
