@@ -72,6 +72,7 @@ public class ProductServiceHelper {
             log.info("fetching discount");
             long startTime = System.currentTimeMillis();
             var response = campaignsClient.getActiveOfferForProduct(dto.getId());
+
             long endTime = System.currentTimeMillis();
             log.info("fetching discount: {} s", (endTime - startTime) / 1000);
 
@@ -81,7 +82,7 @@ public class ProductServiceHelper {
             }
             log.info("response: {}" , response.getData());
 
-            ActiveOfferDto offer = response.getData();
+            ActiveOfferDto offer = (ActiveOfferDto) response.getData();
             log.info("offer: {}, {}", offer.getDiscountType(), offer.getDiscountValue());
             Map<Long, ActiveOfferDto.VariantDiscountDto> priceMap = offer.getVariantPrices()
                     .stream()
