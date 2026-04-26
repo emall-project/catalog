@@ -2,7 +2,7 @@ package ps.emall.catalog.product;
 
 import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.category.Category;
-import ps.emall.catalog.job.ProductCreatedJob;
+import ps.emall.catalog.job.ProductJob;
 import ps.emall.catalog.product.product_variant.ProductVariant;
 import ps.emall.catalog.product.product_variant.ProductVariantMapper;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttribute;
@@ -62,8 +62,8 @@ public class ProductMapper {
                 .build();
     }
 
-    public static ProductCreatedJob toProductCreatedJob(Product entity) {
-        ProductCreatedJob productCreatedJob = ProductCreatedJob.builder()
+    public static ProductJob toProductCreatedJob(Product entity) {
+        ProductJob productJob = ProductJob.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .slug(entity.getSlug())
@@ -78,7 +78,7 @@ public class ProductMapper {
                 .storeId(entity.getStoreId())
                 .build();
         if (entity.getTags() != null) {
-            productCreatedJob.setTags(entity.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+            productJob.setTags(entity.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
         }
         if (entity.getVariants() != null) {
             Map<String, Set<String>> attributes =  new HashMap<>();
@@ -93,9 +93,9 @@ public class ProductMapper {
                     }
                 }
             }
-            productCreatedJob.setAttributes(attributes);
+            productJob.setAttributes(attributes);
         }
-        return productCreatedJob;
+        return productJob;
     }
 
     private static void appendOptionSafely(Map<String, Set<String>> attributes, String attributeName, String optionValue) {

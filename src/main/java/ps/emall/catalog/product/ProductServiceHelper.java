@@ -14,7 +14,7 @@ import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
-import ps.emall.catalog.job.ProductCreatedJob;
+import ps.emall.catalog.job.ProductJob;
 import ps.emall.catalog.product.light.ProductLightDto;
 import ps.emall.catalog.product.product_media.ProductMediumDto;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
@@ -189,8 +189,17 @@ public class ProductServiceHelper {
     }
 
     public void publishCreatedJob(Product product) {
-        ProductCreatedJob productCreatedJob = ProductMapper.toProductCreatedJob(product);
-        jobPublisher.publishProductCreatedJob(productCreatedJob);
+        ProductJob productJob = ProductMapper.toProductCreatedJob(product);
+        jobPublisher.publishProductCreatedJob(productJob);
+    }
+
+    public void publishUpdatedJob(Product product) {
+        ProductJob productJob = ProductMapper.toProductCreatedJob(product);
+        jobPublisher.publishProductUpdatedJob(productJob);
+    }
+
+    public void publishDeletedJob(Long productId) {
+        jobPublisher.publishProductDeletedJob(productId);
     }
 
     public void validateTargetedAudience(TargetedAudience productTargetedAudience, TargetedAudience categoryTargetedAudience) {

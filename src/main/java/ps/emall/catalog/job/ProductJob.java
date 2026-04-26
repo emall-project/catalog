@@ -5,14 +5,13 @@ import lombok.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductCreatedJob {
+public class ProductJob {
 
     private Long id;
 

@@ -262,11 +262,11 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.slugExistsInTheSameStore();
         }
 
-        if (existing.getMallId().equals(mallId)) {
+        if (!existing.getMallId().equals(mallId)) {
             throw ProductExceptions.productDoesNotBelongToMall();
         }
 
-        if (existing.getStoreId().equals(storeId)) {
+        if (!existing.getStoreId().equals(storeId)) {
             throw ProductExceptions.productDoesNotBelongToStore();
         }
 
@@ -303,7 +303,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository.save(existing);
 
-
+        productServiceHelper.publishUpdatedJob(savedProduct);
         return ProductMapper.toDto(savedProduct);
     }
 
@@ -313,6 +313,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(ProductExceptions::productNotFound);
 
         // todo check if there any order, discount, variant
+        productServiceHelper.publishDeletedJob(product.getId());
         productRepository.delete(product);
     }
 
