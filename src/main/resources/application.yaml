@@ -85,3 +85,8 @@ services:
     port: ${MEDIA_MANAGER_PORT:8085}
     username: ${MEDIA_MANAGER_USER_NAME:e-mall}
     password: ${MEDIA_MANAGER_PASSWORD:e-mall}
+  interaction:
+    host: ${INTERACTION_IP_ADDRESS:http://localhost}
+    port: ${INTERACTION_PORT:8086}
+    username: ${INTERACTION_USER_NAME:e-mall}
+    password: ${INTERACTION_PASSWORD:e-mall}

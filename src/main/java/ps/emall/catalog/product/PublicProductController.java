@@ -44,6 +44,12 @@ public class PublicProductController {
         return EMallsResponseEntity.ok(productsSummary);
     }
 
+    @GetMapping("{id}/similar")
+    public EMallsResponseEntity<List<ProductLightDto>> getSimilar(@PathVariable("id") Long id, @RequestParam Integer topK) {
+        List<ProductLightDto> products= productService.getSimilar(id, topK);
+        return EMallsResponseEntity.ok(products);
+    }
+
 
     @GetMapping("/{id}")
     public EMallsResponseEntity<ProductDto> getById(@PathVariable Long id) {

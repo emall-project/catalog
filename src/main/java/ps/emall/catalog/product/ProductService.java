@@ -34,4 +34,6 @@ public interface ProductService {
     ProductInfoDto getProductInfo(Long id);
 
     ProductSummary getSummary(ProductFilter filter);
+
+    List<ProductLightDto> getSimilar(Long id, Integer topK);
 }
