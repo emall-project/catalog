@@ -1,5 +1,6 @@
 package ps.emall.catalog.product;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -10,8 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.brand.BrandRepository;
 import ps.emall.catalog.category.Category;
+import ps.emall.catalog.category.CategoryExceptions;
 import ps.emall.catalog.category.CategoryRepository;
 import ps.emall.catalog.client.campaigns.ActiveProductDiscountDto;
+import ps.emall.catalog.client.interaction.InteractionClient;
+import ps.emall.catalog.client.interaction.InteractionResponse;
+import ps.emall.catalog.client.interaction.product_similarity.SimilarProductsQuery;
+import ps.emall.catalog.client.interaction.product_similarity.SimilarProductsResult;
 import ps.emall.catalog.client.media_manager.FileLightDto;
 import ps.emall.catalog.product.info.ProductInfoDto;
 import ps.emall.catalog.product.info.ProductInfoMapper;
@@ -41,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductVariantService productVariantService;
     private final ProductSpecificationBuilder productSpecificationBuilder;
     private final ProductServiceHelper productServiceHelper;
+    private final InteractionClient interactionClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -81,6 +88,7 @@ public class ProductServiceImpl implements ProductService {
 
         return PaginatedResponse.of(dtoPage);
     }
+
     //    @Cacheable
     public ProductSummary getSummary(ProductFilter filter) {
         Specification<Product> spec = productSpecificationBuilder.build(filter);
@@ -188,6 +196,42 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return ProductInfoMapper.toInfoDto(product);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductLightDto> getSimilar(Long id, Integer topK) {
+        boolean exists = productRepository.existsByIdAndIsActiveTrue(id);
+        if (!exists) {
+            throw ProductExceptions.productNotFound();
+        }
+
+        SimilarProductsQuery query = SimilarProductsQuery.builder()
+                .productId(id)
+                .activeOnly(Boolean.TRUE)
+                .sameMallOnly(Boolean.TRUE)
+                .topK(topK)
+                .build();
+        try {
+            InteractionResponse<SimilarProductsResult> response = interactionClient.getSimilarProducts(query);
+            if (response == null || response.getData() == null || response.getData().isSuccess() == false) {
+                log.error("Could not fetch similar products from interaction productId={}",
+                        id
+                );
+                throw ProductExceptions.interactionServiceNotAvailable();
+            }
+            SimilarProductsResult similarProductsResult = response.getData();
+            List<Product> similarProducts = productRepository.findByIdIn(similarProductsResult.getProductIds());
+            return similarProducts.stream().map(ProductLightMapper::toDtoLight).collect(Collectors.toList());
+
+
+        } catch (FeignException e) {
+            log.error("Could not fetch similar products from interaction productId={}, status={}, message={}",
+                    id, e.status(), e.getMessage()
+            );
+            throw e;
+        }
+
     }
 
     @Override

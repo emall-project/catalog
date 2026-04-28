@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import ps.emall.catalog.product.light.ProductLightRepository;
 import ps.emall.catalog.product.summary.ProductSummaryRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +42,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     @Override
     long count(Specification<Product> spec);
 
+    boolean existsByIdAndIsActiveTrue(Long id);
 
     List<Long> findIdsBySpecification(Specification<Product> spec);
 
@@ -89,5 +91,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     void updateDefaultVariant(Long id, Long defaultVariantId);
 
 
+    List<Product> findByIdIn(Collection<Long> ids);
 }
 

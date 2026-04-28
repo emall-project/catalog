@@ -89,6 +89,13 @@ public final class ProductExceptions {
                 .build();
     }
 
+    public static EMallsException interactionServiceNotAvailable() {
+        return EMallsException.builder()
+                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                .message(MessageKey.INTERACTION_SERVICE_NOT_AVAILABLE.getKey())
+                .build();
+    }
+
     public static EMallsException productDoesNotBelongToMall() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.FORBIDDEN)
@@ -111,4 +118,5 @@ public final class ProductExceptions {
                         MessageKey.SUBSCRIPTION_WRITE_ACCESS_DENIED.getKey())))
                 .build();
     }
+
 }
