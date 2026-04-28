@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import ps.emall.catalog.security.filter.InternalAuthFilter;
 import ps.emall.catalog.security.filter.JwtValidationFilter;
 import ps.emall.catalog.security.handler.GlobalAccessDeniedHandler;
 import ps.emall.catalog.security.handler.GlobalAuthEntryPoint;
@@ -29,6 +30,7 @@ public class SecurityConfig {
     private final JwtValidationFilter jwtValidationFilter;
     private final GlobalAuthEntryPoint globalAuthEntryPoint;
     private final GlobalAccessDeniedHandler globalAccessDeniedHandler;
+    private final InternalAuthFilter internalAuthFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -49,9 +51,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Public read: approved comments & ratings are visible without login
-                        .requestMatchers(HttpMethod.GET, "/products/*/comments").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/products/*/reviews").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/brands/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/attributes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
 
+
+                        // Internal microservice endpoints — protected by InternalAuthFilter
+                        .requestMatchers(HttpMethod.GET, "/media/*/usage").permitAll()
                         // Everything else requires authentication
                         .anyRequest().authenticated()
                 )

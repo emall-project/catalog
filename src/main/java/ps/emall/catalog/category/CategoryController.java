@@ -30,7 +30,7 @@ public class CategoryController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
-        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
             filter.setTargetedAudience(TargetedAudience.MALE);
         }
@@ -43,7 +43,7 @@ public class CategoryController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
-        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
             filter.setTargetedAudience(TargetedAudience.MALE);
         }
@@ -56,7 +56,7 @@ public class CategoryController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
-        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
             filter.setTargetedAudience(TargetedAudience.MALE);
         }

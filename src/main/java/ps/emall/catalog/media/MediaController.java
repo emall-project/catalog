@@ -2,6 +2,7 @@ package ps.emall.catalog.media;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +18,8 @@ public class MediaController {
     private final MediaService mediaService;
 
     @GetMapping("/{mediumId}/usage")
-    public EMallsResponseEntity<MediaUsageDto> mediaUsage(@PathVariable UUID mediumId){
+    @PreAuthorize("hasAuthority('ROLE_INTERNAL')")
+    public EMallsResponseEntity<MediaUsageDto> mediaUsage(@PathVariable UUID mediumId) {
         return EMallsResponseEntity.ok(mediaService.getMediumUsage(mediumId));
     }
 }

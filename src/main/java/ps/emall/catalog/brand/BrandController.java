@@ -28,7 +28,7 @@ public class BrandController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
-        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
             filter.setTargetedAudience(TargetedAudience.MALE);
         }
@@ -38,7 +38,7 @@ public class BrandController {
 
     @GetMapping("/all")
     public EMallsResponseEntity<List<BrandDto>> getBrands(BrandFilter filter) {
-        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
             filter.setTargetedAudience(TargetedAudience.MALE);
         }

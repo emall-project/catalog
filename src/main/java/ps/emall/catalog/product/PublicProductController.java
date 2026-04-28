@@ -25,7 +25,7 @@ public class PublicProductController {
     @PostMapping("/all")
     public EMallsResponseEntity<PaginatedResponse<ProductLightDto>> getAllLight(@RequestBody ProductFilter filter, Pageable pageable) {
         filter.setIsActive(true);
-        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
             filter.setTargetedAudience(TargetedAudience.MALE);
         }
@@ -36,7 +36,7 @@ public class PublicProductController {
     @PostMapping("/summary")
     public EMallsResponseEntity<ProductSummary> getSummary(@RequestBody ProductFilter filter) {
         filter.setIsActive(true);
-        boolean isMale = !auth.getCurrentGender().equals(Gender.FEMALE);
+        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
             filter.setTargetedAudience(TargetedAudience.MALE);
         }

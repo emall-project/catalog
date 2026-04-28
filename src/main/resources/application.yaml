@@ -64,6 +64,11 @@ app:
   jwt:
     secret: ${JWT_SECRET}
 
+internal:
+  auth:
+    username: ${INTERNAL_SERVICE_USERNAME:e-mall-internal}
+    password: ${INTERNAL_SERVICE_PASSWORD:s3cr3t-internal-p@ss}
+
 services:
   campaigns:
     host: ${CAMPAIGNS_IP_ADDRESS:http://localhost}
