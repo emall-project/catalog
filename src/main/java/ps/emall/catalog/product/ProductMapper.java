@@ -29,9 +29,9 @@ public class ProductMapper {
                 .storeId(entity.getStoreId())
 
                 .createdAt(entity.getCreatedAt())
-                .createdAt(entity.getCreatedAt())
+                .createdBy(entity.getCreatedBy())
                 .updatedAt(entity.getUpdatedAt())
-                .updatedAt(entity.getUpdatedAt())
+                .updatedBy(entity.getUpdatedBy())
 
                 .tags(entity.getTags() != null ?
                         entity.getTags().stream().map(TagMapper::toDto).toList()
@@ -56,13 +56,11 @@ public class ProductMapper {
                 .description(dto.getDescription())
                 .category(category)
                 .brand(brand)
-                .mallId(dto.getMallId())
-                .storeId(dto.getStoreId())
                 .tags(tags)
                 .build();
     }
 
-    public static ProductJob toProductCreatedJob(Product entity) {
+    public static ProductJob toProductJob(Product entity) {
         ProductJob productJob = ProductJob.builder()
                 .id(entity.getId())
                 .name(entity.getName())

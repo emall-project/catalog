@@ -143,7 +143,7 @@ public class ProductServiceHelper {
 
             } catch (FeignException e) {
                 if (e.status() == 404) {
-                    throw CategoryExceptions.imageNotFound();
+                    throw ProductVariantExceptions.mediumNotFound();
                 }
                 log.error("Could not fetch media File from MediaManager mediaId={}, status={}, message={}",
                         medium.getMediumId(), e.status(), e.getMessage()
@@ -190,12 +190,12 @@ public class ProductServiceHelper {
     }
 
     public void publishCreatedJob(Product product) {
-        ProductJob productJob = ProductMapper.toProductCreatedJob(product);
+        ProductJob productJob = ProductMapper.toProductJob(product);
         jobPublisher.publishProductCreatedJob(productJob);
     }
 
     public void publishUpdatedJob(Product product) {
-        ProductJob productJob = ProductMapper.toProductCreatedJob(product);
+        ProductJob productJob = ProductMapper.toProductJob(product);
         jobPublisher.publishProductUpdatedJob(productJob);
     }
 

@@ -32,7 +32,7 @@ public final class ProductExceptions {
     public static EMallsException productNotActive() {
         return EMallsException.builder()
                 .httpStatus(HttpStatus.FORBIDDEN)
-                .message(MessageKey.PRODUCT_NOT_FOUND.getKey())
+                .message(MessageKey.PRODUCT_NOT_ACTIVE.getKey())
                 .build();
     }
 
