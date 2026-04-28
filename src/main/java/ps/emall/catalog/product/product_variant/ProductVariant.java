@@ -83,7 +83,6 @@ public class ProductVariant extends EMallsBaseEntity {
         medium.setProduct(this.getProduct());
         medium.setVariant(this);
         media.add(medium);
-        log.info("adding Variant Image: with ImageId={} and VariantId={}", medium.getId(),  medium.getVariant().getId());
     }
 
     public void addVariantAttribute(Attribute attribute, AttributeOption option) {
@@ -96,7 +95,6 @@ public class ProductVariant extends EMallsBaseEntity {
                 .option(option)
                 .build();
         variantAttributes.add(va);
-        log.info("adding Variant Attribute: with variantId={} and attributeId={}, and optionId={}", va.getVariant().getId(), va.getAttribute().getId(), option.getId() );
     }
 
 }

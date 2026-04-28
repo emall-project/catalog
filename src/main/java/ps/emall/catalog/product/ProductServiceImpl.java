@@ -89,7 +89,8 @@ public class ProductServiceImpl implements ProductService {
         return PaginatedResponse.of(dtoPage);
     }
 
-    //    @Cacheable
+    @Override
+    @Transactional(readOnly = true)
     public ProductSummary getSummary(ProductFilter filter) {
         Specification<Product> spec = productSpecificationBuilder.build(filter);
         long productCount = productRepository.count(spec);
