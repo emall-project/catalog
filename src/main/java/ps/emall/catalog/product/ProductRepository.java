@@ -3,6 +3,7 @@ package ps.emall.catalog.product;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
+import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.product.light.ProductLightRepository;
 import ps.emall.catalog.product.summary.ProductSummaryRepository;
 
@@ -22,6 +23,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     long countByCategory_Id(Long categoryId);
 
     long countByBrand_Id(Long brandId);
+
+    long countByTargetedAudience(TargetedAudience targetedAudience);
 
     @Modifying
     @Query("UPDATE Product p SET p.isActive = false WHERE p.brand.id = :brandId")
@@ -93,4 +96,3 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     List<Product> findByIdIn(Collection<Long> ids);
 }
-
