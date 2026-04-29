@@ -16,4 +16,6 @@ public interface AttributeRepository extends JpaRepository<Attribute, Long>,
     Optional<Attribute> findBySlugAndIsActiveTrue(String slug);
 
     Optional<Attribute> findByIdAndIsActiveTrue(Long id);
+
+    long countByIsActive(boolean isActive);
 }
