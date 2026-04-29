@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ps.emall.catalog.common.audience.TargetedAudience;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,8 @@ public interface BrandRepository extends JpaRepository<Brand, Long>,
     Optional<Brand> findByIdAndIsActiveTrue(Long id);
 
     long countByIsActive(boolean isActive);
+
+    long countByTargetedAudience(TargetedAudience targetedAudience);
 
     @Modifying
     @Query("UPDATE Brand b SET b.isActive = FALSE WHERE b.id = :id")

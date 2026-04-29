@@ -4,6 +4,7 @@ package ps.emall.catalog.category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+import ps.emall.catalog.common.audience.TargetedAudience;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,8 +27,11 @@ public interface CategoryRepository extends JpaRepository<Category, Long>,
 
     long countByParentId(Long parentId);
 
+    long countByIsActive(Boolean isActive);
+
+    long countByTargetedAudience(TargetedAudience targetedAudience);
+
     List<Category> findByImageId(UUID imageId);
 
     List<Category> findByDepthLevelInAndIsActiveOrderByDepthLevelAsc(Collection<Integer> depthLevels, Boolean isActive);
 }
-
