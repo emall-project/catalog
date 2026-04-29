@@ -64,29 +64,34 @@ app:
   jwt:
     secret: ${JWT_SECRET}
 
+internal:
+  auth:
+    username: ${INTERNAL_SERVICE_USERNAME:e-mall-internal}
+    password: ${INTERNAL_SERVICE_PASSWORD:s3cr3t-internal-p@ss}
+
 services:
   campaigns:
     host: ${CAMPAIGNS_IP_ADDRESS:http://localhost}
     port: ${ACCOUNTS_PORT:8082}
-    username: ${ACCOUNTS_USER_NAME:e-mall}
-    password: ${ACCOUNTS_PASSWORD:e-mall}
+    username: ${ACCOUNTS_USER_NAME:e-mall-internal}
+    password: ${ACCOUNTS_PASSWORD:s3cr3t-internal-p@ss}
   accounts:
     host: ${ACCOUNTS_IP_ADDRESS:http://localhost}
     port: ${ACCOUNTS_PORT:8083}
-    username: ${ACCOUNTS_USER_NAME:e-mall}
-    password: ${ACCOUNTS_PASSWORD:e-mall}
+    username: ${ACCOUNTS_USER_NAME:e-mall-internal}
+    password: ${ACCOUNTS_PASSWORD:s3cr3t-internal-p@ss}
   order-hub:
     host: ${ORDER_HUB_IP_ADDRESS:http://localhost}
     port: ${ORDER_HUB_PORT:8084}
-    username: ${ORDER_HUB_USER_NAME:e-mall}
-    password: ${ORDER_HUB_PASSWORD:e-mall}
+    username: ${ORDER_HUB_USER_NAME:e-mall-internal}
+    password: ${ORDER_HUB_PASSWORD:s3cr3t-internal-p@ss}
   media-manager:
     host: ${MEDIA_MANAGER_IP_ADDRESS:http://localhost}
     port: ${MEDIA_MANAGER_PORT:8085}
-    username: ${MEDIA_MANAGER_USER_NAME:e-mall}
-    password: ${MEDIA_MANAGER_PASSWORD:e-mall}
+    username: ${MEDIA_MANAGER_USER_NAME:e-mall-internal}
+    password: ${MEDIA_MANAGER_PASSWORD:s3cr3t-internal-p@ss}
   interaction:
     host: ${INTERACTION_IP_ADDRESS:http://localhost}
     port: ${INTERACTION_PORT:8086}
-    username: ${INTERACTION_USER_NAME:e-mall}
-    password: ${INTERACTION_PASSWORD:e-mall}
+    username: ${INTERACTION_USER_NAME:e-mall-internal}
+    password: ${INTERACTION_PASSWORD:s3cr3t-internal-p@ss}

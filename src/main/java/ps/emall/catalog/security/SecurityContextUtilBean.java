@@ -34,7 +34,7 @@ public class SecurityContextUtilBean {
 
     public Optional<Integer> getCurrentAge(){return SecurityContextUtil.getCurrentAge();}
 
-    public Gender getCurrentGender(){return SecurityContextUtil.getCurrentGender();}
+    public Optional<Gender> getCurrentGender(){return SecurityContextUtil.getCurrentGender();}
 
     public List<StoreRef> getCurrentShopIds(){return SecurityContextUtil.getCurrentShopIds();}
 

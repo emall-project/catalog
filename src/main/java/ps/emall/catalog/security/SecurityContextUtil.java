@@ -69,9 +69,8 @@ public final class SecurityContextUtil {
         return getCurrentUserDetails().map(CustomUserDetails::getAge);
     }
 
-    public static Gender getCurrentGender() {
-        return getCurrentUserDetails().map(CustomUserDetails::getGender)
-                .orElseThrow(() -> new SecurityException("User doesn't have gender"));
+    public static Optional<Gender> getCurrentGender() {
+        return getCurrentUserDetails().map(CustomUserDetails::getGender);
     }
 
     public static List<StoreRef> getCurrentShopIds() {
