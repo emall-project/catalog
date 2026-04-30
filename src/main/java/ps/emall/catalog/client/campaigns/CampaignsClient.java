@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import ps.emall.catalog.config.service.CampaignsFeignConfig;
 
 import java.util.List;
 
@@ -12,7 +13,8 @@ import java.util.List;
 
 @FeignClient(
         name = "campaigns-service",
-        url = "${services.campaigns.host}:${services.campaigns.port}"
+        url = "${services.campaigns.host}:${services.campaigns.port}",
+        configuration = CampaignsFeignConfig.class
 )
 public interface CampaignsClient {
 

@@ -52,6 +52,8 @@ public class SecurityConfig {
 
                         // Public read: approved comments & ratings are visible without login
                         .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/products/all").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/products/summary").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/brands/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/attributes/**").permitAll()
@@ -59,11 +61,11 @@ public class SecurityConfig {
 
 
                         // Internal microservice endpoints — protected by InternalAuthFilter
-                        .requestMatchers(HttpMethod.GET, "/media/*/usage").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/media/*/usage").authenticated()
                         // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
-
+                .addFilterBefore(internalAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
