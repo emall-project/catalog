@@ -30,9 +30,11 @@ public class CategoryController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
-        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
-        if (isMale) {
-            filter.setTargetedAudience(TargetedAudience.MALE);
+        if (!auth.isAdminOrShopOwner()) {
+            boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
+            if (isMale) {
+                filter.setTargetedAudience(TargetedAudience.MALE);
+            }
         }
         PaginatedResponse<CategoryDto> categories = categoryService.getAll(filter, pageable);
         return EMallsResponseEntity.ok(categories);
@@ -43,9 +45,11 @@ public class CategoryController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
-        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
-        if (isMale) {
-            filter.setTargetedAudience(TargetedAudience.MALE);
+        if (!auth.isAdminOrShopOwner()) {
+            boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
+            if (isMale) {
+                filter.setTargetedAudience(TargetedAudience.MALE);
+            }
         }
         PaginatedResponse<CategoryLightDto> categories = categoryService.getAllLight(filter, pageable);
         return EMallsResponseEntity.ok(categories);
