@@ -28,9 +28,11 @@ public class BrandController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
-        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
-        if (isMale) {
-            filter.setTargetedAudience(TargetedAudience.MALE);
+        if (!auth.isAdminOrShopOwner()) {
+            boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
+            if (isMale) {
+                filter.setTargetedAudience(TargetedAudience.MALE);
+            }
         }
         PaginatedResponse<BrandDto> page = brandService.getAll(filter, pageable);
         return EMallsResponseEntity.ok(page);
@@ -38,9 +40,11 @@ public class BrandController {
 
     @GetMapping("/all")
     public EMallsResponseEntity<List<BrandDto>> getBrands(BrandFilter filter) {
-        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
-        if (isMale) {
-            filter.setTargetedAudience(TargetedAudience.MALE);
+        if (!auth.isAdminOrShopOwner()) {
+            boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
+            if (isMale) {
+                filter.setTargetedAudience(TargetedAudience.MALE);
+            }
         }
         if (!auth.isAdmin()) {
             filter.setIsActive(true);

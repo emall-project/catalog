@@ -41,20 +41,20 @@ public class TagController {
     }
 
     @PostMapping
-    @PreAuthorize("@auth.isAdmin()")
+    @PreAuthorize("@auth.isAdminOrShopOwner()")
     public EMallsResponseEntity<TagDto> create(
             @Validated(OnCreate.class) @RequestBody TagDto dto) {
         return EMallsResponseEntity.created(tagService.create(dto));
     }
 
     @PutMapping
-    @PreAuthorize("@auth.isAdmin()")
+    @PreAuthorize("@auth.isAdminOrShopOwner()")
     public EMallsResponseEntity<TagDto> update(@Validated(OnUpdate.class) @RequestBody TagDto dto) {
         return EMallsResponseEntity.ok(tagService.update(dto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@auth.isAdmin()")
+    @PreAuthorize("@auth.isAdminOrShopOwner()")
     public EMallsResponseEntity<Void> delete(@PathVariable Long id) {
         tagService.delete(id);
         return EMallsResponseEntity.noContent(null);

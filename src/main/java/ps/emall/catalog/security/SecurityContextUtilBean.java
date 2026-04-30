@@ -46,6 +46,9 @@ public class SecurityContextUtilBean {
     public boolean isAdminOrShopOwnerOf(Long shopId) {
         return SecurityContextUtil.isShopOwnerOf(shopId);
     }
+    public boolean isAdminOrShopOwner() {
+        return isAdmin() || isShopOwner();
+    }
 
     public boolean adminOnly() {
         return SecurityContextUtil.isAdmin();
