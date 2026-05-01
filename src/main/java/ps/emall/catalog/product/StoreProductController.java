@@ -80,6 +80,12 @@ public class StoreProductController {
 
     @PutMapping("{productId}/variants")
     public EMallsResponseEntity<ProductVariantDto> updateVariant(@PathVariable Long storeId, @PathVariable Long productId, @RequestBody @Validated({Default.class, OnUpdate.class}) ProductVariantDto dto) {
+        ProductVariantDto updated = productVariantService.create(storeId, productId, dto);
+        return EMallsResponseEntity.ok(updated);
+    }
+
+    @PostMapping("{productId}/variants")
+    public EMallsResponseEntity<ProductVariantDto> addVariant(@PathVariable Long storeId, @PathVariable Long productId, @RequestBody @Validated({Default.class, OnCreate.class}) ProductVariantDto dto) {
         ProductVariantDto updated = productVariantService.update(storeId, productId, dto);
         return EMallsResponseEntity.ok(updated);
     }

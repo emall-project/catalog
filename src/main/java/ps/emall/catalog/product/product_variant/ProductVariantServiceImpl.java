@@ -39,9 +39,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     private final ProductServiceHelper productServiceHelper;
 
     @Override
-    public ProductVariantDto create(Long productId, ProductVariantDto dto) {
+    public ProductVariantDto create(Long storeId, Long productId, ProductVariantDto dto) {
         // Fetch product or throw
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findByStoreIdAndId(storeId, productId)
                 .orElseThrow(ProductExceptions::productNotFound);
 
         validateMedia(dto.getMedia());
@@ -58,6 +58,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         // Save the variant
         ProductVariant saved = productVariantRepository.saveAndFlush(variant);
 
+        if (saved.getIsDefault()) {
+            productVariantRepository.clearDefaultForProduct(variant.getProduct().getId());
+            productRepository.updateDefaultVariant(variant.getProduct().getId(), variant.getId());
+        }
         // Convert to DTO and inject media
         ProductVariantDto savedDto = ProductVariantMapper.toDto(saved);
         return productServiceHelper.injectMedium(savedDto);
@@ -100,7 +104,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         ProductVariant variant = productVariantRepository.findByStoreIdAndProductIdAndId(storeId, productId, id).orElseThrow(
                 ProductVariantExceptions::variantNotFound
         );
-        if(variant.getIsDefault().equals(Boolean.TRUE)) {
+        if (variant.getIsDefault().equals(Boolean.TRUE)) {
             throw ProductVariantExceptions.defaultVariantDeletionNotAllowed();
         }
         // make sure no orders on this

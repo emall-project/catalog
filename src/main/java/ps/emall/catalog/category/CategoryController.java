@@ -60,9 +60,11 @@ public class CategoryController {
         if (!auth.isAdmin()) {
             filter.setIsActive(true);
         }
-        boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
-        if (isMale) {
-            filter.setTargetedAudience(TargetedAudience.MALE);
+        if (!auth.isAdminOrShopOwner()) {
+            boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
+            if (isMale) {
+                filter.setTargetedAudience(TargetedAudience.MALE);
+            }
         }
         List<CategoryDto> categories = categoryService.getAllCategoryList(filter);
         return EMallsResponseEntity.ok(categories);
