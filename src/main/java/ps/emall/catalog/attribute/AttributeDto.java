@@ -31,11 +31,11 @@ public class AttributeDto extends EMallsBaseDto {
             message = "attribute.slug.white.spaces"
     )
     @Pattern(
-            regexp = "^[a-z0-9-]+$",
+            regexp = "^(?:[a-z0-9-]|[\\p{IsArabic}&&\\p{L}])+$",
             message = "attribute.slug.lowercase"
     )
     @Pattern(
-            regexp = "^[a-z].*[a-z]$",
+            regexp = "^(?:[a-z]|[\\p{IsArabic}&&\\p{L}]).*(?:[a-z]|[\\p{IsArabic}&&\\p{L}])$",
             message = "attribute.slug.start.end.letter"
     )
     @Size(min = 3, max = 50, message = "attribute.slug.size")
