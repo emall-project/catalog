@@ -121,6 +121,7 @@ public final class ProductSpecificationBuilder {
             return cb.equal(root.get("targetedAudience"), targetedAudience);
         };
     }
+
     public static Specification<Product> excludedAudienceSpec(TargetedAudience excludedAudience) {
         return (root, query, cb) -> {
             if (excludedAudience == null) {
