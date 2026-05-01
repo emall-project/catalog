@@ -31,7 +31,7 @@ public class BrandController {
         if (!auth.isAdminOrShopOwner()) {
             boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
             if (isMale) {
-                filter.setTargetedAudience(TargetedAudience.MALE);
+                filter.setExcludedAudience(TargetedAudience.FEMALE);
             }
         }
         PaginatedResponse<BrandDto> page = brandService.getAll(filter, pageable);
@@ -43,7 +43,7 @@ public class BrandController {
         if (!auth.isAdminOrShopOwner()) {
             boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
             if (isMale) {
-                filter.setTargetedAudience(TargetedAudience.MALE);
+                filter.setExcludedAudience(TargetedAudience.FEMALE);
             }
         }
         if (!auth.isAdmin()) {

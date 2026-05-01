@@ -27,7 +27,7 @@ public class PublicProductController {
         filter.setIsActive(true);
         boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
-            filter.setTargetedAudience(TargetedAudience.MALE);
+            filter.setExcludedAudience(TargetedAudience.FEMALE);
         }
         PaginatedResponse<ProductLightDto> products = productService.getAllLight(filter, pageable);
         return EMallsResponseEntity.ok(products);
@@ -38,7 +38,7 @@ public class PublicProductController {
         filter.setIsActive(true);
         boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
         if (isMale) {
-            filter.setTargetedAudience(TargetedAudience.MALE);
+            filter.setExcludedAudience(TargetedAudience.FEMALE);
         }
         ProductSummary productsSummary = productService.getSummary(filter);
         return EMallsResponseEntity.ok(productsSummary);
