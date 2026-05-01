@@ -55,8 +55,6 @@ public class InternalAuthFilter extends OncePerRequestFilter {
             if (parts.length != 2
                     || !internalUsername.equals(parts[0])
                     || !internalPassword.equals(parts[1])) {
-                log.info("Expected username: {} recived password : {}", internalUsername, parts[0]);
-                log.info("Expected password: {} recived password : {}", internalPassword, parts[1]);
                 log.warn("Invalid internal credentials for path: {}", request.getRequestURI());
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType("application/json");
