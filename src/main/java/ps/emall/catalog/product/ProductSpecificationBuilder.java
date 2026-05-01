@@ -35,7 +35,8 @@ public final class ProductSpecificationBuilder {
                 targetedAudienceSpec(filter.getTargetedAudience()),
                 ageGroupSpec(filter.getAgeGroup()),
                 selectedOptionsByAttributeSpec(filter.getSelectedOptionsByAttribute()),
-                priceRangeSpec(filter.getMinPrice(), filter.getMaxPrice())
+                priceRangeSpec(filter.getMinPrice(), filter.getMaxPrice()),
+                excludedAudienceSpec(filter.getExcludedAudience())
         );
     }
 
@@ -118,6 +119,14 @@ public final class ProductSpecificationBuilder {
                 return null;
             }
             return cb.equal(root.get("targetedAudience"), targetedAudience);
+        };
+    }
+    public static Specification<Product> excludedAudienceSpec(TargetedAudience excludedAudience) {
+        return (root, query, cb) -> {
+            if (excludedAudience == null) {
+                return null;
+            }
+            return cb.notEqual(root.get("targetedAudience"), excludedAudience);
         };
     }
 

@@ -15,6 +15,7 @@ public class CategoryFilter {
     private Long parentId;
     private Boolean isActive;
     private TargetedAudience targetedAudience;
+    private TargetedAudience excludedAudience;
     private AgeGroup ageGroup;
     private Integer depthLevel;
     private Boolean isRoot;

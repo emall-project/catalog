@@ -31,11 +31,11 @@ public class BrandDto extends EMallsBaseDto {
             message = "brand.slug.white.spaces"
     )
     @Pattern(
-            regexp = "^[a-z0-9-]+$",
+            regexp = "^(?:[a-z0-9-]|[\\p{IsArabic}&&\\p{L}])+$",
             message = "brand.slug.lowercase"
     )
     @Pattern(
-            regexp = "^[a-z].*[a-z]$",
+            regexp = "^(?:[a-z]|[\\p{IsArabic}&&\\p{L}]).*(?:[a-z]|[\\p{IsArabic}&&\\p{L}])$",
             message = "category.slug.start.end.letter"
     )
     @Size(min = 3, max = 50, message = "brand.slug.size")

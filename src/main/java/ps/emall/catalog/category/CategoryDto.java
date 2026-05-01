@@ -56,11 +56,11 @@ public class CategoryDto extends EMallsBaseDto {
             message = "category.slug.white.spaces"
     )
     @Pattern(
-            regexp = "^[a-z0-9-]+$",
+            regexp = "^(?:[a-z0-9-]|[\\p{IsArabic}&&\\p{L}])+$",
             message = "category.slug.lowercase"
     )
     @Pattern(
-            regexp = "^[a-z].*[a-z]$",
+            regexp = "^(?:[a-z]|[\\p{IsArabic}&&\\p{L}]).*(?:[a-z]|[\\p{IsArabic}&&\\p{L}])$",
             message = "category.slug.start.end.letter"
     )
     @Size(min = 3, max = 50, message = "category.slug.size")

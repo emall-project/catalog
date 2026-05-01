@@ -23,6 +23,7 @@ public class ProductFilter {
     private Long mallId;
     private Long storeId;
     private TargetedAudience targetedAudience;
+    private TargetedAudience excludedAudience;
     private AgeGroup ageGroup;
     private Map<Long, List<Long>> selectedOptionsByAttribute;
     private BigDecimal minPrice;

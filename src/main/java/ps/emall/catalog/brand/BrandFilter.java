@@ -14,6 +14,7 @@ public class BrandFilter {
     private String name;
     private String slug;
     private Boolean isActive;
+    private TargetedAudience excludedAudience;
     private TargetedAudience targetedAudience;
     private AgeGroup ageGroup;
 }

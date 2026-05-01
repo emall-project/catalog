@@ -34,7 +34,6 @@ public class InternalAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         if (!isInternalPath(request)) {
-            log.info("not internal path : {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
