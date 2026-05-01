@@ -17,6 +17,8 @@ import ps.emall.catalog.security.userdetails.Gender;
 
 import java.util.List;
 
+import static ps.emall.catalog.common.audience.TargetedAudience.*;
+
 @RestController
 @RequestMapping("/categories")
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class CategoryController {
         if (!auth.isAdminOrShopOwner()) {
             boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
             if (isMale) {
-                filter.setExcludedAudience(TargetedAudience.FEMALE);
+                filter.setExcludedAudience(FEMALE);
             }
         }
         PaginatedResponse<CategoryDto> categories = categoryService.getAll(filter, pageable);
@@ -48,7 +50,7 @@ public class CategoryController {
         if (!auth.isAdminOrShopOwner()) {
             boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
             if (isMale) {
-                filter.setExcludedAudience(TargetedAudience.FEMALE);
+                filter.setExcludedAudience(FEMALE);
             }
         }
         PaginatedResponse<CategoryLightDto> categories = categoryService.getAllLight(filter, pageable);
@@ -63,7 +65,7 @@ public class CategoryController {
         if (!auth.isAdminOrShopOwner()) {
             boolean isMale = !Gender.FEMALE.equals(auth.getCurrentGender());
             if (isMale) {
-                filter.setTargetedAudience(TargetedAudience.MALE);
+                filter.setExcludedAudience(FEMALE);
             }
         }
         List<CategoryDto> categories = categoryService.getAllCategoryList(filter);
