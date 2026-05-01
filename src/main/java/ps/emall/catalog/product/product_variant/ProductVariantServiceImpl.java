@@ -39,7 +39,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     private final ProductServiceHelper productServiceHelper;
 
     @Override
-    public ProductVariantDto create(Long storeId, Long productId, ProductVariantDto dto) {
+    public ProductVariantDto add(Long storeId, Long productId, ProductVariantDto dto) {
         // Fetch product or throw
         Product product = productRepository.findByStoreIdAndId(storeId, productId)
                 .orElseThrow(ProductExceptions::productNotFound);
@@ -67,6 +67,30 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return productServiceHelper.injectMedium(savedDto);
     }
 
+    @Override
+    public ProductVariantDto create(Long productId, ProductVariantDto dto) {
+        // Fetch product or throw
+        Product product = productRepository.findById(productId)
+                .orElseThrow(ProductExceptions::productNotFound);
+
+        validateMedia(dto.getMedia());
+
+        // Map DTO to entity
+        ProductVariant variant = ProductVariantMapper.toEntity(dto, product);
+
+        // Add Media
+        loadAndValidateMedia(dto, variant);
+
+        // Add attributes, checking duplicates
+        loadAndValidateAttribute(dto, variant);
+
+        // Save the variant
+        ProductVariant saved = productVariantRepository.saveAndFlush(variant);
+
+        // Convert to DTO and inject media
+        ProductVariantDto savedDto = ProductVariantMapper.toDto(saved);
+        return productServiceHelper.injectMedium(savedDto);
+    }
     @Override
     public ProductVariantDto update(Long storeId, Long productId, ProductVariantDto dto) {
 
