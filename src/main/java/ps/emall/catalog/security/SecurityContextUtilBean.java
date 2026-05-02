@@ -6,7 +6,6 @@ import ps.emall.catalog.security.dto.StoreRef;
 import ps.emall.catalog.security.userdetails.Gender;
 
 import java.util.List;
-import java.util.Optional;
 
 @Component("auth")
 @RequiredArgsConstructor
@@ -32,9 +31,9 @@ public class SecurityContextUtilBean {
         return SecurityContextUtil.getCurrentUsername();
     }
 
-    public Optional<Integer> getCurrentAge(){return SecurityContextUtil.getCurrentAge();}
+    public Integer getCurrentAge(){return SecurityContextUtil.getCurrentAge().orElse(null);}
 
-    public Optional<Gender> getCurrentGender(){return SecurityContextUtil.getCurrentGender();}
+    public Gender getCurrentGender(){return SecurityContextUtil.getCurrentGender().orElse(Gender.NOT_SPECIFIED);}
 
     public List<StoreRef> getCurrentShopIds(){return SecurityContextUtil.getCurrentShopIds();}
 

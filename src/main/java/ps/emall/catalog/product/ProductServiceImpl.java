@@ -230,7 +230,7 @@ public class ProductServiceImpl implements ProductService {
             log.error("Could not fetch similar products from interaction productId={}, status={}, message={}",
                     id, e.status(), e.getMessage()
             );
-            throw e;
+            return List.of();
         }
 
     }

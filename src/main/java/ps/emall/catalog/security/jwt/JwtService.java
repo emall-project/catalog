@@ -14,6 +14,7 @@ import javax.crypto.SecretKey;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -53,8 +54,21 @@ public class JwtService {
     }
 
     public Gender extractGender(String token) {
-        return extractClaim(token, claims ->
-                claims.get(SecurityConstants.CLAIM_GENDER, Gender.class));
+        Object raw = extractClaim(token, claims -> claims.get(SecurityConstants.CLAIM_GENDER));
+        if (raw == null) {
+            return Gender.NOT_SPECIFIED;
+        }
+
+        if (raw instanceof Gender gender) {
+            return gender;
+        }
+
+        try {
+            return Gender.valueOf(String.valueOf(raw).trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            log.warn("Unknown gender claim value: {}", raw);
+            return Gender.NOT_SPECIFIED;
+        }
     }
 
     @SuppressWarnings("unchecked")
