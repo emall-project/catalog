@@ -18,6 +18,7 @@ public class ProductFilter {
     private String q;
     private String slug;
     private Long categoryId;
+    private List<Long> categoryIds;
     private Long brandId;
     private Boolean isActive;
     private Long mallId;

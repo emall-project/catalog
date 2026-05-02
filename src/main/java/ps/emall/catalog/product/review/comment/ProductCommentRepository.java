@@ -27,6 +27,12 @@ public interface ProductCommentRepository extends JpaRepository<ProductComment, 
 
     long countByStatus(CommentStatus status);
 
+    long countByProduct_StoreId(Long storeId);
+
+    long countByProduct_StoreIdAndStatus(Long storeId, CommentStatus status);
+
+    List<ProductComment> findTop5ByProduct_StoreIdOrderByCreatedAtDesc(Long storeId);
+
     /**
      * PENDING comments that have not yet exhausted retries
      * and whose last attempt was at least retryIntervalMinutes ago.
