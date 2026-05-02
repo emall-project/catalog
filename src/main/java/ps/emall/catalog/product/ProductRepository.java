@@ -1,5 +1,6 @@
 package ps.emall.catalog.product;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
@@ -95,4 +96,23 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
 
     List<Product> findByIdIn(Collection<Long> ids);
+
+    @Query("""
+            SELECT p
+            FROM Product p
+            WHERE p.isActive = true
+              AND p.id <> :productId
+              AND p.mallId = :mallId
+              AND (p.category.id = :categoryId OR p.brand.id = :brandId)
+            ORDER BY
+              CASE WHEN p.category.id = :categoryId THEN 0 ELSE 1 END,
+              p.id DESC
+            """)
+    List<Product> findFallbackSimilarProducts(
+            Long productId,
+            Long mallId,
+            Long categoryId,
+            Long brandId,
+            Pageable pageable
+    );
 }

@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.common.exception.EMallsException;
+import ps.emall.catalog.common.message.MessageKey;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
@@ -32,7 +34,14 @@ public class ProductReviewController {
     public EMallsResponseEntity<ProductReviewDto> getMyReview(
             @PathVariable Long productId) {
         Long userId = SecurityContextUtil.getCurrentUserId();
-        return EMallsResponseEntity.ok(reviewService.getByProductIdAndUserId(productId, userId));
+        try {
+            return EMallsResponseEntity.ok(reviewService.getByProductIdAndUserId(productId, userId));
+        } catch (EMallsException e) {
+            if (MessageKey.REVIEW_NOT_FOUND.getKey().equals(e.getMessage())) {
+                return EMallsResponseEntity.ok(null);
+            }
+            throw e;
+        }
     }
 
     // CUSTOMER: WRITE

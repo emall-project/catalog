@@ -4,6 +4,7 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -202,10 +203,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductLightDto> getSimilar(Long id, Integer topK) {
-        boolean exists = productRepository.existsByIdAndIsActiveTrue(id);
-        if (!exists) {
-            throw ProductExceptions.productNotFound();
-        }
+        Product product = productRepository.findById(id)
+                .filter(item -> Boolean.TRUE.equals(item.getIsActive()))
+                .orElseThrow(ProductExceptions::productNotFound);
 
         SimilarProductsQuery query = SimilarProductsQuery.builder()
                 .productId(id)
@@ -216,10 +216,8 @@ public class ProductServiceImpl implements ProductService {
         try {
             InteractionResponse<SimilarProductsResult> response = interactionClient.getSimilarProducts(query);
             if (response == null || response.getData() == null || response.getData().isSuccess() == false) {
-                log.error("Could not fetch similar products from interaction productId={}",
-                        id
-                );
-                throw ProductExceptions.interactionServiceNotAvailable();
+                log.warn("Could not fetch similar products from interaction productId={}. Using catalog fallback.", id);
+                return getFallbackSimilarProducts(product, topK);
             }
             SimilarProductsResult similarProductsResult = response.getData();
             List<Product> similarProducts = productRepository.findByIdIn(similarProductsResult.getProductIds());
@@ -227,12 +225,26 @@ public class ProductServiceImpl implements ProductService {
 
 
         } catch (FeignException e) {
-            log.error("Could not fetch similar products from interaction productId={}, status={}, message={}",
-                    id, e.status(), e.getMessage()
+            log.warn("Could not fetch similar products from interaction productId={}, status={}. Using catalog fallback.",
+                    id, e.status()
             );
-            return List.of();
+            return getFallbackSimilarProducts(product, topK);
         }
 
+    }
+
+    private List<ProductLightDto> getFallbackSimilarProducts(Product product, Integer topK) {
+        int limit = topK == null || topK < 1 ? 8 : topK;
+        return productRepository.findFallbackSimilarProducts(
+                        product.getId(),
+                        product.getMallId(),
+                        product.getCategory().getId(),
+                        product.getBrand().getId(),
+                        PageRequest.of(0, limit)
+                )
+                .stream()
+                .map(ProductLightMapper::toDtoLight)
+                .collect(Collectors.toList());
     }
 
     @Override
