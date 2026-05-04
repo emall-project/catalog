@@ -10,7 +10,8 @@ public interface ProductLightRow {
     Long getDefaultVariantId();
     BigDecimal getBasePrice();
     UUID getMediumId();
-    Long getCategoryId();
+    String getCategoryName();
+    String getBrandName();
     Boolean getIsActive();
     Long getVariantsCount();
 }

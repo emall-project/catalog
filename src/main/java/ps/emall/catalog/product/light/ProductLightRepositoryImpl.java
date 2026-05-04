@@ -36,7 +36,8 @@ public class ProductLightRepositoryImpl implements ProductLightRepository {
                             dv.id as defaultVariantId,
                             dv.basePrice as basePrice,
                             pm.mediumId as mediumId,
-                            p.category.id as categoryId,
+                            p.category.name as categoryName,
+                            p.brand.name as brandName,
                             p.isActive as isActive,
                             (select count(v) from ProductVariant v where v.product = p) as variantsCount
                         from Product p
@@ -60,7 +61,8 @@ public class ProductLightRepositoryImpl implements ProductLightRepository {
                         tuple.get("defaultVariantId", Long.class),
                         tuple.get("basePrice", BigDecimal.class),
                         tuple.get("mediumId", UUID.class),
-                        tuple.get("categoryId", Long.class),
+                        tuple.get("categoryName", String.class),
+                        tuple.get("brandName", String.class),
                         tuple.get("isActive", Boolean.class),
                         tuple.get("variantsCount", Long.class)
                 ))

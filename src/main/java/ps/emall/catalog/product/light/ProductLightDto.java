@@ -18,7 +18,8 @@ public class ProductLightDto {
     private Boolean hasDiscount;
     private BigDecimal discountedPrice;
     private FileLightDto medium;
-    private Long categoryId;
+    private String categoryName;
+    private String brandName;
     private Boolean isActive;
     private Long variantsCount;
 }

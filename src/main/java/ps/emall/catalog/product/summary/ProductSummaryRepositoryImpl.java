@@ -202,49 +202,6 @@ public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
                 .toList();
     }
 
-    public List<ProductLightRow> findLightRowsByProductIds(List<Long> productIds) {
-        if (productIds == null || productIds.isEmpty()) {
-            return List.of();
-        }
-
-        return entityManager.createQuery("""
-                        select
-                            p.id as productId,
-                            p.name as productName,
-                            p.slug as productSlug,
-                            dv.id as defaultVariantId,
-                            dv.basePrice as basePrice,
-                            pm.mediumId as mediumId,
-                            p.category.id as categoryId,
-                            p.isActive as isActive,
-                            (select count(v) from ProductVariant v where v.product = p) as variantsCount
-                        from Product p
-                        left join p.defaultVariant dv
-                        left join ProductMedium pm
-                            on pm.variant.id = dv.id
-                           and pm.sortOrder = (
-                                select min(pm2.sortOrder)
-                                from ProductMedium pm2
-                                where pm2.variant.id = dv.id
-                           )
-                        where p.id in :productIds
-                        """, Tuple.class)
-                .setParameter("productIds", productIds)
-                .getResultList()
-                .stream()
-                .map(tuple -> new ProductLightRowImpl(
-                        tuple.get("productId", Long.class),
-                        tuple.get("productName", String.class),
-                        tuple.get("productSlug", String.class),
-                        tuple.get("defaultVariantId", Long.class),
-                        tuple.get("basePrice", BigDecimal.class),
-                        tuple.get("mediumId", UUID.class),
-                        tuple.get("categoryId", Long.class),
-                        tuple.get("isActive", Boolean.class),
-                        tuple.get("variantsCount", Long.class)
-                ))
-                .collect(Collectors.toList());
-    }
 
     @Override
     public PriceRange getPriceRange(Specification<Product> spec) {

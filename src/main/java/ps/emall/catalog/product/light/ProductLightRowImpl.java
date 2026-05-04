@@ -1,4 +1,5 @@
 package ps.emall.catalog.product.light;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -10,7 +11,8 @@ public class ProductLightRowImpl implements ProductLightRow {
     private final Long defaultVariantId;
     private final BigDecimal basePrice;
     private final UUID mediumId;
-    private final Long categoryId;
+    private final String categoryName;
+    private final String brandName;
     private final Boolean isActive;
     private final Long variantsCount;
 
@@ -21,7 +23,8 @@ public class ProductLightRowImpl implements ProductLightRow {
             Long defaultVariantId,
             BigDecimal basePrice,
             UUID mediumId,
-            Long categoryId,
+            String categoryName,
+            String brandName,
             Boolean isActive,
             Long variantsCount
     ) {
@@ -31,7 +34,8 @@ public class ProductLightRowImpl implements ProductLightRow {
         this.defaultVariantId = defaultVariantId;
         this.basePrice = basePrice;
         this.mediumId = mediumId;
-        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.brandName = brandName;
         this.isActive = isActive;
         this.variantsCount = variantsCount;
     }
@@ -67,9 +71,12 @@ public class ProductLightRowImpl implements ProductLightRow {
     }
 
     @Override
-    public Long getCategoryId() {
-        return categoryId;
+    public String getCategoryName() {
+        return categoryName;
     }
+
+    @Override
+    public String getBrandName() { return brandName; }
 
     @Override
     public Boolean getIsActive() {
