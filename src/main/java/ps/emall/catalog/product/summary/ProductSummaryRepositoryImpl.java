@@ -214,7 +214,10 @@ public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
                             p.slug as productSlug,
                             dv.id as defaultVariantId,
                             dv.basePrice as basePrice,
-                            pm.mediumId as mediumId
+                            pm.mediumId as mediumId,
+                            p.category.id as categoryId,
+                            p.isActive as isActive,
+                            (select count(v) from ProductVariant v where v.product = p) as variantsCount
                         from Product p
                         left join p.defaultVariant dv
                         left join ProductMedium pm
@@ -235,7 +238,10 @@ public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
                         tuple.get("productSlug", String.class),
                         tuple.get("defaultVariantId", Long.class),
                         tuple.get("basePrice", BigDecimal.class),
-                        tuple.get("mediumId", UUID.class)
+                        tuple.get("mediumId", UUID.class),
+                        tuple.get("categoryId", Long.class),
+                        tuple.get("isActive", Boolean.class),
+                        tuple.get("variantsCount", Long.class)
                 ))
                 .collect(Collectors.toList());
     }

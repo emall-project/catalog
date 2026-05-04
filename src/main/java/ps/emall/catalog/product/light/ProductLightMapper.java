@@ -20,6 +20,9 @@ public class ProductLightMapper {
                 .basePrice(defaultVariant.getBasePrice())
                 .defaultVariantId(defaultVariant.getId())
                 .medium(medium)
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .isActive(product.getIsActive())
+                .variantsCount(product.getVariants() != null ? (long) product.getVariants().size() : 0L)
                 .build();
     }
 
@@ -43,6 +46,9 @@ public class ProductLightMapper {
                 .basePrice(row.getBasePrice())
                 .name(row.getProductName())
                 .slug(row.getProductSlug())
+                .categoryId(row.getCategoryId())
+                .isActive(row.getIsActive())
+                .variantsCount(row.getVariantsCount())
                 .build();
 
         if (row.getMediumId() != null) {

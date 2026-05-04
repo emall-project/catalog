@@ -10,6 +10,9 @@ public class ProductLightRowImpl implements ProductLightRow {
     private final Long defaultVariantId;
     private final BigDecimal basePrice;
     private final UUID mediumId;
+    private final Long categoryId;
+    private final Boolean isActive;
+    private final Long variantsCount;
 
     public ProductLightRowImpl(
             Long productId,
@@ -17,7 +20,10 @@ public class ProductLightRowImpl implements ProductLightRow {
             String productSlug,
             Long defaultVariantId,
             BigDecimal basePrice,
-            UUID mediumId
+            UUID mediumId,
+            Long categoryId,
+            Boolean isActive,
+            Long variantsCount
     ) {
         this.productId = productId;
         this.productName = productName;
@@ -25,6 +31,9 @@ public class ProductLightRowImpl implements ProductLightRow {
         this.defaultVariantId = defaultVariantId;
         this.basePrice = basePrice;
         this.mediumId = mediumId;
+        this.categoryId = categoryId;
+        this.isActive = isActive;
+        this.variantsCount = variantsCount;
     }
 
     @Override
@@ -55,5 +64,20 @@ public class ProductLightRowImpl implements ProductLightRow {
     @Override
     public UUID getMediumId() {
         return mediumId;
+    }
+
+    @Override
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    @Override
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    @Override
+    public Long getVariantsCount() {
+        return variantsCount;
     }
 }
