@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ps.emall.catalog.common.exception.EMallsException;
+import ps.emall.catalog.common.message.MessageKey;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
@@ -42,7 +44,14 @@ public class ProductCommentController {
     public EMallsResponseEntity<ProductCommentDto> getMyCommentForProduct(
             @PathVariable Long productId) {
         Long userId = SecurityContextUtil.getCurrentUserId();
-        return EMallsResponseEntity.ok(commentService.getByProductIdAndUserId(productId, userId));
+        try {
+            return EMallsResponseEntity.ok(commentService.getByProductIdAndUserId(productId, userId));
+        } catch (EMallsException e) {
+            if (MessageKey.COMMENT_NOT_FOUND.getKey().equals(e.getMessage())) {
+                return EMallsResponseEntity.ok(null);
+            }
+            throw e;
+        }
     }
 
     // USER — WRITE

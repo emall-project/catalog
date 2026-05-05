@@ -27,7 +27,7 @@ public final class ProductSpecificationBuilder {
         return Specification.allOf(
                 qSpec(filter.getQ()),
                 slugSpec(filter.getSlug()),
-                categorySpec(filter.getCategoryId()),
+                categorySpec(filter.getCategoryId(), filter.getCategoryIds()),
                 brandSpec(filter.getBrandId()),
                 mallSpec(filter.getMallId()),
                 storeSpec(filter.getStoreId()),
@@ -67,12 +67,26 @@ public final class ProductSpecificationBuilder {
     }
 
 
-    public static Specification<Product> categorySpec(Long categoryId) {
+    public static Specification<Product> categorySpec(Long categoryId, List<Long> categoryIds) {
         return (root, query, cb) -> {
-            if (categoryId == null) {
+            if (categoryId != null) {
+                return cb.equal(root.get("category").get("id"), categoryId);
+            }
+
+            if (categoryIds == null || categoryIds.isEmpty()) {
                 return null;
             }
-            return cb.equal(root.get("category").get("id"), categoryId);
+
+            List<Long> validIds = categoryIds.stream()
+                    .filter(java.util.Objects::nonNull)
+                    .distinct()
+                    .toList();
+
+            if (validIds.isEmpty()) {
+                return null;
+            }
+
+            return root.get("category").get("id").in(validIds);
         };
     }
 
@@ -121,6 +135,7 @@ public final class ProductSpecificationBuilder {
             return cb.equal(root.get("targetedAudience"), targetedAudience);
         };
     }
+
     public static Specification<Product> excludedAudienceSpec(TargetedAudience excludedAudience) {
         return (root, query, cb) -> {
             if (excludedAudience == null) {

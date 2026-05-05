@@ -3,6 +3,7 @@ package ps.emall.catalog.brand;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import ps.emall.catalog.category.Category;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
 
@@ -18,7 +19,8 @@ public final class BrandSpecificationBuilder {
                 slugSpec(brandFilter.getSlug()),
                 isActiveSpec(brandFilter.getIsActive()),
                 targetedAudienceSpec(brandFilter.getTargetedAudience()),
-                ageGroupSpec(brandFilter.getAgeGroup())
+                ageGroupSpec(brandFilter.getAgeGroup()),
+                excludedAudienceSpec(brandFilter.getExcludedAudience())
         );
     }
 
@@ -70,6 +72,15 @@ public final class BrandSpecificationBuilder {
                 return null;
             }
             return cb.equal(root.get("ageGroup"), ageGroup);
+        };
+    }
+
+    public static Specification<Brand> excludedAudienceSpec(TargetedAudience excludedAudience) {
+        return (root, query, cb) -> {
+            if (excludedAudience == null) {
+                return null;
+            }
+            return cb.notEqual(root.get("targetedAudience"), excludedAudience);
         };
     }
 }
