@@ -2,7 +2,7 @@ name: Build Catalog Image
 
 on:
   push:
-    branches: ["develop"]
+    branches: ["find-and-fix-bugs"]
   workflow_dispatch:
 
 permissions:
