@@ -10,7 +10,7 @@ permissions:
 
 env:
   IMAGE_NAME: catalog
-  DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_NAMESPACE }}
+  DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME }}
 
 jobs:
   build-and-push:
@@ -36,6 +36,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ env.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}:develop
+            ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:develop
           cache-from: type=gha
           cache-to: type=gha,mode=max
