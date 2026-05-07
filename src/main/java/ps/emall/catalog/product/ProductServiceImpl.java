@@ -48,7 +48,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductSpecificationBuilder productSpecificationBuilder;
     private final ProductServiceHelper productServiceHelper;
     private final InteractionClient interactionClient;
-    private final ProductService productService;
 
     @Override
     @Transactional(readOnly = true)
