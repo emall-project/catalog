@@ -60,32 +60,8 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .toList();
 
-        List<ProductLightRow> productLightRows = productRepository.findLightRowsByProductIds(productIds);
-
-        Map<Long, ProductLightRow> productLightRowMap = new HashMap<>();
-        List<UUID> mediaIds = new ArrayList<>();
-
-        for (ProductLightRow row : productLightRows) {
-            productLightRowMap.put(row.getProductId(), row);
-            if (row.getMediumId() != null) {
-                mediaIds.add(row.getMediumId());
-            }
-        }
-
-        Map<UUID, FileLightDto> mediaMap = productServiceHelper.getMedia(mediaIds);
-
-        Map<Long, ActiveProductDiscountDto> discountMap =
-                productServiceHelper.getActiveDiscounts(productIds);
-
-        Page<ProductLightDto> dtoPage = productPage.map(productId -> {
-            ProductLightDto dto = ProductLightMapper.toProductLightDto(
-                    productId,
-                    productLightRowMap,
-                    mediaMap
-            );
-
-            return productServiceHelper.injectLightDiscount(dto, discountMap);
-        });
+        ProductLightLookup lightLookup = loadProductLightLookup(productIds, true);
+        Page<ProductLightDto> dtoPage = productPage.map(productId -> toProductLightDto(productId, lightLookup, true));
 
         return PaginatedResponse.of(dtoPage);
     }
@@ -119,24 +95,10 @@ public class ProductServiceImpl implements ProductService {
         Specification<Product> spec = productSpecificationBuilder.build(filter);
         List<Long> productIds = productRepository.findIdsBySpecification(spec);
 
-
-        List<ProductLightRow> rows = productRepository.findLightRowsByProductIds(productIds);
-
-        Map<Long, ProductLightRow> rowMap = new HashMap<>();
-        List<UUID> mediaIds = new ArrayList<>();
-
-        for (ProductLightRow row : rows) {
-            rowMap.put(row.getProductId(), row);
-            mediaIds.add(row.getMediumId());
-        }
-
-        Map<UUID, FileLightDto> mediaMap = productServiceHelper.getMedia(mediaIds);
-        Result result = new Result(rowMap, mediaMap);
-
-        List<ProductLightDto> dtoList = productIds.stream().map(productId -> ProductLightMapper.toProductLightDto(productId, result.rowMap(), result.mediaMap())).toList();
-
-//        productServiceHelper.injectLightDiscount()
-        return dtoList;
+        ProductLightLookup lightLookup = loadProductLightLookup(productIds, false);
+        return productIds.stream()
+                .map(productId -> toProductLightDto(productId, lightLookup, false))
+                .toList();
     }
 
     @Override
@@ -147,7 +109,20 @@ public class ProductServiceImpl implements ProductService {
             return List.of();
         }
 
-        List<ProductLightRow> rows = productRepository.findLightRowsByProductIds(sanitizedIds);
+        ProductLightLookup lightLookup = loadProductLightLookup(sanitizedIds, true);
+        return sanitizedIds.stream()
+                .map(productId -> toProductLightDto(productId, lightLookup, true))
+                .filter(dto -> dto.getName() != null)
+                .filter(dto -> Boolean.TRUE.equals(dto.getIsActive()))
+                .toList();
+    }
+
+    private ProductLightLookup loadProductLightLookup(List<Long> productIds, boolean includeDiscounts) {
+        if (productIds == null || productIds.isEmpty()) {
+            return ProductLightLookup.empty();
+        }
+
+        List<ProductLightRow> rows = productRepository.findLightRowsByProductIds(productIds);
 
         Map<Long, ProductLightRow> rowMap = new HashMap<>();
         List<UUID> mediaIds = new ArrayList<>();
@@ -160,15 +135,29 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Map<UUID, FileLightDto> mediaMap = productServiceHelper.getMedia(mediaIds);
-        Map<Long, ActiveProductDiscountDto> discountMap =
-                productServiceHelper.getActiveDiscounts(sanitizedIds);
+        Map<Long, ActiveProductDiscountDto> discountMap = includeDiscounts
+                ? productServiceHelper.getActiveDiscounts(productIds)
+                : Collections.emptyMap();
 
-        return sanitizedIds.stream()
-                .map(productId -> ProductLightMapper.toProductLightDto(productId, rowMap, mediaMap))
-                .filter(dto -> dto.getName() != null)
-                .filter(dto -> Boolean.TRUE.equals(dto.getIsActive()))
-                .map(dto -> productServiceHelper.injectLightDiscount(dto, discountMap))
-                .toList();
+        return new ProductLightLookup(rowMap, mediaMap, discountMap);
+    }
+
+    private ProductLightDto toProductLightDto(
+            Long productId,
+            ProductLightLookup lightLookup,
+            boolean includeDiscounts
+    ) {
+        ProductLightDto dto = ProductLightMapper.toProductLightDto(
+                productId,
+                lightLookup.rowMap(),
+                lightLookup.mediaMap()
+        );
+
+        if (!includeDiscounts) {
+            return dto;
+        }
+
+        return productServiceHelper.injectLightDiscount(dto, lightLookup.discountMap());
     }
 
     private List<Long> sanitizeProductIds(List<Long> productIds) {
@@ -182,7 +171,18 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
-    private record Result(Map<Long, ProductLightRow> rowMap, Map<UUID, FileLightDto> mediaMap) {
+    private record ProductLightLookup(
+            Map<Long, ProductLightRow> rowMap,
+            Map<UUID, FileLightDto> mediaMap,
+            Map<Long, ActiveProductDiscountDto> discountMap
+    ) {
+        private static ProductLightLookup empty() {
+            return new ProductLightLookup(
+                    Collections.emptyMap(),
+                    Collections.emptyMap(),
+                    Collections.emptyMap()
+            );
+        }
     }
 
     @Override
