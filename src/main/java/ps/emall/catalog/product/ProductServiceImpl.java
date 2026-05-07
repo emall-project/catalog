@@ -104,17 +104,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductLightDto> getLightByIds(List<Long> productIds) {
-        List<Long> sanitizedIds = sanitizeProductIds(productIds);
-        if (sanitizedIds.isEmpty()) {
-            return List.of();
-        }
-
-        ProductLightLookup lightLookup = loadProductLightLookup(sanitizedIds, true);
-        return sanitizedIds.stream()
-                .map(productId -> toProductLightDto(productId, lightLookup, true))
-                .filter(dto -> dto.getName() != null)
-                .filter(dto -> Boolean.TRUE.equals(dto.getIsActive()))
-                .toList();
+        return loadActiveProductLightDtos(productIds);
     }
 
     private ProductLightLookup loadProductLightLookup(List<Long> productIds, boolean includeDiscounts) {
@@ -158,6 +148,18 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return productServiceHelper.injectLightDiscount(dto, lightLookup.discountMap());
+    }
+
+    private List<ProductLightDto> toActiveProductLightDtos(
+            List<Long> productIds,
+            ProductLightLookup lightLookup,
+            boolean includeDiscounts
+    ) {
+        return productIds.stream()
+                .map(productId -> toProductLightDto(productId, lightLookup, includeDiscounts))
+                .filter(dto -> dto.getName() != null)
+                .filter(dto -> Boolean.TRUE.equals(dto.getIsActive()))
+                .toList();
     }
 
     private List<Long> sanitizeProductIds(List<Long> productIds) {
@@ -260,8 +262,7 @@ public class ProductServiceImpl implements ProductService {
                 return getFallbackSimilarProducts(product, topK);
             }
             SimilarProductsResult similarProductsResult = response.getData();
-            List<Product> similarProducts = productRepository.findByIdIn(similarProductsResult.getProductIds());
-            return similarProducts.stream().map(ProductLightMapper::toDtoLight).collect(Collectors.toList());
+            return loadActiveProductLightDtos(similarProductsResult.getProductIds());
 
 
         } catch (FeignException e) {
@@ -275,7 +276,7 @@ public class ProductServiceImpl implements ProductService {
 
     private List<ProductLightDto> getFallbackSimilarProducts(Product product, Integer topK) {
         int limit = topK == null || topK < 1 ? 8 : topK;
-        return productRepository.findFallbackSimilarProducts(
+        List<Long> productIds = productRepository.findFallbackSimilarProducts(
                         product.getId(),
                         product.getMallId(),
                         product.getCategory().getId(),
@@ -283,8 +284,20 @@ public class ProductServiceImpl implements ProductService {
                         PageRequest.of(0, limit)
                 )
                 .stream()
-                .map(ProductLightMapper::toDtoLight)
-                .collect(Collectors.toList());
+                .map(Product::getId)
+                .toList();
+
+        return loadActiveProductLightDtos(productIds);
+    }
+
+    private List<ProductLightDto> loadActiveProductLightDtos(List<Long> productIds) {
+        List<Long> sanitizedIds = sanitizeProductIds(productIds);
+        if (sanitizedIds.isEmpty()) {
+            return List.of();
+        }
+
+        ProductLightLookup lightLookup = loadProductLightLookup(sanitizedIds, true);
+        return toActiveProductLightDtos(sanitizedIds, lightLookup, true);
     }
 
     @Override
