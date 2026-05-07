@@ -53,7 +53,7 @@ public class PublicProductController {
 
     @GetMapping("/{id}")
     public EMallsResponseEntity<ProductDto> getById(@PathVariable Long id) {
-        ProductDto dto = productService.getById(id);
+        ProductDto dto = productService.getById(id, true);
 
         return EMallsResponseEntity.ok(dto);
     }

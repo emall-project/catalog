@@ -21,7 +21,7 @@ public interface ProductService {
 
     ProductDto update(Long mallId, Long storeId, ProductDto productDto);
 
-    ProductDto getById(Long id);
+    ProductDto getById(Long id, Boolean onlyActive);
 
     ProductDto getByStoreIdAndId(Long storeId, Long id);
 

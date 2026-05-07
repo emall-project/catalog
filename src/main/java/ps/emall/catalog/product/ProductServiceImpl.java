@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.brand.BrandRepository;
 import ps.emall.catalog.category.Category;
-import ps.emall.catalog.category.CategoryExceptions;
 import ps.emall.catalog.category.CategoryRepository;
 import ps.emall.catalog.client.campaigns.ActiveProductDiscountDto;
 import ps.emall.catalog.client.interaction.InteractionClient;
@@ -49,6 +48,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductSpecificationBuilder productSpecificationBuilder;
     private final ProductServiceHelper productServiceHelper;
     private final InteractionClient interactionClient;
+    private final ProductService productService;
 
     @Override
     @Transactional(readOnly = true)
@@ -144,14 +144,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProductDto getById(Long id) {
-        // todo you might make it more general and restrict from the controller or make other function
-        Product product = productRepository.findById(id)
-                .orElseThrow(ProductExceptions::productNotFound);
-
-        if (product.getIsActive().equals(Boolean.FALSE)) {
-            throw ProductExceptions.productNotActive();
-        }
+    public ProductDto getById(Long id, Boolean activeOnly) {
+        Product product = activeOnly ? productRepository.findByIdAndIsActive(id, true)
+                .orElseThrow(ProductExceptions::productNotFound) :
+                productRepository.findById(id)
+                        .orElseThrow(ProductExceptions::productNotFound);
 
         return productServiceHelper.injectDiscount(productServiceHelper.injectMedium(ProductMapper.toDto(product)));
     }

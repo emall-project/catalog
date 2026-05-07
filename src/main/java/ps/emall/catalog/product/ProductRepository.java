@@ -115,4 +115,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             Long brandId,
             Pageable pageable
     );
+
+
+    Optional<Product> findByIdAndIsActive(Long id, Boolean isActive);
 }
