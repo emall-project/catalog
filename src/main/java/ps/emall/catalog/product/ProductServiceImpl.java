@@ -139,6 +139,49 @@ public class ProductServiceImpl implements ProductService {
         return dtoList;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductLightDto> getLightByIds(List<Long> productIds) {
+        List<Long> sanitizedIds = sanitizeProductIds(productIds);
+        if (sanitizedIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<ProductLightRow> rows = productRepository.findLightRowsByProductIds(sanitizedIds);
+
+        Map<Long, ProductLightRow> rowMap = new HashMap<>();
+        List<UUID> mediaIds = new ArrayList<>();
+
+        for (ProductLightRow row : rows) {
+            rowMap.put(row.getProductId(), row);
+            if (row.getMediumId() != null) {
+                mediaIds.add(row.getMediumId());
+            }
+        }
+
+        Map<UUID, FileLightDto> mediaMap = productServiceHelper.getMedia(mediaIds);
+        Map<Long, ActiveProductDiscountDto> discountMap =
+                productServiceHelper.getActiveDiscounts(sanitizedIds);
+
+        return sanitizedIds.stream()
+                .map(productId -> ProductLightMapper.toProductLightDto(productId, rowMap, mediaMap))
+                .filter(dto -> dto.getName() != null)
+                .filter(dto -> Boolean.TRUE.equals(dto.getIsActive()))
+                .map(dto -> productServiceHelper.injectLightDiscount(dto, discountMap))
+                .toList();
+    }
+
+    private List<Long> sanitizeProductIds(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return List.of();
+        }
+
+        return productIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+    }
+
     private record Result(Map<Long, ProductLightRow> rowMap, Map<UUID, FileLightDto> mediaMap) {
     }
 
