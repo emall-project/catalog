@@ -261,7 +261,9 @@ public class ProductServiceImpl implements ProductService {
                 return getFallbackSimilarProducts(product, topK);
             }
             SimilarProductsResult similarProductsResult = response.getData();
-            return loadActiveProductLightDtos(similarProductsResult.getProductIds());
+            List<Long> productIds = sanitizeProductIds(similarProductsResult.getProductIds());
+            ProductLightLookup lightLookup = loadProductLightLookup(productIds, true);
+            return toActiveProductLightDtos(productIds, lightLookup, true);
 
 
         } catch (FeignException e) {
@@ -286,7 +288,8 @@ public class ProductServiceImpl implements ProductService {
                 .map(Product::getId)
                 .toList();
 
-        return loadActiveProductLightDtos(productIds);
+        ProductLightLookup lightLookup = loadProductLightLookup(productIds, true);
+        return toActiveProductLightDtos(productIds, lightLookup, true);
     }
 
     private List<ProductLightDto> loadActiveProductLightDtos(List<Long> productIds) {
@@ -431,6 +434,5 @@ public class ProductServiceImpl implements ProductService {
 
     public void deactivation(Product product) {
     }
-
 
 }

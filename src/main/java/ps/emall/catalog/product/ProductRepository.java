@@ -41,6 +41,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     boolean existsByTags_Id(Long tagsId);
 
+    long countByTags_Id(Long tagsId);
+
     boolean existsBySlugIgnoreCaseAndStoreId(String slug, Long storeId);
 
     @Override

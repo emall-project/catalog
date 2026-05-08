@@ -32,7 +32,8 @@ public class BrandServiceImpl implements BrandService {
 
         Page<BrandDto> page = brandRepository.findAll(spec, pageable)
                 .map(BrandMapper::toDto)
-                .map(brandServiceHelper::injectImageUrl);
+                .map(brandServiceHelper::injectImageUrl)
+                .map(this::withProductsCount);
         return PaginatedResponse.of(page);
     }
 
@@ -48,6 +49,7 @@ public class BrandServiceImpl implements BrandService {
         return brands.stream()
                 .map(BrandMapper::toDto)
                 .map(brandServiceHelper::injectImageUrl)
+                .map(this::withProductsCount)
                 .collect(Collectors.toList());
     }
 
@@ -61,7 +63,7 @@ public class BrandServiceImpl implements BrandService {
 
         Brand brand = BrandMapper.toEntity(dto);
         Brand saved = brandRepository.save(brand);
-        return BrandMapper.toDto(saved, image);
+        return withProductsCount(BrandMapper.toDto(saved, image));
     }
 
     @Override
@@ -88,7 +90,7 @@ public class BrandServiceImpl implements BrandService {
         existing.setImageId(dto.getImageId());
         existing.setIsActive(dto.getIsActive());
         Brand saved = brandRepository.save(existing);
-        return BrandMapper.toDto(saved, image);
+        return withProductsCount(BrandMapper.toDto(saved, image));
     }
 
     @Override
@@ -96,6 +98,7 @@ public class BrandServiceImpl implements BrandService {
     public BrandDto getById(Long id) {
         return brandRepository.findById(id)
                 .map(BrandMapper::toDto)
+                .map(this::withProductsCount)
                 .orElseThrow(BrandExceptions::brandNotFound);
     }
 
@@ -104,6 +107,7 @@ public class BrandServiceImpl implements BrandService {
 
         return brandRepository.findByIdAndIsActiveTrue(id)
                 .map(BrandMapper::toDto)
+                .map(this::withProductsCount)
                 .orElseThrow(BrandExceptions::brandNotFound);
     }
 
@@ -112,6 +116,7 @@ public class BrandServiceImpl implements BrandService {
     public BrandDto getBySlug(String slug) {
         return brandRepository.findBySlug(slug)
                 .map(BrandMapper::toDto)
+                .map(this::withProductsCount)
                 .orElseThrow(BrandExceptions::brandNotFound);
     }
 
@@ -119,6 +124,7 @@ public class BrandServiceImpl implements BrandService {
     public BrandDto getActiveBySlug(String slug) {
         return brandRepository.findBySlugAndIsActiveTrue(slug)
                 .map(BrandMapper::toDto)
+                .map(this::withProductsCount)
                 .orElseThrow(BrandExceptions::brandNotFound);
     }
 
@@ -133,5 +139,10 @@ public class BrandServiceImpl implements BrandService {
         }
 
         brandRepository.delete(brand);
+    }
+
+    private BrandDto withProductsCount(BrandDto dto) {
+        dto.setProductsCount(productRepository.countByBrand_Id(dto.getId()));
+        return dto;
     }
 }
