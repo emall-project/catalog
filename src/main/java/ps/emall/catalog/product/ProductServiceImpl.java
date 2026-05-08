@@ -102,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
         return getLightByIds(productIds);
     }
 
-    private List<ProductLightDto> getLightByIds(List<Long> productIds) {
+    public List<ProductLightDto> getLightByIds(List<Long> productIds) {
         if (productIds == null || productIds.isEmpty()) {
             return List.of();
         }
@@ -130,14 +130,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProductDto getById(Long id) {
+    public ProductDto getById(Long id, Boolean onlyActive) {
         // todo you might make it more general and restrict from the controller or make other function
-        Product product = productRepository.findById(id)
-                .orElseThrow(ProductExceptions::productNotFound);
-
-        if (product.getIsActive().equals(Boolean.FALSE)) {
-            throw ProductExceptions.productNotActive();
-        }
+        Product product = onlyActive ?
+                productRepository.findByIdAndIsActive(id, true)
+                        .orElseThrow(ProductExceptions::productNotFound)
+                : productRepository.findById(id).orElseThrow(ProductExceptions::productNotFound);
 
         return productServiceHelper.injectDiscount(productServiceHelper.injectMedium(ProductMapper.toDto(product)));
     }
@@ -366,6 +364,5 @@ public class ProductServiceImpl implements ProductService {
 
     public void deactivation(Product product) {
     }
-
 
 }
