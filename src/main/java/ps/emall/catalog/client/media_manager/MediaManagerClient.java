@@ -22,6 +22,6 @@ public interface MediaManagerClient {
     @GetMapping("/internal/files/{id}")
     MediaResponse<FileDto> getById(@PathVariable("id") UUID id);
 
-    @PostMapping("internal/files/list")
+    @PostMapping("/internal/files/list")
     MediaResponse<List<FileDto>> getByIds(@RequestBody List<UUID> ids);
 }
