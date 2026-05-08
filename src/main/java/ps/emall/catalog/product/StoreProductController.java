@@ -2,6 +2,7 @@ package ps.emall.catalog.product;
 
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +21,7 @@ import ps.emall.catalog.security.dto.StoreRef;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("stores/{storeId}/products")
 @PreAuthorize("@auth.isAdminOrShopOwnerOf(#storeId)")

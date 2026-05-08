@@ -3,7 +3,8 @@ package ps.emall.catalog.client.media_manager;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import ps.emall.catalog.config.service.MediaManagerFeignConfig;
 
 import java.util.List;
@@ -21,6 +22,6 @@ public interface MediaManagerClient {
     @GetMapping("/internal/files/{id}")
     MediaResponse<FileDto> getById(@PathVariable("id") UUID id);
 
-    @GetMapping("internal/files/list")
-    MediaResponse<List<FileDto>> getById(@RequestParam("ids") List<UUID> ids);
+    @PostMapping("/internal/files/list")
+    MediaResponse<List<FileDto>> getByIds(@RequestBody List<UUID> ids);
 }
