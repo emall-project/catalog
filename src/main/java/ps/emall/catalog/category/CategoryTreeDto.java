@@ -17,6 +17,7 @@ public class CategoryTreeDto {
     private String name;
     private FileLightDto image;
     private Integer depthLevel;
+    private Long productsCount;
 
     @Builder.Default
     private List<CategoryTreeDto> children = new ArrayList<>();

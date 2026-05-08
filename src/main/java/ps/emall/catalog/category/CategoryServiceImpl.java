@@ -43,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
         Page<CategoryDto> page = categoryPage.map(category -> {
             FileDto image = imagesMap.get(category.getImageId());
 
-            return CategoryMapper.toDto(category, image);
+            return withProductsCount(CategoryMapper.toDto(category, image));
         });
         return PaginatedResponse.of(page);
     }
@@ -92,6 +92,7 @@ public class CategoryServiceImpl implements CategoryService {
             FileDto image = imagesMap.get(category.getImageId());
 
             CategoryDto dto = CategoryMapper.toDto(category, image);
+            withProductsCount(dto);
             result.add(dto);
         }
 
@@ -116,7 +117,7 @@ public class CategoryServiceImpl implements CategoryService {
         for (Category category : categories) {
             FileLightDto fileLightDto = imagesMap.get(category.getImageId());
 
-            CategoryTreeDto dto = CategoryMapper.toTreeDto(category, fileLightDto);
+            CategoryTreeDto dto = withProductsCount(CategoryMapper.toTreeDto(category, fileLightDto));
             dtoMap.put(dto.getId(), dto);
         }
 
@@ -143,14 +144,14 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto getById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
-        return categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category));
+        return withProductsCount(categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category)));
     }
 
     @Override
     public CategoryDto getActiveById(Long id) {
         Category category = categoryRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
-        return categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category));
+        return withProductsCount(categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category)));
     }
 
     @Override
@@ -158,14 +159,14 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto getBySlug(String slug) {
         Category category = categoryRepository.findBySlug(slug)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
-        return categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category));
+        return withProductsCount(categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category)));
     }
 
     @Override
     public CategoryDto getActiveBySlug(String slug) {
         Category category = categoryRepository.findBySlugAndIsActiveTrue(slug)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
-        return categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category));
+        return withProductsCount(categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category)));
     }
 
     @Override
@@ -194,7 +195,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category saved = categoryRepository.save(category);
 
-        return categoryServiceHelper.injectImages(CategoryMapper.toDto(saved, categoryImage));
+        return withProductsCount(categoryServiceHelper.injectImages(CategoryMapper.toDto(saved, categoryImage)));
     }
 
     @Override
@@ -242,7 +243,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category saved = categoryRepository.save(existing);
-        return categoryServiceHelper.injectImages(CategoryMapper.toDto(saved, categoryImage));
+        return withProductsCount(categoryServiceHelper.injectImages(CategoryMapper.toDto(saved, categoryImage)));
     }
 
     @Override
@@ -263,7 +264,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.getAudienceConfig().add(config);
         Category saved = categoryRepository.save(category);
 
-        return CategoryMapper.toDto(saved);
+        return withProductsCount(CategoryMapper.toDto(saved));
     }
 
     @Override
@@ -296,5 +297,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public boolean slugExists(String slug) {
         return categoryRepository.existsBySlug(slug);
+    }
+
+    private CategoryDto withProductsCount(CategoryDto dto) {
+        dto.setProductsCount(productRepository.countByCategory_Id(dto.getId()));
+        return dto;
+    }
+
+    private CategoryTreeDto withProductsCount(CategoryTreeDto dto) {
+        dto.setProductsCount(productRepository.countByCategory_Id(dto.getId()));
+        return dto;
     }
 }

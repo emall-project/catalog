@@ -18,4 +18,6 @@ public class TagDto extends EMallsBaseDto {
     @NotBlank(message = "tag.name.notblank")
     @Size(min = 2, max = 50, message = "tag.name.size")
     private String name;
+
+    private Long productsCount;
 }

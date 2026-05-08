@@ -31,7 +31,8 @@ public class AttributeServiceImpl implements AttributeService {
         Specification<Attribute> spec = attributeSpecificationBuilder.build(filter);
 
         return attributeRepository.findAll(spec, pageable)
-                .map(AttributeMapper::toDto);
+                .map(AttributeMapper::toDto)
+                .map(this::withProductsCount);
     }
 
     @Override
@@ -45,6 +46,7 @@ public class AttributeServiceImpl implements AttributeService {
 
         return attributes.stream()
                 .map(AttributeMapper::toDto)
+                .map(this::withProductsCount)
                 .toList();
     }
 
@@ -55,7 +57,7 @@ public class AttributeServiceImpl implements AttributeService {
         }
         validateOptionList(dto.getOptions());
         Attribute saved = attributeRepository.save(AttributeMapper.toEntity(dto));
-        return AttributeMapper.toDto(saved);
+        return withProductsCount(AttributeMapper.toDto(saved));
     }
 
     @Override
@@ -80,7 +82,7 @@ public class AttributeServiceImpl implements AttributeService {
 
 
         Attribute saved = attributeRepository.save(existing);
-        return AttributeMapper.toDto(saved);
+        return withProductsCount(AttributeMapper.toDto(saved));
     }
 
     @Override
@@ -88,6 +90,7 @@ public class AttributeServiceImpl implements AttributeService {
     public AttributeDto findById(Long id) {
         return attributeRepository.findById(id)
                 .map(AttributeMapper::toDto)
+                .map(this::withProductsCount)
                 .orElseThrow(AttributeExceptions::attributeNotFound);
     }
 
@@ -96,6 +99,7 @@ public class AttributeServiceImpl implements AttributeService {
     public AttributeDto findActiveById(Long id) {
         return attributeRepository.findByIdAndIsActiveTrue(id)
                 .map(AttributeMapper::toDto)
+                .map(this::withProductsCount)
                 .orElseThrow(AttributeExceptions::attributeNotFound);
     }
 
@@ -104,6 +108,7 @@ public class AttributeServiceImpl implements AttributeService {
     public AttributeDto findBySlug(String slug) {
         return attributeRepository.findBySlug(slug)
                 .map(AttributeMapper::toDto)
+                .map(this::withProductsCount)
                 .orElseThrow(AttributeExceptions::attributeNotFound);
     }
 
@@ -112,6 +117,7 @@ public class AttributeServiceImpl implements AttributeService {
     public AttributeDto findActiveBySlug(String slug) {
         return attributeRepository.findBySlugAndIsActiveTrue(slug)
                 .map(AttributeMapper::toDto)
+                .map(this::withProductsCount)
                 .orElseThrow(AttributeExceptions::attributeNotFound);
     }
 
@@ -136,5 +142,10 @@ public class AttributeServiceImpl implements AttributeService {
         if (options.size() != value.size()) throw AttributeOptionsExceptions.duplicationInValue();
         if (options.size() != orders.size()) throw AttributeOptionsExceptions.duplicationInOrderSort();
         return true;
+    }
+
+    private AttributeDto withProductsCount(AttributeDto dto) {
+        dto.setProductsCount(variantAttributeRepository.countDistinctProductsByAttributeId(dto.getId()));
+        return dto;
     }
 }
