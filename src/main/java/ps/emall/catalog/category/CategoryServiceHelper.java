@@ -231,7 +231,7 @@ public class CategoryServiceHelper {
 
         try {
             // TODO REPLACE WITH endpoint that's return FileLightDto
-            MediaResponse<List<FileDto>> response = mediaManagerClient.getById(imageIds);
+            MediaResponse<List<FileDto>> response = mediaManagerClient.getByIds(imageIds);
 
             // validate response not empty
             if (response == null || response.getData() == null) {
@@ -265,7 +265,7 @@ public class CategoryServiceHelper {
 
         try {
             // TODO REPLACE WITH endpoint that's return FileLightDto
-            MediaResponse<List<FileDto>> response = mediaManagerClient.getById(imageIds);
+            MediaResponse<List<FileDto>> response = mediaManagerClient.getByIds(imageIds);
 
             // validate response not empty
             if (response == null || response.getData() == null) {

@@ -162,7 +162,7 @@ public class ProductServiceHelper {
 
         try {
             // TODO REPLACE WITH endpoint that's return FileLightDto
-            MediaResponse<List<FileDto>> response = mediaManagerClient.getById(mediaIds);
+            MediaResponse<List<FileDto>> response = mediaManagerClient.getByIds(mediaIds);
 
             // validate response not empty
             if (response == null || response.getData() == null) {
