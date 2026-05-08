@@ -3,7 +3,11 @@ package ps.emall.catalog.product.light;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -70,7 +74,6 @@ public class ProductLightRepositoryImpl implements ProductLightRepository {
     }
 
     public List<Long> findIdsBySpecification(Specification<Product> spec) {
-
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<Product> root = query.from(Product.class);
@@ -80,11 +83,11 @@ public class ProductLightRepositoryImpl implements ProductLightRepository {
 
         return entityManager.createQuery(query).getResultList();
     }
+
     @Override
     public Page<Long> findIdsBySpecification(Specification<Product> spec, Pageable pageable) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-        // main query
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<Product> root = query.from(Product.class);
 
@@ -113,7 +116,6 @@ public class ProductLightRepositoryImpl implements ProductLightRepository {
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
 
-        // count query
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<Product> countRoot = countQuery.from(Product.class);
 

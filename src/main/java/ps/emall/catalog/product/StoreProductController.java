@@ -6,7 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
 import ps.emall.catalog.common.validation.OnCreate;
@@ -15,9 +22,7 @@ import ps.emall.catalog.product.light.ProductLightDto;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
 import ps.emall.catalog.product.product_variant.ProductVariantService;
 import ps.emall.catalog.product.summary.ProductSummary;
-import ps.emall.catalog.security.SecurityContextUtil;
 import ps.emall.catalog.security.SecurityContextUtilBean;
-import ps.emall.catalog.security.dto.StoreRef;
 
 import java.util.List;
 
@@ -31,7 +36,6 @@ public class StoreProductController {
     private final ProductService productService;
     private final ProductVariantService productVariantService;
     private final SecurityContextUtilBean auth;
-
 
     @PostMapping("/all")
     public EMallsResponseEntity<PaginatedResponse<ProductLightDto>> getAllLight(@PathVariable Long storeId, @RequestBody ProductFilter filter, Pageable pageable) {

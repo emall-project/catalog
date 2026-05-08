@@ -3,7 +3,14 @@ package ps.emall.catalog.product.summary;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import ps.emall.catalog.attribute.Attribute;
@@ -19,15 +26,16 @@ import ps.emall.catalog.product.product_variant.ProductVariant;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttribute;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
-
 
     @Override
     public AgeDistribution getAgeDistribution(Specification<Product> spec) {
@@ -201,7 +209,6 @@ public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
                 ))
                 .toList();
     }
-
 
     @Override
     public PriceRange getPriceRange(Specification<Product> spec) {

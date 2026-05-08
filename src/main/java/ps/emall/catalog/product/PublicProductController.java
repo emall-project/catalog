@@ -2,7 +2,13 @@ package ps.emall.catalog.product;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ps.emall.catalog.common.audience.TargetedAudience;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.common.response.EMallsResponseEntity;
@@ -51,15 +57,13 @@ public class PublicProductController {
 
     @GetMapping("{id}/similar")
     public EMallsResponseEntity<List<ProductLightDto>> getSimilar(@PathVariable("id") Long id, @RequestParam Integer topK) {
-        List<ProductLightDto> products= productService.getSimilar(id, topK);
+        List<ProductLightDto> products = productService.getSimilar(id, topK);
         return EMallsResponseEntity.ok(products);
     }
-
 
     @GetMapping("/{id}")
     public EMallsResponseEntity<ProductDto> getById(@PathVariable Long id) {
         ProductDto dto = productService.getById(id, true);
-
         return EMallsResponseEntity.ok(dto);
     }
 

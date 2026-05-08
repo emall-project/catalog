@@ -9,7 +9,11 @@ import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttribu
 import ps.emall.catalog.tag.Tag;
 import ps.emall.catalog.tag.TagMapper;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProductMapper {
@@ -79,12 +83,11 @@ public class ProductMapper {
             productJob.setTags(entity.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
         }
         if (entity.getVariants() != null) {
-            Map<String, Set<String>> attributes =  new HashMap<>();
+            Map<String, Set<String>> attributes = new HashMap<>();
             for (ProductVariant productVariant : entity.getVariants()) {
                 if (productVariant.getVariantAttributes() != null) {
                     List<VariantAttribute> variantAttributes = productVariant.getVariantAttributes();
                     for (VariantAttribute variantAttribute : variantAttributes) {
-                        // TODO: check if option is null when u add other type of attributes like text..etc
                         appendOptionSafely(attributes,
                                 variantAttribute.getAttribute().getName(),
                                 variantAttribute.getOption().getValue());

@@ -24,7 +24,7 @@ public interface ProductVariantRepository
     void deleteByProductId(Long productId);
 
     @Query("""
-        SELECT v 
+        SELECT v
         FROM ProductVariant v
         JOIN v.media m
         WHERE m.mediumId = :mediumId
@@ -35,9 +35,9 @@ public interface ProductVariantRepository
 
 
     @Query("""
-        SELECT v 
+        SELECT v
         FROM ProductVariant v
-        WHERE v.product.storeId = :storeId AND 
+        WHERE v.product.storeId = :storeId AND
          v.product.id = :productId AND
          v.id = :id
     """)

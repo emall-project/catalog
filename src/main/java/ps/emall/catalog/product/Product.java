@@ -1,6 +1,5 @@
 package ps.emall.catalog.product;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -15,7 +14,8 @@ import ps.emall.catalog.common.base.EMallsBaseEntity;
 import ps.emall.catalog.product.product_variant.ProductVariant;
 import ps.emall.catalog.tag.Tag;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(
@@ -111,11 +111,10 @@ public class Product extends EMallsBaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ProductVariant> variants = new ArrayList<>();
-//
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "default_id")
     private ProductVariant defaultVariant;
-
 
     public void addVariant(ProductVariant variant) {
         if (this.variants == null) {

@@ -4,7 +4,6 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -13,25 +12,32 @@ import ps.emall.catalog.brand.Brand;
 import ps.emall.catalog.brand.BrandRepository;
 import ps.emall.catalog.category.Category;
 import ps.emall.catalog.category.CategoryRepository;
-import ps.emall.catalog.client.campaigns.ActiveProductDiscountDto;
 import ps.emall.catalog.client.interaction.InteractionClient;
 import ps.emall.catalog.client.interaction.InteractionResponse;
 import ps.emall.catalog.client.interaction.product_similarity.SimilarProductsQuery;
 import ps.emall.catalog.client.interaction.product_similarity.SimilarProductsResult;
-import ps.emall.catalog.client.media_manager.FileLightDto;
+import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.info.ProductInfoDto;
 import ps.emall.catalog.product.info.ProductInfoMapper;
-import ps.emall.catalog.product.light.ProductLightMapper;
-import ps.emall.catalog.product.summary.*;
-import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.light.ProductLightDto;
-import ps.emall.catalog.product.light.ProductLightRow;
-import ps.emall.catalog.product.product_variant.*;
+import ps.emall.catalog.product.light.ProductLightLookup;
+import ps.emall.catalog.product.product_variant.ProductVariant;
+import ps.emall.catalog.product.product_variant.ProductVariantDto;
+import ps.emall.catalog.product.product_variant.ProductVariantMapper;
+import ps.emall.catalog.product.product_variant.ProductVariantService;
+import ps.emall.catalog.product.summary.AgeDistribution;
+import ps.emall.catalog.product.summary.AttributeSummary;
+import ps.emall.catalog.product.summary.AudienceDistribution;
+import ps.emall.catalog.product.summary.BrandDistribution;
+import ps.emall.catalog.product.summary.CategoryDistribution;
+import ps.emall.catalog.product.summary.PriceRange;
+import ps.emall.catalog.product.summary.ProductSummary;
 import ps.emall.catalog.tag.Tag;
-import ps.emall.catalog.tag.TagService;
 import ps.emall.catalog.tag.TagMapper;
+import ps.emall.catalog.tag.TagService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -59,8 +65,8 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .toList();
 
-        ProductLightLookup lightLookup = loadProductLightLookup(productIds, true);
-        Page<ProductLightDto> dtoPage = productPage.map(productId -> toProductLightDto(productId, lightLookup, true));
+        ProductLightLookup lightLookup = productServiceHelper.loadProductLightLookup(productIds, true);
+        Page<ProductLightDto> dtoPage = productPage.map(productId -> productServiceHelper.toProductLightDto(productId, lightLookup, true));
 
         return PaginatedResponse.of(dtoPage);
     }
@@ -94,96 +100,16 @@ public class ProductServiceImpl implements ProductService {
         Specification<Product> spec = productSpecificationBuilder.build(filter);
         List<Long> productIds = productRepository.findIdsBySpecification(spec);
 
-        ProductLightLookup lightLookup = loadProductLightLookup(productIds, false);
+        ProductLightLookup lightLookup = productServiceHelper.loadProductLightLookup(productIds, false);
         return productIds.stream()
-                .map(productId -> toProductLightDto(productId, lightLookup, false))
+                .map(productId -> productServiceHelper.toProductLightDto(productId, lightLookup, false))
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ProductLightDto> getLightByIds(List<Long> productIds) {
-        return loadActiveProductLightDtos(productIds);
-    }
-
-    private ProductLightLookup loadProductLightLookup(List<Long> productIds, boolean includeDiscounts) {
-        if (productIds == null || productIds.isEmpty()) {
-            return ProductLightLookup.empty();
-        }
-
-        List<ProductLightRow> rows = productRepository.findLightRowsByProductIds(productIds);
-
-        Map<Long, ProductLightRow> rowMap = new HashMap<>();
-        List<UUID> mediaIds = new ArrayList<>();
-
-        for (ProductLightRow row : rows) {
-            rowMap.put(row.getProductId(), row);
-            if (row.getMediumId() != null) {
-                mediaIds.add(row.getMediumId());
-            }
-        }
-
-        Map<UUID, FileLightDto> mediaMap = productServiceHelper.getMedia(mediaIds);
-        Map<Long, ActiveProductDiscountDto> discountMap = includeDiscounts
-                ? productServiceHelper.getActiveDiscounts(productIds)
-                : Collections.emptyMap();
-
-        return new ProductLightLookup(rowMap, mediaMap, discountMap);
-    }
-
-    private ProductLightDto toProductLightDto(
-            Long productId,
-            ProductLightLookup lightLookup,
-            boolean includeDiscounts
-    ) {
-        ProductLightDto dto = ProductLightMapper.toProductLightDto(
-                productId,
-                lightLookup.rowMap(),
-                lightLookup.mediaMap()
-        );
-
-        if (!includeDiscounts) {
-            return dto;
-        }
-
-        return productServiceHelper.injectLightDiscount(dto, lightLookup.discountMap());
-    }
-
-    private List<ProductLightDto> toActiveProductLightDtos(
-            List<Long> productIds,
-            ProductLightLookup lightLookup,
-            boolean includeDiscounts
-    ) {
-        return productIds.stream()
-                .map(productId -> toProductLightDto(productId, lightLookup, includeDiscounts))
-                .filter(dto -> dto.getName() != null)
-                .filter(dto -> Boolean.TRUE.equals(dto.getIsActive()))
-                .toList();
-    }
-
-    private List<Long> sanitizeProductIds(List<Long> productIds) {
-        if (productIds == null || productIds.isEmpty()) {
-            return List.of();
-        }
-
-        return productIds.stream()
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
-    }
-
-    private record ProductLightLookup(
-            Map<Long, ProductLightRow> rowMap,
-            Map<UUID, FileLightDto> mediaMap,
-            Map<Long, ActiveProductDiscountDto> discountMap
-    ) {
-        private static ProductLightLookup empty() {
-            return new ProductLightLookup(
-                    Collections.emptyMap(),
-                    Collections.emptyMap(),
-                    Collections.emptyMap()
-            );
-        }
+        return productServiceHelper.loadActiveProductLightDtos(productIds);
     }
 
     @Override
@@ -258,54 +184,24 @@ public class ProductServiceImpl implements ProductService {
             InteractionResponse<SimilarProductsResult> response = interactionClient.getSimilarProducts(query);
             if (response == null || response.getData() == null || response.getData().isSuccess() == false) {
                 log.warn("Could not fetch similar products from interaction productId={}. Using catalog fallback.", id);
-                return getFallbackSimilarProducts(product, topK);
+                return productServiceHelper.getFallbackSimilarProducts(product, topK);
             }
             SimilarProductsResult similarProductsResult = response.getData();
-            List<Long> productIds = sanitizeProductIds(similarProductsResult.getProductIds());
-            ProductLightLookup lightLookup = loadProductLightLookup(productIds, true);
-            return toActiveProductLightDtos(productIds, lightLookup, true);
-
+            List<Long> productIds = productServiceHelper.sanitizeProductIds(similarProductsResult.getProductIds());
+            ProductLightLookup lightLookup = productServiceHelper.loadProductLightLookup(productIds, true);
+            return productServiceHelper.toActiveProductLightDtos(productIds, lightLookup, true);
 
         } catch (FeignException e) {
             log.warn("Could not fetch similar products from interaction productId={}, status={}. Using catalog fallback.",
                     id, e.status()
             );
-            return getFallbackSimilarProducts(product, topK);
+            return productServiceHelper.getFallbackSimilarProducts(product, topK);
         }
 
-    }
-
-    private List<ProductLightDto> getFallbackSimilarProducts(Product product, Integer topK) {
-        int limit = topK == null || topK < 1 ? 8 : topK;
-        List<Long> productIds = productRepository.findFallbackSimilarProducts(
-                        product.getId(),
-                        product.getMallId(),
-                        product.getCategory().getId(),
-                        product.getBrand().getId(),
-                        PageRequest.of(0, limit)
-                )
-                .stream()
-                .map(Product::getId)
-                .toList();
-
-        ProductLightLookup lightLookup = loadProductLightLookup(productIds, true);
-        return toActiveProductLightDtos(productIds, lightLookup, true);
-    }
-
-    private List<ProductLightDto> loadActiveProductLightDtos(List<Long> productIds) {
-        List<Long> sanitizedIds = sanitizeProductIds(productIds);
-        if (sanitizedIds.isEmpty()) {
-            return List.of();
-        }
-
-        ProductLightLookup lightLookup = loadProductLightLookup(sanitizedIds, true);
-        return toActiveProductLightDtos(sanitizedIds, lightLookup, true);
     }
 
     @Override
     public ProductDto create(Long mallId, Long storeId, ProductDto dto) {
-
-        // validation
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(ProductExceptions::categoryNotFound);
 
@@ -354,9 +250,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    // update only product basic info
     public ProductDto update(Long mallId, Long storeId, ProductDto dto) {
-
         Product existing = productRepository.findById(dto.getId())
                 .orElseThrow(ProductExceptions::productNotFound);
 
@@ -382,8 +276,6 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.productDoesNotBelongToStore();
         }
 
-        // Resolve tags
-
         List<Tag> tags = new ArrayList<>();
         if (dto.getTags() != null) {
             tags = tagService.resolveTags(dto.getTags())
@@ -392,14 +284,13 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toCollection(ArrayList::new));
         }
 
-
         if (Boolean.TRUE.equals(existing.getIsActive()) && Boolean.FALSE.equals(dto.getIsActive())) {
             deactivation(existing);
         }
         if (Boolean.FALSE.equals(existing.getIsActive()) && Boolean.TRUE.equals(dto.getIsActive())) {
             activation(existing);
         }
-        // Update basic fields
+
         existing.setName(dto.getName());
         existing.setSlug(dto.getSlug());
         existing.setTargetedAudience(dto.getTargetedAudience());
@@ -424,7 +315,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findByStoreIdAndId(storeId, id)
                 .orElseThrow(ProductExceptions::productNotFound);
 
-        // todo check if there any order, discount, variant
         productServiceHelper.publishDeletedJob(product.getId());
         productRepository.delete(product);
     }

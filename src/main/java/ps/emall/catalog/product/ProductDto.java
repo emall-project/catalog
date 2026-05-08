@@ -10,7 +10,6 @@ import ps.emall.catalog.common.base.EMallsBaseDto;
 import ps.emall.catalog.common.validation.OnCreate;
 import ps.emall.catalog.common.validation.OnUpdate;
 import ps.emall.catalog.product.product_variant.ProductVariantDto;
-import ps.emall.catalog.tag.Tag;
 import ps.emall.catalog.tag.TagDto;
 
 import java.util.List;
@@ -75,10 +74,10 @@ public class ProductDto extends EMallsBaseDto {
     private Long storeId;
 
     @Valid
-    private List<TagDto> tags;//create if not found
+    private List<TagDto> tags;
 
     @Valid
     @NotNull(groups = OnCreate.class, message = "product.variants.notnull")
     @Null(groups = OnUpdate.class, message = "product.variants.null")
-    private List<ProductVariantDto> variants;//creat
+    private List<ProductVariantDto> variants;
 }

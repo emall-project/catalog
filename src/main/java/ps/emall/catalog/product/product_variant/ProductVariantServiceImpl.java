@@ -18,8 +18,8 @@ import ps.emall.catalog.product.Product;
 import ps.emall.catalog.product.ProductExceptions;
 import ps.emall.catalog.product.ProductRepository;
 import ps.emall.catalog.product.ProductServiceHelper;
-import ps.emall.catalog.product.product_media.ProductMediumMapper;
 import ps.emall.catalog.product.product_media.ProductMediumDto;
+import ps.emall.catalog.product.product_media.ProductMediumMapper;
 import ps.emall.catalog.product.product_variant.variant_attribute.VariantAttributeDto;
 
 import java.util.HashSet;
@@ -40,88 +40,69 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     public ProductVariantDto add(Long storeId, Long productId, ProductVariantDto dto) {
-        // Fetch product or throw
         Product product = productRepository.findByStoreIdAndId(storeId, productId)
                 .orElseThrow(ProductExceptions::productNotFound);
 
         validateMedia(dto.getMedia());
 
-        // Map DTO to entity
         ProductVariant variant = ProductVariantMapper.toEntity(dto, product);
 
-        // Add Media
         loadAndValidateMedia(dto, variant);
-
-        // Add attributes, checking duplicates
         loadAndValidateAttribute(dto, variant);
 
-        // Save the variant
         ProductVariant saved = productVariantRepository.saveAndFlush(variant);
 
         if (saved.getIsDefault()) {
             productVariantRepository.clearDefaultForProduct(variant.getProduct().getId());
             productRepository.updateDefaultVariant(variant.getProduct().getId(), variant.getId());
         }
-        // Convert to DTO and inject media
+
         ProductVariantDto savedDto = ProductVariantMapper.toDto(saved);
         return productServiceHelper.injectMedium(savedDto);
     }
 
     @Override
     public ProductVariantDto create(Long productId, ProductVariantDto dto) {
-        // Fetch product or throw
         Product product = productRepository.findById(productId)
                 .orElseThrow(ProductExceptions::productNotFound);
 
         validateMedia(dto.getMedia());
 
-        // Map DTO to entity
         ProductVariant variant = ProductVariantMapper.toEntity(dto, product);
 
-        // Add Media
         loadAndValidateMedia(dto, variant);
-
-        // Add attributes, checking duplicates
         loadAndValidateAttribute(dto, variant);
 
-        // Save the variant
         ProductVariant saved = productVariantRepository.saveAndFlush(variant);
 
-        // Convert to DTO and inject media
         ProductVariantDto savedDto = ProductVariantMapper.toDto(saved);
         return productServiceHelper.injectMedium(savedDto);
     }
+
     @Override
     public ProductVariantDto update(Long storeId, Long productId, ProductVariantDto dto) {
-
         ProductVariant existing = productVariantRepository.findByStoreIdAndProductIdAndId(storeId, productId, dto.getId()).orElseThrow(
                 ProductVariantExceptions::variantNotFound
         );
 
         validateMedia(dto.getMedia());
 
-        // basic field
         existing.setName(dto.getName());
         existing.setBasePrice(dto.getBasePrice());
 
-        // Add Media
         existing.getMedia().clear();
         loadAndValidateMedia(dto, existing);
 
         existing.getVariantAttributes().clear();
         loadAndValidateAttribute(dto, existing);
 
-        // default variant
         loadAndUpdateDefaultVariant(dto, existing);
 
-        // Save the variant
         ProductVariant saved = productVariantRepository.save(existing);
 
-        // Convert to DTO and inject media
         ProductVariantDto savedDto = ProductVariantMapper.toDto(saved);
         return productServiceHelper.injectMedium(savedDto);
     }
-
 
     @Override
     public void delete(Long storeId, Long productId, Long id) {
@@ -131,7 +112,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (variant.getIsDefault().equals(Boolean.TRUE)) {
             throw ProductVariantExceptions.defaultVariantDeletionNotAllowed();
         }
-        // make sure no orders on this
         productVariantRepository.delete(variant);
     }
 
@@ -140,14 +120,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     private void validateMedia(List<ProductMediumDto> media) {
-        // Validate media limit
         if (media == null || media.isEmpty()) {
             throw ProductVariantExceptions.atLeastOneMediaRequired();
         } else if (media.size() > 10) {
             throw ProductVariantExceptions.mediaLimitExceeded();
         }
 
-        // Validate media orders & existence
         Set<Integer> orders = new HashSet<>();
         media.forEach(medium -> {
             if (!orders.add(medium.getSortOrder())) {
@@ -155,7 +133,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             }
             try {
                 MediaResponse<FileDto> response = mediaManagerClient.getById(medium.getMediumId());
-                // validate response not empty
                 if (response == null || response.getData() == null) {
                     throw ProductVariantExceptions.mediumCouldNotBeValidated();
                 }
@@ -179,7 +156,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     private void loadAndValidateAttribute(ProductVariantDto dto, ProductVariant variant) {
-        // Add attributes, checking duplicates
         if (dto.getAttributes() != null && !dto.getAttributes().isEmpty()) {
             Set<Long> attributeIds = new HashSet<>();
             for (VariantAttributeDto va : dto.getAttributes()) {
@@ -187,7 +163,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 Attribute attribute = attributeRepository.findById(va.getAttributeId())
                         .orElseThrow(AttributeExceptions::attributeNotFound);
 
-                // Check for duplicate attributes
                 if (!attributeIds.add(attribute.getId())) {
                     throw ProductVariantExceptions.duplicateAttribute();
                 }
@@ -217,6 +192,5 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         productRepository.updateDefaultVariant(variant.getProduct().getId(), variant.getId());
 
         variant.setIsDefault(dto.getIsDefault());
-
     }
 }
