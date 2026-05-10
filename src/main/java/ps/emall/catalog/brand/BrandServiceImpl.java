@@ -7,11 +7,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ps.emall.catalog.category.Category;
+import ps.emall.catalog.category.CategoryDto;
+import ps.emall.catalog.category.CategoryMapper;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.common.page.PaginatedResponse;
+import ps.emall.catalog.common.util.MediaManagerHelper;
 import ps.emall.catalog.product.ProductRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,16 +31,24 @@ public class BrandServiceImpl implements BrandService {
     private final ProductRepository productRepository;
     private final BrandServiceHelper brandServiceHelper;
     private final BrandSpecificationBuilder brandSpecificationBuilder;
+    private final MediaManagerHelper mediaManagerHelper;
 
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponse<BrandDto> getAll(BrandFilter filter, Pageable pageable) {
         Specification<Brand> spec = brandSpecificationBuilder.build(filter);
+        Page<Brand> brandPage = brandRepository.findAll(spec, pageable);
+        List<UUID> imageIds = brandPage.getContent().stream()
+                .map(Brand::getImageId)
+                .toList();
 
-        Page<BrandDto> page = brandRepository.findAll(spec, pageable)
-                .map(BrandMapper::toDto)
-                .map(brandServiceHelper::injectImageUrl)
-                .map(this::withProductsCount);
+        Map<UUID, FileDto> imagesMap = mediaManagerHelper.getMedia(imageIds);
+
+        Page<BrandDto> page = brandPage.map(brand -> {
+            FileDto image = imagesMap.get(brand.getImageId());
+
+            return withProductsCount(BrandMapper.toDto(brand, image));
+        });
         return PaginatedResponse.of(page);
     }
 
@@ -45,12 +60,23 @@ public class BrandServiceImpl implements BrandService {
                 ? brandRepository.findAll()
                 : brandRepository.findAll(spec);
 
+        List<UUID> imageIds = brands.stream()
+                .map(Brand::getImageId)
+                .toList();
 
-        return brands.stream()
-                .map(BrandMapper::toDto)
-                .map(brandServiceHelper::injectImageUrl)
-                .map(this::withProductsCount)
-                .collect(Collectors.toList());
+        Map<UUID, FileDto> imagesMap = mediaManagerHelper.getMedia(imageIds);
+
+        List<BrandDto> result = new ArrayList<>();
+
+        for (Brand brand : brands) {
+            FileDto image = imagesMap.get(brand.getImageId());
+
+            BrandDto dto = BrandMapper.toDto(brand, image);
+            withProductsCount(dto);
+            result.add(dto);
+        }
+
+        return result;
     }
 
     @Override
@@ -59,7 +85,7 @@ public class BrandServiceImpl implements BrandService {
             throw BrandExceptions.slugExists();
         }
 
-        FileDto image = brandServiceHelper.getAndValidatedImage(dto.getImageId());
+        FileDto image = mediaManagerHelper.getAndValidatedImage(dto.getImageId());
 
         Brand brand = BrandMapper.toEntity(dto);
         Brand saved = brandRepository.save(brand);
@@ -71,7 +97,7 @@ public class BrandServiceImpl implements BrandService {
         Brand existing = brandRepository.findById(dto.getId())
                 .orElseThrow(BrandExceptions::brandNotFound);
 
-        FileDto image = brandServiceHelper.getAndValidatedImage(dto.getImageId());
+        FileDto image = mediaManagerHelper.getAndValidatedImage(dto.getImageId());
 
         if (!existing.getSlug().equals(dto.getSlug())
                 && brandRepository.existsBySlug(dto.getSlug())) {

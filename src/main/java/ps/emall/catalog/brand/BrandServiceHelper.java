@@ -41,34 +41,4 @@ public class BrandServiceHelper {
             throw e;
         }
     }
-
-    public boolean isImage(String mimeType) {
-        return mimeType != null && mimeType.startsWith("image/");
-    }
-
-    public FileDto getAndValidatedImage(UUID imageId) {
-        try {
-            MediaResponse<FileDto> response = mediaManagerClient.getById(imageId);
-            // validate response not empty
-            if (response == null || response.getData() == null) {
-                throw BrandExceptions.imageCouldNotBeValidated();
-            }
-
-            FileDto fileDto = response.getData();
-
-            // validate file type
-            if (!isImage(fileDto.getMimeType())) {
-                throw BrandExceptions.invalidFileType();
-            }
-
-            return response.getData();
-
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw BrandExceptions.imageNotFound();
-            }
-            throw BrandExceptions.imageCouldNotBeValidated();
-        }
-    }
-
 }
