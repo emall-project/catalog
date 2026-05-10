@@ -1,5 +1,6 @@
 package ps.emall.catalog.product.info;
 
+import ps.emall.catalog.client.media_manager.FileLightDto;
 import ps.emall.catalog.product.Product;
 
 import java.util.List;
@@ -10,6 +11,10 @@ public class ProductInfoMapper {
     private ProductInfoMapper() {}
 
     public static ProductInfoDto toInfoDto(Product entity) {
+        return toInfoDto(entity, null);
+    }
+
+    public static ProductInfoDto toInfoDto(Product entity, FileLightDto medium) {
         if (entity == null) return null;
 
         List<ProductInfoDto.VariantPriceInfoDto> variants = entity.getVariants() == null
@@ -36,6 +41,7 @@ public class ProductInfoMapper {
                 .variants(variants)
                 .storeId(entity.getStoreId())
                 .mallId(entity.getMallId())
+                .medium(medium)
                 .build();
     }
 }
