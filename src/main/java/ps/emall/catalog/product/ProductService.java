@@ -19,6 +19,8 @@ public interface ProductService {
 
     List<ProductLightDto> getLightByIds(List<Long> productIds);
 
+    List<ProductLightDto> getRandomLight(Integer limit);
+
     ProductDto create(Long mallId, Long storeId, ProductDto productDto);
 
     ProductDto update(Long mallId, Long storeId, ProductDto productDto);

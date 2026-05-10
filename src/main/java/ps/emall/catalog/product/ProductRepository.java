@@ -118,6 +118,14 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             Pageable pageable
     );
 
+    @Query("""
+            SELECT p.id
+            FROM Product p
+            WHERE p.isActive = true
+            ORDER BY function('random')
+            """)
+    List<Long> findRandomActiveProductIds(Pageable pageable);
+
 
     Optional<Product> findByIdAndIsActive(Long id, Boolean isActive);
 }

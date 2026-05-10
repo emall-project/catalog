@@ -22,6 +22,7 @@ import ps.emall.catalog.client.media_manager.FileLightDto;
 import ps.emall.catalog.product.info.ProductInfoDto;
 import ps.emall.catalog.product.info.ProductInfoMapper;
 import ps.emall.catalog.product.light.ProductLightMapper;
+import ps.emall.catalog.product.product_media.ProductMedium;
 import ps.emall.catalog.product.summary.*;
 import ps.emall.catalog.common.page.PaginatedResponse;
 import ps.emall.catalog.product.light.ProductLightDto;
@@ -104,6 +105,16 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public List<ProductLightDto> getLightByIds(List<Long> productIds) {
         return loadActiveProductLightDtos(productIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductLightDto> getRandomLight(Integer limit) {
+        int safeLimit = limit == null || limit < 1 ? 10 : Math.min(limit, 50);
+        List<Long> productIds = productRepository.findRandomActiveProductIds(PageRequest.of(0, safeLimit));
+
+        ProductLightLookup lightLookup = loadProductLightLookup(productIds, true);
+        return toActiveProductLightDtos(productIds, lightLookup, true);
     }
 
     private ProductLightLookup loadProductLightLookup(List<Long> productIds, boolean includeDiscounts) {
@@ -238,7 +249,30 @@ public class ProductServiceImpl implements ProductService {
             throw ProductExceptions.productNotActive();
         }
 
-        return ProductInfoMapper.toInfoDto(product);
+        return ProductInfoMapper.toInfoDto(product, getDefaultMedium(product));
+    }
+
+    private FileLightDto getDefaultMedium(Product product) {
+        UUID mediumId = getDefaultMediumId(product);
+        if (mediumId == null) {
+            return null;
+        }
+
+        return productServiceHelper.getMedia(List.of(mediumId)).get(mediumId);
+    }
+
+    private UUID getDefaultMediumId(Product product) {
+        if (product == null || product.getDefaultVariant() == null || product.getDefaultVariant().getMedia() == null) {
+            return null;
+        }
+
+        return product.getDefaultVariant().getMedia().stream()
+                .filter(Objects::nonNull)
+                .min(Comparator.comparing(medium -> Optional
+                        .ofNullable(medium.getSortOrder())
+                        .orElse(Integer.MAX_VALUE)))
+                .map(ProductMedium::getMediumId)
+                .orElse(null);
     }
 
     @Override

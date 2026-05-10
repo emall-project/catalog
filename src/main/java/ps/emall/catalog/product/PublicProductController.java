@@ -49,6 +49,11 @@ public class PublicProductController {
         return EMallsResponseEntity.ok(productService.getLightByIds(request.getProductIds()));
     }
 
+    @GetMapping("/random")
+    public EMallsResponseEntity<List<ProductLightDto>> getRandom(@RequestParam(defaultValue = "10") Integer limit) {
+        return EMallsResponseEntity.ok(productService.getRandomLight(limit));
+    }
+
     @GetMapping("{id}/similar")
     public EMallsResponseEntity<List<ProductLightDto>> getSimilar(@PathVariable("id") Long id, @RequestParam Integer topK) {
         List<ProductLightDto> products= productService.getSimilar(id, topK);
