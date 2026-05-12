@@ -1,6 +1,7 @@
 package ps.emall.catalog.category;
 
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfig;
+import ps.emall.catalog.category.audience_config.CategoryAudienceConfigDto;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigMapper;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.client.media_manager.FileLightDto;
@@ -70,6 +71,34 @@ public class CategoryMapper {
     }
 
     public static CategoryDto toDto(Category category, FileDto image) {
+        return toDto(category, image, category.getAudienceConfig());
+    }
+
+    public static CategoryDto toDto(Category category, Set<CategoryAudienceConfig> audienceConfig) {
+        CategoryDto categoryDto = CategoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .slug(category.getSlug())
+                .targetedAudience(category.getTargetedAudience())
+                .ageGroup(category.getAgeGroup())
+                .isActive(category.getIsActive())
+                .imageId(category.getImageId())
+                .depthLevel(category.getDepthLevel())
+                .createdAt(category.getCreatedAt())
+                .createdBy(category.getCreatedBy())
+                .updatedAt(category.getUpdatedAt())
+                .updatedBy(category.getUpdatedBy())
+                .audienceConfig(toAudienceConfigDtos(audienceConfig))
+                .build();
+
+        if (category.getParent() != null) {
+            categoryDto.setParentId(category.getParent().getId());
+        }
+
+        return categoryDto;
+    }
+
+    public static CategoryDto toDto(Category category, FileDto image, Set<CategoryAudienceConfig> audienceConfig) {
         CategoryDto categoryDto = CategoryDto.builder()
                 .id(category.getId())
                 .name(category.getName())
@@ -84,13 +113,7 @@ public class CategoryMapper {
                 .updatedAt(category.getUpdatedAt())
                 .updatedBy(category.getUpdatedBy())
                 .image(image)
-                .audienceConfig(
-                        category.getAudienceConfig() != null
-                                ? category.getAudienceConfig().stream()
-                                .map(CategoryAudienceConfigMapper::toDto)
-                                .collect(Collectors.toSet())
-                                : new HashSet<>()
-                )
+                .audienceConfig(toAudienceConfigDtos(audienceConfig))
                 .build();
 
         if (category.getParent() != null) {
@@ -99,6 +122,15 @@ public class CategoryMapper {
 
         return categoryDto;
     }
+
+    private static Set<CategoryAudienceConfigDto> toAudienceConfigDtos(Set<CategoryAudienceConfig> audienceConfig) {
+        return audienceConfig != null
+                ? audienceConfig.stream()
+                .map(CategoryAudienceConfigMapper::toDto)
+                .collect(Collectors.toSet())
+                : new HashSet<>();
+    }
+
     public static CategoryLightDto toLightDto(Category category) {
         return CategoryLightDto.builder()
                 .id(category.getId())
