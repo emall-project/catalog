@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfig;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigDto;
 import ps.emall.catalog.category.audience_config.CategoryAudienceConfigMapper;
+import ps.emall.catalog.category.audience_config.CategoryAudienceConfigRepository;
 import ps.emall.catalog.client.media_manager.FileDto;
 import ps.emall.catalog.client.media_manager.FileLightDto;
 import ps.emall.catalog.common.page.PaginatedResponse;
@@ -17,6 +18,7 @@ import ps.emall.catalog.common.util.MediaManagerHelper;
 import ps.emall.catalog.product.ProductRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,12 +31,15 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryServiceHelper categoryServiceHelper;
     private final CategorySpecificationBuilder specificationBuilder;
     private final MediaManagerHelper mediaManagerHelper;
+    private final CategoryAudienceConfigRepository categoryAudienceConfigRepository;
 
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponse<CategoryDto> getAll(CategoryFilter categoryFilter, Pageable pageable) {
         Specification<Category> spec = specificationBuilder.build(categoryFilter);
         Page<Category> categoryPage = categoryRepository.findAll(spec, pageable);
+        Map<Long, Set<CategoryAudienceConfig>> audienceConfigsByCategoryId =
+                getAudienceConfigsByCategoryId(categoryPage.getContent());
 
         List<UUID> imageIds = categoryPage.getContent().stream()
                 .map(Category::getImageId)
@@ -44,8 +49,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         Page<CategoryDto> page = categoryPage.map(category -> {
             FileDto image = imagesMap.get(category.getImageId());
+            Set<CategoryAudienceConfig> audienceConfigs = audienceConfigsByCategoryId
+                    .getOrDefault(category.getId(), Collections.emptySet());
 
-            return withProductsCount(CategoryMapper.toDto(category, image));
+            return withProductsCount(CategoryMapper.toDto(category, image, audienceConfigs));
         });
         return PaginatedResponse.of(page);
     }
@@ -81,6 +88,8 @@ public class CategoryServiceImpl implements CategoryService {
                 ? categoryRepository.findAll()
                 : categoryRepository.findAll(spec);
 
+        Map<Long, Set<CategoryAudienceConfig>> audienceConfigsByCategoryId =
+                getAudienceConfigsByCategoryId(categories);
 
         List<UUID> imageIds = categories.stream()
                 .map(Category::getImageId)
@@ -92,8 +101,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         for (Category category : categories) {
             FileDto image = imagesMap.get(category.getImageId());
+            Set<CategoryAudienceConfig> audienceConfigs = audienceConfigsByCategoryId
+                    .getOrDefault(category.getId(), Collections.emptySet());
 
-            CategoryDto dto = CategoryMapper.toDto(category, image);
+            CategoryDto dto = CategoryMapper.toDto(category, image, audienceConfigs);
             withProductsCount(dto);
             result.add(dto);
         }
@@ -304,6 +315,22 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryDto withProductsCount(CategoryDto dto) {
         dto.setProductsCount(productRepository.countByCategory_Id(dto.getId()));
         return dto;
+    }
+
+    private Map<Long, Set<CategoryAudienceConfig>> getAudienceConfigsByCategoryId(Collection<Category> categories) {
+        List<Long> categoryIds = categories.stream()
+                .map(Category::getId)
+                .toList();
+
+        if (categoryIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        return categoryAudienceConfigRepository.findByCategory_IdIn(categoryIds).stream()
+                .collect(Collectors.groupingBy(
+                        config -> config.getCategory().getId(),
+                        Collectors.toSet()
+                ));
     }
 
     private CategoryTreeDto withProductsCount(CategoryTreeDto dto) {
