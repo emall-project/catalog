@@ -52,7 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
             Set<CategoryAudienceConfig> audienceConfigs = audienceConfigsByCategoryId
                     .getOrDefault(category.getId(), Collections.emptySet());
 
-            return withProductsCount(CategoryMapper.toDto(category, image, audienceConfigs));
+            return withProductsCount(withAudienceConfigImages(CategoryMapper.toDto(category, image, audienceConfigs)));
         });
         return PaginatedResponse.of(page);
     }
@@ -104,7 +104,7 @@ public class CategoryServiceImpl implements CategoryService {
             Set<CategoryAudienceConfig> audienceConfigs = audienceConfigsByCategoryId
                     .getOrDefault(category.getId(), Collections.emptySet());
 
-            CategoryDto dto = CategoryMapper.toDto(category, image, audienceConfigs);
+            CategoryDto dto = withAudienceConfigImages(CategoryMapper.toDto(category, image, audienceConfigs));
             withProductsCount(dto);
             result.add(dto);
         }
@@ -157,14 +157,14 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto getById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
-        return withProductsCount(categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category)));
+        return withProductsCount(withImages(CategoryMapper.toDto(category)));
     }
 
     @Override
     public CategoryDto getActiveById(Long id) {
         Category category = categoryRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
-        return withProductsCount(categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category)));
+        return withProductsCount(withImages(CategoryMapper.toDto(category)));
     }
 
     @Override
@@ -172,14 +172,14 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto getBySlug(String slug) {
         Category category = categoryRepository.findBySlug(slug)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
-        return withProductsCount(categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category)));
+        return withProductsCount(withImages(CategoryMapper.toDto(category)));
     }
 
     @Override
     public CategoryDto getActiveBySlug(String slug) {
         Category category = categoryRepository.findBySlugAndIsActiveTrue(slug)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
-        return withProductsCount(categoryServiceHelper.injectImageUrl(CategoryMapper.toDto(category)));
+        return withProductsCount(withImages(CategoryMapper.toDto(category)));
     }
 
     @Override
@@ -277,7 +277,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.getAudienceConfig().add(config);
         Category saved = categoryRepository.save(category);
 
-        return withProductsCount(CategoryMapper.toDto(saved));
+        return withProductsCount(withImages(CategoryMapper.toDto(saved)));
     }
 
     @Override
@@ -314,6 +314,35 @@ public class CategoryServiceImpl implements CategoryService {
 
     private CategoryDto withProductsCount(CategoryDto dto) {
         dto.setProductsCount(productRepository.countByCategory_Id(dto.getId()));
+        return dto;
+    }
+
+    private CategoryDto withImages(CategoryDto dto) {
+        return withAudienceConfigImages(categoryServiceHelper.injectImageUrl(dto));
+    }
+
+    private CategoryDto withAudienceConfigImages(CategoryDto dto) {
+        Set<CategoryAudienceConfigDto> configs = dto.getAudienceConfig();
+        if (configs == null || configs.isEmpty()) {
+            return dto;
+        }
+
+        List<UUID> imageIds = configs.stream()
+                .map(CategoryAudienceConfigDto::getImageId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (imageIds.isEmpty()) {
+            return dto;
+        }
+
+        Map<UUID, FileDto> imagesMap = mediaManagerHelper.getMedia(imageIds);
+        if (imagesMap == null || imagesMap.isEmpty()) {
+            return dto;
+        }
+
+        configs.forEach(config -> config.setImage(imagesMap.get(config.getImageId())));
         return dto;
     }
 
