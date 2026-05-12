@@ -12,6 +12,7 @@ import ps.emall.catalog.client.media_manager.MediaManagerClient;
 import ps.emall.catalog.client.media_manager.MediaResponse;
 import ps.emall.catalog.common.audience.AgeGroup;
 import ps.emall.catalog.common.audience.TargetedAudience;
+import ps.emall.catalog.common.util.MediaManagerHelper;
 import ps.emall.catalog.product.ProductRepository;
 
 import java.util.*;
@@ -24,7 +25,7 @@ public class CategoryServiceHelper {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final MediaManagerClient mediaManagerClient;
-
+    private final MediaManagerHelper mediaManagerHelper;
     public void deactivation(Category category) {
 
         List<Category> children = categoryRepository.findByParentId(category.getId());
@@ -191,134 +192,18 @@ public class CategoryServiceHelper {
     public CategoryAudienceConfigDto injectAudienceConfigImage(
             CategoryAudienceConfigDto dto
     ) {
-        try {
-            MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
-            dto.setImage(response.getData());
-            return dto;
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            log.error("Could not fetch audience config image from MediaManager imageId={}, status={}, message={}",
-                    dto.getImageId(), e.status(), e.getMessage());
-            throw e;
-        }
+        FileDto image = mediaManagerHelper.getAndValidatedImage(dto.getImageId());
+        dto.setImage(image);
+        return dto;
     }
 
     public CategoryDto injectImageUrl(CategoryDto dto) {
-        try {
-            MediaResponse<FileDto> response = mediaManagerClient.getById(dto.getImageId());
-            dto.setImage(response.getData());
-            return dto;
-
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            log.error("Could not fetch image File from MediaManager imageId={}, status={}, message={}",
-                    dto.getImageId(), e.status(), e.getMessage()
-            );
-            throw e;
-        }
+        FileDto image = mediaManagerHelper.getAndValidatedImage(dto.getImageId());
+        dto.setImage(image);
+        return dto;
     }
-
-
-    public Map<UUID, FileLightDto> getImagesLight(List<UUID> imageIds) {
-
-        if (imageIds == null || imageIds.isEmpty()) {
-            return null;
-        }
-
-        try {
-            // TODO REPLACE WITH endpoint that's return FileLightDto
-            MediaResponse<List<FileDto>> response = mediaManagerClient.getByIds(imageIds);
-
-            // validate response not empty
-            if (response == null || response.getData() == null) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            //inject image File
-            Map<UUID, FileLightDto> fileDtoMap = new HashMap<>();
-            for (FileDto fileDto : response.getData()) {
-                FileLightDto fileLightDto = new FileLightDto();
-                fileLightDto.setId(fileDto.getId());
-                fileLightDto.setSmallFileUrl(fileDto.getSmallFileUrl());
-                fileDtoMap.put(fileDto.getId(), fileLightDto);
-            }
-            return fileDtoMap;
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            log.error("Could not fetch media File from MediaManager status={}, message={}",
-                    e.status(), e.getMessage()
-            );
-            throw e;
-        }
-    }
-
-    public Map<UUID, FileDto> getImages(List<UUID> imageIds) {
-
-        if (imageIds == null || imageIds.isEmpty()) {
-            return null;
-        }
-
-        try {
-            // TODO REPLACE WITH endpoint that's return FileLightDto
-            MediaResponse<List<FileDto>> response = mediaManagerClient.getByIds(imageIds);
-
-            // validate response not empty
-            if (response == null || response.getData() == null) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            //inject image File
-            Map<UUID, FileDto> fileDtoMap = new HashMap<>();
-            for (FileDto fileDto : response.getData()) {
-                fileDtoMap.put(fileDto.getId(), fileDto);
-            }
-            return fileDtoMap;
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            log.error("Could not fetch media File from MediaManager status={}, message={}",
-                    e.status(), e.getMessage()
-            );
-            throw e;
-        }
-    }
-
-
 
     // Image Validation
-    public boolean isImage(String mimeType) {
-        return mimeType != null && mimeType.startsWith("image/");
-    }
-
-    public FileDto getAndValidatedImage(UUID imageId) {
-        try {
-            MediaResponse<FileDto> response = mediaManagerClient.getById(imageId);
-            // validate response not empty
-            if (response == null || response.getData() == null) {
-                throw CategoryExceptions.imageCouldNotBeValidated();
-            }
-
-            FileDto fileDto = response.getData();
-
-            // validate file type
-            if (!isImage(fileDto.getMimeType())) {
-                throw CategoryExceptions.invalidFileType();
-            }
-
-            return response.getData();
-
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw CategoryExceptions.imageNotFound();
-            }
-            throw CategoryExceptions.imageCouldNotBeValidated();
-        }
-    }
 
     public void validateAudienceConfigImages(Set<CategoryAudienceConfigDto> configs) {
         if (configs == null || configs.isEmpty()) {
@@ -326,7 +211,7 @@ public class CategoryServiceHelper {
         }
 
         for (var config : configs) {
-            getAndValidatedImage(config.getImageId());
+            mediaManagerHelper.getAndValidatedImage(config.getImageId());
         }
     }
 

@@ -41,6 +41,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     boolean existsByTags_Id(Long tagsId);
 
+    long countByTags_Id(Long tagsId);
+
     boolean existsBySlugIgnoreCaseAndStoreId(String slug, Long storeId);
 
     @Override
@@ -115,4 +117,15 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             Long brandId,
             Pageable pageable
     );
+
+    @Query("""
+            SELECT p.id
+            FROM Product p
+            WHERE p.isActive = true
+            ORDER BY function('random')
+            """)
+    List<Long> findRandomActiveProductIds(Pageable pageable);
+
+
+    Optional<Product> findByIdAndIsActive(Long id, Boolean isActive);
 }

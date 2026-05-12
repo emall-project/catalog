@@ -17,11 +17,15 @@ public interface ProductService {
 
     List<ProductLightDto> getAllProductList(ProductFilter filter);
 
+    List<ProductLightDto> getLightByIds(List<Long> productIds);
+
+    List<ProductLightDto> getRandomLight(Integer limit);
+
     ProductDto create(Long mallId, Long storeId, ProductDto productDto);
 
     ProductDto update(Long mallId, Long storeId, ProductDto productDto);
 
-    ProductDto getById(Long id);
+    ProductDto getById(Long id, Boolean onlyActive);
 
     ProductDto getByStoreIdAndId(Long storeId, Long id);
 

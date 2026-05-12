@@ -44,6 +44,16 @@ public class PublicProductController {
         return EMallsResponseEntity.ok(productsSummary);
     }
 
+    @PostMapping("/by-ids")
+    public EMallsResponseEntity<List<ProductLightDto>> getByIds(@RequestBody ProductIdsRequest request) {
+        return EMallsResponseEntity.ok(productService.getLightByIds(request.getProductIds()));
+    }
+
+    @GetMapping("/random")
+    public EMallsResponseEntity<List<ProductLightDto>> getRandom(@RequestParam(defaultValue = "10") Integer limit) {
+        return EMallsResponseEntity.ok(productService.getRandomLight(limit));
+    }
+
     @GetMapping("{id}/similar")
     public EMallsResponseEntity<List<ProductLightDto>> getSimilar(@PathVariable("id") Long id, @RequestParam Integer topK) {
         List<ProductLightDto> products= productService.getSimilar(id, topK);
@@ -53,7 +63,7 @@ public class PublicProductController {
 
     @GetMapping("/{id}")
     public EMallsResponseEntity<ProductDto> getById(@PathVariable Long id) {
-        ProductDto dto = productService.getById(id);
+        ProductDto dto = productService.getById(id, true);
 
         return EMallsResponseEntity.ok(dto);
     }

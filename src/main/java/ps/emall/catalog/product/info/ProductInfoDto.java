@@ -1,6 +1,7 @@
 package ps.emall.catalog.product.info;
 
 import lombok.*;
+import ps.emall.catalog.client.media_manager.FileLightDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,6 +24,7 @@ public class ProductInfoDto {
     private Long storeId;
     private Long mallId;
 
+    private FileLightDto medium;
     private List<VariantPriceInfoDto> variants;
 
     @Getter
