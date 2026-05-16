@@ -99,6 +99,7 @@ public class CategoryServiceImpl implements CategoryService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryTreeDto> getTree(Boolean isActive) {
 
         List<Category> categories = categoryRepository
@@ -148,6 +149,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDto getActiveById(Long id) {
         Category category = categoryRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(CategoryExceptions::categoryNotFound);
