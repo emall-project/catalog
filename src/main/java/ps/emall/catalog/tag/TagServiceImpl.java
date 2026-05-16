@@ -26,8 +26,7 @@ public class TagServiceImpl implements TagService {
     @Transactional(readOnly = true)
     public PaginatedResponse<TagDto> getAll(Specification<Tag> spec, Pageable pageable) {
         Page<TagDto> page =  tagRepository.findAll(spec, pageable)
-                .map(TagMapper::toDto)
-                .map(this::withProductsCount);
+                .map(TagMapper::toDto);
         return PaginatedResponse.of(page);
     }
 
@@ -39,7 +38,6 @@ public class TagServiceImpl implements TagService {
 
         return tags.stream()
                 .map(TagMapper::toDto)
-                .map(this::withProductsCount)
                 .collect(Collectors.toList());
     }
 
@@ -48,7 +46,6 @@ public class TagServiceImpl implements TagService {
     public TagDto findById(Long id) {
         return tagRepository.findById(id)
                 .map(TagMapper::toDto)
-                .map(this::withProductsCount)
                 .orElseThrow(TagExceptions::tagNotFound);
     }
 
@@ -57,7 +54,6 @@ public class TagServiceImpl implements TagService {
     public TagDto findByName(String name) {
         return tagRepository.findByNameIgnoreCase(name)
                 .map(TagMapper::toDto)
-                .map(this::withProductsCount)
                 .orElseThrow(TagExceptions::tagNotFound);
     }
 
@@ -69,7 +65,7 @@ public class TagServiceImpl implements TagService {
 
         Tag tag = TagMapper.toEntity(dto);
         Tag saved = tagRepository.save(tag);
-        return withProductsCount(TagMapper.toDto(saved));
+        return TagMapper.toDto(saved);
     }
 
     @Transactional
@@ -95,7 +91,7 @@ public class TagServiceImpl implements TagService {
 
         existing.setName(dto.getName());
         Tag saved = tagRepository.save(existing);
-        return withProductsCount(TagMapper.toDto(saved));
+        return TagMapper.toDto(saved);
     }
 
     @Override
@@ -119,11 +115,4 @@ public class TagServiceImpl implements TagService {
                     return tagRepository.save(tag);
                 });
     }
-
-    private TagDto withProductsCount(TagDto dto) {
-        dto.setProductsCount(productRepository.countByTags_Id(dto.getId()));
-        return dto;
-    }
-
-
 }

@@ -50,8 +50,6 @@ public class BrandDto extends EMallsBaseDto {
     @NotNull(message = "brand.isActive.notnull")
     private Boolean isActive;
 
-    private Long productsCount;
-
     @NotNull(message = "brand.imageId.notnull")
     private UUID imageId;
 
