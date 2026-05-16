@@ -53,6 +53,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BrandDto> getAllBrandsList(BrandFilter filter) {
         Specification<Brand> spec = brandSpecificationBuilder.build(filter);
 
@@ -127,6 +128,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BrandDto getActiveById(Long id) {
 
         return brandRepository.findByIdAndIsActiveTrue(id)
@@ -143,6 +145,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BrandDto getActiveBySlug(String slug) {
         return brandRepository.findBySlugAndIsActiveTrue(slug)
                 .map(BrandMapper::toDto)
