@@ -83,8 +83,6 @@ public class CategoryDto extends EMallsBaseDto {
 
     private Integer depthLevel;
 
-    private Long productsCount;
-
     @Valid
     private Set<CategoryAudienceConfigDto> audienceConfig;
 

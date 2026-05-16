@@ -47,8 +47,6 @@ public class AttributeDto extends EMallsBaseDto {
     @NotNull(message = "attribute.isActive.notnull")
     private Boolean isActive;
 
-    private Long productsCount;
-
     @Valid
     @NotNull(message = "attribute.options.notnull")
     private List<AttributeOptionDto> options;
